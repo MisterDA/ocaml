@@ -28,7 +28,7 @@ int socket_domain_table[] = {
 #if defined(HAS_IPV6)
   PF_INET6
 #else
-  0
+  PF_UNSPEC
 #endif
 };
 
