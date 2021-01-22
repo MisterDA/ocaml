@@ -35,7 +35,8 @@ CAMLprim value unix_socket(value cloexec, value domain, value type, value proto)
 
   #ifndef HAS_IPV6
   /* IPv6 requires WinSock2, we must raise an error on PF_INET6 */
-  if (Int_val(domain) >= sizeof(socket_domain_table)/sizeof(int)) {
+  if (Int_val(domain) == 2
+      && socket_domain_table[Int_val(domain)] == PF_UNSPEC) {
     win32_maperr(WSAEPFNOSUPPORT);
     uerror("socket", Nothing);
   }
