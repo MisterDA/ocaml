@@ -24,7 +24,7 @@ WIN_FILES = accept.c bind.c channels.c close.c \
   link.c listen.c lockf.c lseek.c nonblock.c \
   mkdir.c mmap.c open.c pipe.c read.c readlink.c rename.c \
   select.c sendrecv.c \
-  shutdown.c sleep.c socket.c sockopt.c startup.c stat.c \
+  shutdown.c sleep.c socket.c socketpair.c sockopt.c startup.c stat.c \
   symlink.c system.c times.c truncate.c unixsupport.c windir.c winwait.c \
   write.c winlist.c winworker.c windbug.c utimes.c
 

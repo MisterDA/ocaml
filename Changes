@@ -49,6 +49,12 @@ OCaml 4.11 maintenance branch
   (report by Emilio Jesús Gallego Arias, analysis and fix by Stephen Dolan,
    code by Xavier Leroy, review by Hugo Heuzard and Gabriel Scherer)
 
+### Otherlibs
+
+- #10192: Add support for Unix domain sockets on Windows and use them
+  to emulate Unix.socketpair (only available on Windows 1803+)
+  (Antonin Décimo, review by David Allsopp)
+
 OCaml 4.11.1 (31 August 2020)
 -----------------------------
 
