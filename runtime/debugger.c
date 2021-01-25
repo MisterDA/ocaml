@@ -64,10 +64,22 @@ void caml_debugger_cleanup_fork(void)
 #include <netdb.h>
 #else
 #define ATOM ATOM_WS
-#include <winsock.h>
+#include <winsock2.h>
+#include <mswsock.h>
 #undef ATOM
+/* Code duplication with otherlibs/unix/socketaddr.h is inevitable
+ * because pulling winsock2.h creates many naming conflicts. */
+#ifdef HAS_AFUNIX_H
+#include <afunix.h>
+#else
+struct sockaddr_un
+{
+    ADDRESS_FAMILY sun_family;     /* AF_UNIX */
+    char sun_path[108];            /* pathname */
+};
+#endif /* HAS_AFUNIX_H */
 #include <process.h>
-#endif
+#endif /* _WIN32 */
 
 #include "caml/fail.h"
 #include "caml/fix_code.h"
@@ -83,9 +95,7 @@ static value marshal_flags = Val_emptylist;
 static int sock_domain;         /* Socket domain for the debugger */
 static union {                  /* Socket address for the debugger */
   struct sockaddr s_gen;
-#ifndef _WIN32
   struct sockaddr_un s_unix;
-#endif
   struct sockaddr_in s_inet;
 } sock_addr;
 static int sock_addr_len;       /* Length of sock_addr */
@@ -173,7 +183,6 @@ void caml_debugger_init(void)
 {
   char * address;
   char_os * a;
-  size_t a_len;
   char * port, * p;
   struct hostent * host;
   int n;
@@ -210,7 +219,7 @@ void caml_debugger_init(void)
     if (*p == ':') { *p = 0; port = p+1; break; }
   }
   if (port == NULL) {
-#ifndef _WIN32
+    size_t a_len;
     /* Unix domain */
     sock_domain = PF_UNIX;
     sock_addr.s_unix.sun_family = AF_UNIX;
@@ -227,9 +236,6 @@ void caml_debugger_init(void)
     sock_addr_len =
       ((char *)&(sock_addr.s_unix.sun_path) - (char *)&(sock_addr.s_unix))
         + a_len;
-#else
-    caml_fatal_error("unix sockets not supported");
-#endif
   } else {
     /* Internet domain */
     sock_domain = PF_INET;
