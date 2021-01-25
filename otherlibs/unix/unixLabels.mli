@@ -1383,7 +1383,7 @@ type socket_domain = Unix.socket_domain =
 (** The type of socket domains.  Not all platforms support
     IPv6 sockets (type [PF_INET6]).
 
-    On Windows: [PF_UNIX] not implemented.  *)
+    On Windows: [PF_UNIX] supported since Windows 10 17063.  *)
 
 type socket_type = Unix.socket_type =
     SOCK_STREAM                 (** Stream socket *)
