@@ -1326,6 +1326,24 @@ AC_CHECK_TYPE(
 
 AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON])])
 
+## Unix domain sockets support
+
+AS_CASE([$host],
+  [*-*-mingw32|*-pc-windows],
+    [AC_CHECK_TYPE(
+      [struct sockaddr_un],
+      [AC_DEFINE([HAS_SOCKADDR_UN])], [],
+      [#include <afunix.h>])],
+  [AC_CHECK_TYPE(
+    [struct sockaddr_un],
+    [AC_DEFINE([HAS_SOCKADDR_UN])], [],
+[
+#include <sys/socket.h>
+#include <sys/un.h>
+]
+  )]
+)
+
 ## IPv6 support
 
 ipv6=true

@@ -24,7 +24,12 @@
 #include <sys/socket.h>
 
 int socket_domain_table[] = {
-  PF_UNIX, PF_INET,
+#ifdef HAS_SOCKADDR_UN
+  PF_UNIX,
+#else
+  PF_UNSPEC,
+#endif
+  PF_INET,
 #if defined(HAS_IPV6)
   PF_INET6
 #else

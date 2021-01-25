@@ -60,7 +60,9 @@ CAMLexport void caml_debugger_cleanup_fork(void)
 #ifndef _WIN32
 #include <sys/wait.h>
 #include <sys/socket.h>
+#ifdef HAS_SOCKADDR_UN
 #include <sys/un.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -68,6 +70,9 @@ CAMLexport void caml_debugger_cleanup_fork(void)
 #define ATOM ATOM_WS
 #include <winsock.h>
 #undef ATOM
+#ifdef HAS_SOCKADDR_UN
+#include <afunix.h>
+#endif
 #include <process.h>
 #endif
 
@@ -85,7 +90,7 @@ static value marshal_flags = Val_emptylist;
 static int sock_domain;         /* Socket domain for the debugger */
 static union {                  /* Socket address for the debugger */
   struct sockaddr s_gen;
-#ifndef _WIN32
+#ifdef HAS_SOCKADDR_UN
   struct sockaddr_un s_unix;
 #endif
   struct sockaddr_in s_inet;
@@ -181,7 +186,6 @@ void caml_debugger_init(void)
 {
   char * address;
   char_os * a;
-  size_t a_len;
   char * port, * p;
   struct hostent * host;
   int n;
@@ -216,7 +220,8 @@ void caml_debugger_init(void)
     if (*p == ':') { *p = 0; port = p+1; break; }
   }
   if (port == NULL) {
-#ifndef _WIN32
+#ifdef HAS_SOCKADDR_UN
+      size_t a_len;
     /* Unix domain */
     sock_domain = PF_UNIX;
     sock_addr.s_unix.sun_family = AF_UNIX;

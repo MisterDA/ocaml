@@ -17,17 +17,23 @@
 #define CAML_SOCKETADDR_H
 
 #include "caml/misc.h"
-#ifndef _WIN32
+#ifdef _WIN32
+#ifdef HAS_SOCKADDR_UN
+#include <afunix.h>
+#endif
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifdef HAS_SOCKADDR_UN
 #include <sys/un.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 
 union sock_addr_union {
   struct sockaddr s_gen;
-#ifndef _WIN32
+#ifdef HAS_SOCKADDR_UN
   struct sockaddr_un s_unix;
 #endif
   struct sockaddr_in s_inet;
