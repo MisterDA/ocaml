@@ -24,6 +24,9 @@
 #include <process.h>
 #include <sys/types.h>
 #include <winsock2.h>
+#ifdef HAS_SOCKADDR_UN
+#include <afunix.h>
+#endif
 #ifdef HAS_IPV6
 #include <ws2tcpip.h>
 #include <wspiapi.h>

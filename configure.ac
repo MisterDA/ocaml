@@ -1306,7 +1306,7 @@ AS_CASE([$host],
     sockets=true],
   [
     AC_CHECK_FUNC([socket])
-    AC_CHECK_FUNC([socketpair])
+    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR])])
     AC_CHECK_FUNC([bind])
     AC_CHECK_FUNC([listen])
     AC_CHECK_FUNC([accept])
