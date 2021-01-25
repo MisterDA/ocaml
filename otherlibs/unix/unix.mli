@@ -1309,8 +1309,10 @@ type socket_domain =
   | PF_INET                     (** Internet domain (IPv4) *)
   | PF_INET6                    (** Internet domain (IPv6) *)
 (** The type of socket domains.  Not all platforms support
-    IPv6 sockets (type [PF_INET6]).  Windows does not support
-    [PF_UNIX]. *)
+    IPv6 sockets (type [PF_INET6]).
+
+   On Windows: [PF_UNIX] supported since 4.13.0 on Windows 10 1803
+   and later.  *)
 
 type socket_type =
     SOCK_STREAM                 (** Stream socket *)
