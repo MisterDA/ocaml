@@ -1321,12 +1321,14 @@ AS_CASE([$host],
 
 AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS])])
 
-## socklen_t in sys/socket.h
+## socklen_t
 
-AC_CHECK_TYPE(
-  [socklen_t],
-  [AC_DEFINE([HAS_SOCKLEN_T])], [],
-  [#include <sys/socket.h>])
+AS_CASE([$host],
+  [*-*-mingw32|*-pc-windows],
+    [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
+      [#include <ws2tcpip.h>])],
+  [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
+    [#include <sys/socket.h>])])
 
 AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON])])
 
@@ -1334,13 +1336,23 @@ AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON])])
 
 ipv6=true
 
-AC_CHECK_TYPE(
-  [struct sockaddr_in6], [], [ipv6=false],
+AS_CASE([$host],
+  [*-*-mingw32|*-pc-windows],
+    [AC_CHECK_TYPE(
+      [struct sockaddr_in6], [], [ipv6=false],
+[
+#include <winsock2.h>
+#include <ws2ipdef.h>
+]
+    )],
+  [AC_CHECK_TYPE(
+    [struct sockaddr_in6], [], [ipv6=false],
 [
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 ]
+  )]
 )
 
 AS_IF([$ipv6],
