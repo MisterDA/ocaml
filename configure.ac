@@ -1297,13 +1297,17 @@ sockets=false
 AS_CASE([$host],
   [*-*-mingw32|*-pc-windows],
     [cclibs="$cclibs -lws2_32"
-    sockets=true],
+    sockets=true
+    AC_SEARCH_LIBS([socket], [ws2_32])],
   [*-*-haiku],
     [cclibs="$cclibs -lnetwork"
-    sockets=true],
+    sockets=true
+    AC_SEARCH_LIBS([socket], [network])],
   [*-*-solaris*],
     [cclibs="$cclibs -lsocket -lnsl"
-    sockets=true],
+    sockets=true
+    AC_SEARCH_LIBS([socket], [socket])
+    AC_SEARCH_LIBS([inet_ntop], [nsl])],
   [
     AC_CHECK_FUNC([socket])
     AC_CHECK_FUNC([socketpair])
