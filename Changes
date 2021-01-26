@@ -56,6 +56,10 @@ Working version
   directory.
   (Nicolás Ojeda Bär, review by Gabriel Scherer and Xavier Leroy)
 
+* #XXXXX: Support PF_UNIX on Windows, emulate socketpair on PF_UNIX
+  and SOCK_STREAM.
+  (Antonin Decimo)
+
 ### Tools:
 
 - #10139: Remove confusing navigation bar from stdlib documentation.
@@ -132,6 +136,11 @@ Working version
   (partially revert #2024).
   (Tõivo Leedjärv and Konstantin Romanov,
    review by Gabriel Scherer, Sébastien Hinderer and Xavier Leroy)
+
+- #XXXXX: configure wasn't using library link flags when searching for
+  network functions on systems where they're not in libc. Fix IPv6,
+  socklen_t detection on Windows.
+  (Antonin Decimo)
 
 ### Bug fixes:
 
