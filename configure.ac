@@ -25,6 +25,8 @@ AC_INIT([OCaml],
 
 AC_MSG_NOTICE([Configuring OCaml version AC_PACKAGE_VERSION])
 
+AC_MSG_NOTICE([Hic sunt dracones])
+
 # Configuration variables
 
 ## Command-line arguments passed to configure
