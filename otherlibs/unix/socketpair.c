@@ -13,6 +13,7 @@
 /*                                                                        */
 /**************************************************************************/
 
+#include <caml/memory.h>
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/fail.h>
@@ -22,13 +23,14 @@
 
 #include <sys/socket.h>
 
-extern int socket_domain_table[], socket_type_table[];
+extern int socket_domain_table[], socket_type_table[], socket_flags_table[];
 
-CAMLprim value unix_socketpair(value cloexec, value domain,
+CAMLprim value unix_socketpair(value cloexec, value flags, value domain,
                                value type, value proto)
 {
+  CAMLparam5(cloexec, flags, domain, type, proto);
+  CAMLlocal1(res);
   int sv[2];
-  value res;
   int ty = socket_type_table[Int_val(type)];
 #ifdef SOCK_CLOEXEC
   if (unix_cloexec_p(cloexec)) ty |= SOCK_CLOEXEC;
@@ -45,13 +47,13 @@ CAMLprim value unix_socketpair(value cloexec, value domain,
   res = caml_alloc_small(2, 0);
   Field(res,0) = Val_int(sv[0]);
   Field(res,1) = Val_int(sv[1]);
-  return res;
+  CAMLreturn(res);
 }
 
 #else
 
-CAMLprim value unix_socketpair(value cloexec, value domain, value type,
-                               value proto)
+CAMLprim value unix_socketpair(value cloexec, value flags, value domain,
+                               value type, value proto)
 { caml_invalid_argument("socketpair not implemented"); }
 
 #endif

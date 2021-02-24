@@ -13,6 +13,7 @@
 /*                                                                        */
 /**************************************************************************/
 
+#include <caml/memory.h>
 #include <caml/mlvalues.h>
 #include "unixsupport.h"
 
@@ -24,17 +25,37 @@ int socket_type_table[] = {
   SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, SOCK_SEQPACKET
 };
 
-CAMLprim value unix_socket(value cloexec, value domain, value type, value proto)
-{
-  SOCKET s;
+int socket_flags_table[] = {
+  WSA_FLAG_OVERLAPPED
+};
 
-  s = socket(socket_domain_table[Int_val(domain)],
-                   socket_type_table[Int_val(type)],
-                   Int_val(proto));
+CAMLprim value unix_socket(value cloexec, value flags, value domain, value type,
+                           value proto)
+{
+  CAMLparam5(cloexec, flags, domain, type, proto);
+  CAMLlocal1(l);
+  SOCKET s;
+  DWORD dwFlags = 0;
+
+  /* [flags] is a [socket_flags list option]. */
+  if (Is_block(flags)) {
+    l = Field(flags, 0);
+    while (Is_block(l)) {
+      dwFlags |= socket_flags_table[Int_val(Field(l, 0))];
+      l = Field(l, 1);
+    }
+  }
+
+  s = WSASocket(socket_domain_table[Int_val(domain)],
+                socket_type_table[Int_val(type)],
+                Int_val(proto),
+                NULL,
+                0,
+                dwFlags);
   if (s == INVALID_SOCKET) {
     win32_maperr(WSAGetLastError());
     uerror("socket", Nothing);
   }
   win_set_cloexec((HANDLE) s, cloexec);
-  return win_alloc_socket(s);
+  CAMLreturn(win_alloc_socket(s));
 }

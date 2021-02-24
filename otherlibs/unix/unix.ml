@@ -542,12 +542,16 @@ type msg_flag =
   | MSG_DONTROUTE
   | MSG_PEEK
 
+type socket_flags =
+  WSA_FLAG_OVERLAPPED
+
 external socket :
-  ?cloexec: bool -> socket_domain -> socket_type -> int -> file_descr
+  ?cloexec: bool -> ?flags: socket_flags list -> socket_domain -> socket_type ->
+                                           int -> file_descr
   = "unix_socket"
 external socketpair :
-  ?cloexec: bool -> socket_domain -> socket_type -> int ->
-                                           file_descr * file_descr
+  ?cloexec: bool -> ?flags: socket_flags list -> socket_domain -> socket_type ->
+                                           int -> file_descr * file_descr
   = "unix_socketpair"
 external accept :
   ?cloexec: bool -> file_descr -> file_descr * sockaddr = "unix_accept"
