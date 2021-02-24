@@ -14,6 +14,7 @@
 /**************************************************************************/
 
 #define _GNU_SOURCE
+#include <caml/memory.h>
 #include <caml/fail.h>
 #include <caml/mlvalues.h>
 #include "unixsupport.h"
@@ -38,9 +39,15 @@ int socket_type_table[] = {
   SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, SOCK_SEQPACKET
 };
 
-CAMLprim value unix_socket(value cloexec, value domain,
+
+int socket_flags_table[] = {
+  0
+};
+
+CAMLprim value unix_socket(value cloexec, value flags, value domain,
                            value type, value proto)
 {
+  CAMLparam5(cloexec, flags, domain, type, proto);
   int retcode;
   int ty = socket_type_table[Int_val(type)];
 #ifdef SOCK_CLOEXEC
@@ -53,13 +60,13 @@ CAMLprim value unix_socket(value cloexec, value domain,
   if (unix_cloexec_p(cloexec))
     unix_set_cloexec(retcode, "socket", Nothing);
 #endif
-  return Val_int(retcode);
+  CAMLreturn(Val_int(retcode));
 }
 
 #else
 
-CAMLprim value unix_socket(value cloexec, value domain,
-                           value type,value proto)
+CAMLprim value unix_socket(value cloexec, value flags, value domain,
+                           value type, value proto)
 { caml_invalid_argument("socket not implemented"); }
 
 #endif

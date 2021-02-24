@@ -27,6 +27,7 @@
 
 extern int socket_domain_table[]; /* from socket.c */
 extern int socket_type_table[]; /* from socket.c */
+extern int socket_flags_table[]; /* from socket.c */
 
 #ifdef HAS_SOCKETPAIR
 
@@ -35,7 +36,7 @@ extern int socket_type_table[]; /* from socket.c */
 #else
 
 static int socketpair(int domain, int type, int protocol,
-                      SOCKET socket_vector[2])
+                      DWORD flags, SOCKET socket_vector[2])
 {
   wchar_t dirname[MAX_PATH + 1], path[MAX_PATH + 1];
   union sock_addr_union addr;
@@ -74,7 +75,7 @@ static int socketpair(int domain, int type, int protocol,
     goto fail_path;
   }
 
-  listener = socket(domain, type, protocol);
+  listener = WSASocket(domain, type, protocol, NULL, 0, flags);
   if (listener == INVALID_SOCKET)
     goto fail_wsa;
 
@@ -95,7 +96,7 @@ static int socketpair(int domain, int type, int protocol,
   if (rc == SOCKET_ERROR)
     goto fail_wsa;
 
-  client = socket(domain, type, protocol);
+  client = WSASocket(domain, type, protocol, NULL, 0, flags);
   if (client == INVALID_SOCKET)
     goto fail_wsa;
 
@@ -169,18 +170,28 @@ fail:
   return SOCKET_ERROR;
 }
 
-CAMLprim value unix_socketpair(value cloexec, value domain, value type,
-                               value protocol)
+CAMLprim value unix_socketpair(value cloexec, value flags, value domain,
+                               value type, value protocol)
 {
-  CAMLparam4(cloexec, domain, type, protocol);
-  CAMLlocal1(result);
+  CAMLparam5(cloexec, flags, domain, type, protocol);
+  CAMLlocal2(l, result);
+  DWORD dwFlags = 0;
   SOCKET sv[2];
   int rc;
+
+  if (Is_some(flags)) {
+    l = Some_val(flags);
+    while (Is_block(l)) {
+      dwFlags |= socket_flags_table[Int_val(Field(l, 0))];
+      l = Field(l, 1);
+    }
+  }
 
   caml_enter_blocking_section();
   rc = socketpair(socket_domain_table[Int_val(domain)],
                   socket_type_table[Int_val(type)],
                   Int_val(protocol),
+                  dwFlags,
                   sv);
   caml_leave_blocking_section();
 

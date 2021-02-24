@@ -1401,8 +1401,14 @@ type sockaddr =
    domain; [addr] is the Internet address of the machine, and
    [port] is the port number. *)
 
+type socket_flags =
+  WSA_FLAG_OVERLAPPED           (** Socket that supports overlapped IO
+                                   operations. Windows only. *)
+(** Platform specific set of socket flags. *)
+
 val socket :
   ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
+  ?flags: socket_flags list ->
     socket_domain -> socket_type -> int -> file_descr
 (** Create a new socket in the given domain, and with the
    given kind. The third argument is the protocol type; 0 selects
@@ -1415,6 +1421,7 @@ val domain_of_sockaddr: sockaddr -> socket_domain
 
 val socketpair :
   ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
+  ?flags: socket_flags list ->
     socket_domain -> socket_type -> int ->
     file_descr * file_descr
 (** Create a pair of unnamed sockets, connected together.

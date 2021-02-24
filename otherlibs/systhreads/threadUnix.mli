@@ -78,7 +78,8 @@ val sleep : int -> unit
 (** {1 Sockets} *)
 
 val socket :
-  ?cloexec:bool -> Unix.socket_domain -> Unix.socket_type -> int ->
+  ?cloexec:bool -> ?flags:Unix.socket_flags list ->
+  Unix.socket_domain -> Unix.socket_type -> int ->
     Unix.file_descr
 val accept :
   ?cloexec:bool -> Unix.file_descr -> Unix.file_descr * Unix.sockaddr
