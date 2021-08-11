@@ -26,6 +26,7 @@
 #include "caml/memory.h"
 #include "caml/mlvalues.h"
 #include "caml/misc.h"
+#include "caml/osdeps.h"
 
 /* returns a number of bytes (chars) */
 CAMLexport mlsize_t caml_string_length(value s)
@@ -476,4 +477,83 @@ CAMLprim value caml_string_of_bytes(value bv)
 CAMLprim value caml_bytes_of_string(value bv)
 {
   return bv;
+}
+
+CAMLprim value caml_format_c_string_literal(value v)
+{
+  value result;
+  char_os *s;
+  char *p;
+  size_t i, out_len, len;
+  char_os c;
+
+  len = caml_string_length(v);
+  s = caml_stat_char_array_to_os(String_val(v), len, &len);
+
+  /* Compute the length of the result */
+  out_len = len;
+#ifdef _WIN32
+  /* L"" */
+  out_len += 3;
+#else
+  /* "" */
+  out_len += 2;
+#endif
+
+  for (i = 0; i < len; i++) {
+    c = s[i];
+    if (c == '\\' || c == '"' || c == '\n' || c == 0)
+      /* Characters which get escaped with a backslash */
+      out_len++;
+#ifdef _WIN32
+    else if (c >= 0x80 || !iswprint(c))
+      /* \xnnnn */
+      out_len += 5;
+#endif
+  }
+
+  result = caml_alloc_string(out_len);
+  p = (char *)String_val(result);
+
+#ifdef _WIN32
+  *p++ = 'L';
+#endif
+  *p++ = '"';
+
+  /* Same algorithm as encode_C_literal in sak.c, but writing to a buffer. */
+  for (i = 0; i < len; i++) {
+    c = s[i];
+    /* Escape \, ", \n and \0 */
+    if (c == '\\') {
+      *p++ = '\\';
+      *p++ = '\\';
+    } else if (c == '"') {
+      *p++ = '\\';
+      *p++ = '"';
+    } else if (c == '\n') {
+      *p++ = '\\';
+      *p++ = 'n';
+    } else if (c == '\0') {
+      *p++ = '\\';
+      *p++ = '0';
+#ifndef _WIN32
+    /* On Unix, nothing else needs escaping */
+    } else {
+      *p++ = c;
+#else
+    /* On Windows, allow 7-bit printable characters to be displayed literally
+       and escape everything else (using the older \x notation for increased
+       compatibility, rather than the newer \U. */
+    } else if (c < 0x80 && iswprint(c)) {
+      *p++ = c;
+    } else {
+      p += _snprintf(p, 7, "\\x%04x", c);
+#endif
+    }
+  }
+  *p = '"';
+
+  caml_stat_free(s);
+
+  return result;
 }
