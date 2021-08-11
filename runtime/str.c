@@ -557,3 +557,13 @@ CAMLprim value caml_format_c_string_literal(value v)
 
   return result;
 }
+
+CAMLprim value caml_os_bytes_of_string(value v)
+{
+  size_t len = caml_string_length(v) + 1;
+  char_os *s = caml_stat_char_array_to_os(String_val(v), len, &len);
+  value result =
+    caml_alloc_initialized_string(len * sizeof(char_os), (char *)s);
+  caml_stat_free(s);
+  return result;
+}
