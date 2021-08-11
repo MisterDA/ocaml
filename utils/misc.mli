@@ -204,6 +204,8 @@ module Stdlib : sig
     val print : Format.formatter -> t -> unit
 
     val for_all : (char -> bool) -> t -> bool
+
+    val escaped_c : string -> string
   end
 
   external compare : 'a -> 'a -> int = "%compare"

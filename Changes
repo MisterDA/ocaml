@@ -482,6 +482,10 @@ ___________
   with js_of_ocaml
   (Hugo Heuzard, review by Gabriel Scherer)
 
+- #13???: Add -set-global-string option to both compilers, allowing a C symbol
+  to be added to the binary with the given name and value.
+  (David Allsopp, review by ???)
+
 ### Standard library:
 
 - #12884: Add `Queue.drop`
