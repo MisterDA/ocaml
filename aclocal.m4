@@ -142,6 +142,26 @@ AC_DEFUN([OCAML_CL_HAS_VOLATILE_METADATA], [
   CFLAGS="$saved_CFLAGS"
 ])
 
+dnl OCAML_CC_HAS_COMPILE_FLAG([-flag], [if-true], [if-false], [prog])
+dnl Checks whether the C compiler supports -flag, running the commands in
+dnl if-true if it does or the commands in if-false otherwise. If prog is not
+dnl specified then a default C program is passed to the C compiler.
+dnl The result is cached.
+AC_DEFUN([OCAML_CC_HAS_COMPILE_FLAG], [
+  AS_VAR_PUSHDEF([CACHEVAR], [ax_cv_ocaml_cflags_$1])
+  AC_CACHE_CHECK([whether the C compiler supports $1], CACHEVAR, [
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $1"
+    AC_COMPILE_IFELSE([m4_default([$4], [AC_LANG_PROGRAM()])],
+      [AS_VAR_SET(CACHEVAR, [yes])],
+      [AS_VAR_SET(CACHEVAR, [no])])
+    CFLAGS="$saved_CFLAGS"])
+  AS_VAR_IF(CACHEVAR,yes,
+    [m4_default([$2], :)],
+    [m4_default([$3], :)])
+  AS_VAR_POPDEF([CACHEVAR])
+])
+
 # Save C compiler related variables
 AC_DEFUN([OCAML_CC_SAVE_VARIABLES], [
   saved_CC="$CC"
