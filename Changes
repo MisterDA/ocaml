@@ -295,6 +295,11 @@ Working version
 - #11828: Compile otherlibs/ C stubs in two version for native and bytecode
   (Olivier Nicole, review by Sébastien Hinderer and Xavier Leroy)
 
+- #?????: Add OCAML_CC_HAS_COMPILE_FLAG m4 macro to check whether the
+  C compiler supports a flag. Use it to fix old-style-declaration
+  warnings.
+  (Antonin Décimo, David Allsopp)
+
 ### Bug fixes:
 
 - #10664, #11600: Unsoundness in the typing of polymorphic methods
