@@ -682,7 +682,7 @@ AS_CASE([$ocaml_cv_cc_vendor],
   [msvc-*],
     [outputobj='-Fo'
     warn_error_flag='-WX'
-    cc_warnings=''],
+    cc_warnings='/Wall'],
   [outputobj='-o '
   warn_error_flag='-Werror'
   cc_warnings='-Wall'])
