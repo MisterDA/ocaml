@@ -811,13 +811,16 @@ runtime/primitives: runtime/primitives.new
 
 runtime/prims.c : runtime/primitives
 	export LC_ALL=C; \
-	(echo '#define CAML_INTERNALS'; \
-         echo '#include "caml/mlvalues.h"'; \
-	 echo '#include "caml/prims.h"'; \
-	 sed -e 's/.*/extern value &();/' $<; \
+	(echo '#include "caml/config.h"'; \
+	 echo 'typedef intnat value;'; \
+	 echo 'typedef value (*c_primitive)(void);'; \
+	 echo; \
+	 sed -e 's/.*/extern value &(void);/' $<; \
+	 echo; \
 	 echo 'c_primitive caml_builtin_cprim[] = {'; \
 	 sed -e 's/.*/  &,/' $<; \
 	 echo '  0 };'; \
+	 echo; \
 	 echo 'char * caml_names_of_builtin_cprim[] = {'; \
 	 sed -e 's/.*/  "&",/' $<; \
 	 echo '  0 };') > $@
