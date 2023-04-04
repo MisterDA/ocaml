@@ -156,6 +156,10 @@ Working version
   (Tim McGilchrist and Sebastien Hinderer, review by Sebastien Hinderer,
    Gabriel Scherer and Antonin Décimo)
 
+- #12239: Add -source-tree and -build-tree options to ocamldep to
+  specify where to find dependencies and where to output a target.
+  (Antonin Décimo, review by Sébastien Hinderer, Nicolás Ojeda Bär)
+
 ### Manual and documentation:
 
 - #13694: Fix name for caml_hash_variant in the C interface.
