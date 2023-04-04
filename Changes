@@ -345,6 +345,10 @@ Working version
   use 'runtop-with-otherlibs' to use a library from otherlibs/
   (Gabriel Scherer, review by Sébastien Hinderer, suggestion by David Allsopp)
 
+- #12239: Add -source-tree and -build-tree options to ocamldep to
+  specify where to find dependencies and where to output a target.
+  (Antonin Décimo, review by Sébastien Hinderer, Nicolás Ojeda Bär)
+
 ### Bug fixes:
 
 - #12590, #12595: Move `caml_collect_gc_stats_sample` in
