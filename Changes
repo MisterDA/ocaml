@@ -5,6 +5,12 @@ Working version
 
 ### Runtime system:
 
+- #?????: Add `Tag_ok`, `Tag_error`, `Is_ok`, `Is_error`, `Ok_val`,
+  `Error_val`, `caml_alloc_ok`, `caml_alloc_error`. As these macros
+  are sometimes defined by authors of C bindings, this change may
+  cause warnings/errors in case of redefinition.
+  (Antonin Décimo)
+
 ### Code generation and optimizations:
 
 ### Standard library:

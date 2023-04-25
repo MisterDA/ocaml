@@ -441,6 +441,15 @@ CAMLextern value caml_atom(tag_t);
 #define Is_none(v) ((v) == Val_none)
 #define Is_some(v) Is_block(v)
 
+/* Result constructors */
+
+#define Ok_val(v) Field((v), 0)
+#define Error_val(v) Field((v), 0)
+#define Tag_ok 0
+#define Tag_error 1
+#define Is_ok(v) (Tag_val(v) == Tag_ok)
+#define Is_error(v) (Tag_val(v) == Tag_error)
+
 CAMLextern value caml_set_oo_id(value obj);
 
 /* Header for out-of-heap blocks. */

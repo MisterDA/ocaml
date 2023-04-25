@@ -371,3 +371,19 @@ CAMLexport value caml_alloc_some(value v)
   Field(some, 0) = v;
   CAMLreturn(some);
 }
+
+CAMLexport value caml_alloc_ok(value v)
+{
+  CAMLparam1(v);
+  value ok = caml_alloc_small(1, Tag_ok);
+  Field(ok, 0) = v;
+  CAMLreturn(ok);
+}
+
+CAMLexport value caml_alloc_error(value v)
+{
+  CAMLparam1(v);
+  value error = caml_alloc_small(1, Tag_error);
+  Field(error, 0) = v;
+  CAMLreturn(error);
+}

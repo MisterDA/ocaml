@@ -62,6 +62,8 @@ CAMLextern value caml_alloc_sprintf(const char * format, ...)
 #endif
 ;
 CAMLextern value caml_alloc_some(value);
+CAMLextern value caml_alloc_ok(value);
+CAMLextern value caml_alloc_error(value);
 
 typedef void (*final_fun)(value);
 CAMLextern value caml_alloc_final (mlsize_t, /*size in words*/

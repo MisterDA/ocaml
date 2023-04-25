@@ -696,6 +696,9 @@ and false if it is an immediate integer.
 \item "Is_none("\var{v}")" is true if value \var{v} is "None".
 \item "Is_some("\var{v}")" is true if value \var{v} (assumed to be of option
 type) corresponds to the "Some" constructor.
+\item "Is_ok("\var{v}")" (resp. "Is_ok("\var{v}")") is true if value \var{v}
+(assumed to be of result type) corresponds to the "Ok" (resp. "Error")
+constructor.
 \end{itemize}
 
 \subsection{ss:c-int-ops}{Operations on integers}
@@ -772,6 +775,9 @@ of a value \var{v} of any boxed type (record or concrete data type).
 representation of unboxable types in the current version of OCaml.
 \item "Some_val("\var{v}")" returns the argument "\var{x}" of a value \var{v} of
 the form "Some("\var{x}")".
+\item "Ok_val("\var{v}")" (resp. "Error_val("\var{v}")") returns the
+argument "\var{x}" of a value \var{v} of the form "Ok("\var{x}")"
+(resp. "Error("\var{x}")").
 \end{itemize}
 The expressions "Field("\var{v}", "\var{n}")",
 "Byte("\var{v}", "\var{n}")" and
