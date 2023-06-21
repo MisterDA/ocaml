@@ -288,6 +288,21 @@ let read_and_approximate inputfile =
   end;
   !Depend.free_structure_names
 
+let extract_from_ast extract_function ast =
+  let bound_vars =
+    List.fold_left
+      (fun bv modname ->
+        let lid =
+          let lexbuf = Lexing.from_string modname in
+          Location.init lexbuf
+            (Printf.sprintf "command line argument: -open %S" modname);
+          Parse.simple_module_path lexbuf in
+        Depend.open_module bv lid)
+      !module_map ((* PR#7248 *) List.rev !Clflags.open_modules)
+  in
+  let r = extract_function bound_vars ast in
+  (!Depend.free_structure_names, r)
+
 let read_parse_and_extract parse_function extract_function def ast_kind
     source_file =
   Depend.pp_deps := [];
@@ -297,19 +312,7 @@ let read_parse_and_extract parse_function extract_function def ast_kind
     Fun.protect ~finally:(fun () -> Pparse.remove_preprocessed input_file)
     @@ fun () ->
       let ast = Pparse.file ~tool_name input_file parse_function ast_kind in
-      let bound_vars =
-        List.fold_left
-          (fun bv modname ->
-             let lid =
-               let lexbuf = Lexing.from_string modname in
-               Location.init lexbuf
-                 (Printf.sprintf "command line argument: -open %S" modname);
-               Parse.simple_module_path lexbuf in
-             Depend.open_module bv lid)
-          !module_map ((* PR#7248 *) List.rev !Clflags.open_modules)
-      in
-      let r = extract_function bound_vars ast in
-      (!Depend.free_structure_names, r)
+      extract_from_ast extract_function ast
   with x -> begin
     print_exception x;
     if not !allow_approximation then begin
