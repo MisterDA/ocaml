@@ -1493,8 +1493,9 @@ clean::
 	rm -f debugger/ocamldebug debugger/ocamldebug.exe
 	rm -f debugger/debugger_lexer.ml
 	rm -f $(addprefix debugger/debugger_parser.,ml mli output)
+	rm -f driver/makedepend.ml
 
-beforedepend:: debugger/debugger_lexer.ml
+beforedepend:: debugger/debugger_lexer.ml driver/makedepend.ml
 
 beforedepend:: debugger/debugger_parser.ml debugger/debugger_parser.mli
 

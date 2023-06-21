@@ -15,6 +15,15 @@
 
 (** Print the dependencies *)
 
+(* Rules to parse .mll and .mly files *)
+
+rule _mll_main = parse
+  _ { exit 5 }
+and _mly_main = parse
+  _ { exit 5 }
+
+{ (* Beginning of trailer *)
+
 open Parsetree
 module String = Misc.Stdlib.String
 
@@ -665,3 +674,5 @@ let main_from_option () =
                    Array.sub Sys.argv 2 (Array.length Sys.argv - 2) ] in
   Sys.argv.(0) <- args.(0);
   exit (run_main args)
+
+} (* End of trailer *)
