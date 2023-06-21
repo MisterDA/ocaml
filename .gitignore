@@ -90,6 +90,8 @@ META
 /debugger/debugger_parser.output
 /debugger/ocamldebug
 
+/driver/makedepend.ml
+
 /emacs/ocamltags
 /emacs/*.elc
 
