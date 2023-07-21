@@ -17,10 +17,407 @@
 
 (* Rules to parse .mll and .mly files *)
 
-rule _mll_main = parse
-  _ { exit 5 }
-and _mly_main = parse
-  _ { exit 5 }
+
+{ (* Beginning of header *)
+
+(* Lexer helpers *)
+
+let brace_depth = ref 0
+and ocaml_comment_depth = ref 0
+
+let in_pattern () = !brace_depth = 0 && !ocaml_comment_depth = 0
+
+exception Lexical_error of string * string * int * int
+
+let raise_lexical_error lexbuf msg =
+  let p = Lexing.lexeme_start_p lexbuf in
+  raise (Lexical_error (msg,
+                        p.Lexing.pos_fname,
+                        p.Lexing.pos_lnum,
+                        p.Lexing.pos_cnum - p.Lexing.pos_bol + 1))
+
+let handle_lexical_error fn lexbuf =
+  let p = Lexing.lexeme_start_p lexbuf in
+  let line = p.Lexing.pos_lnum
+  and column = p.Lexing.pos_cnum - p.Lexing.pos_bol + 1
+  and file = p.Lexing.pos_fname
+  in
+  try
+    fn lexbuf
+  with Lexical_error (msg, "", 0, 0) ->
+    raise(Lexical_error(msg, file, line, column))
+
+let warning lexbuf msg =
+  let p = Lexing.lexeme_start_p lexbuf in
+  Printf.eprintf "ocamllex warning:\nFile \"%s\", line %d, character %d: %s.\n"
+    p.Lexing.pos_fname p.Lexing.pos_lnum
+    (p.Lexing.pos_cnum - p.Lexing.pos_bol + 1) msg;
+  flush stderr
+
+let hex_digit_value d =
+  let d = Char.code d in
+  if d >= 97 then d - 87 else
+  if d >= 65 then d - 55 else
+  d - 48
+
+let decimal_code c d u =
+  100 * (Char.code c - 48) + 10 * (Char.code d - 48) + (Char.code u - 48)
+
+let hexadecimal_code s =
+  let rec loop acc i =
+    if i < String.length s then
+      let value = hex_digit_value s.[i] in
+      loop (16 * acc + value) (i + 1)
+    else acc in
+  loop 0 0
+
+let incr_loc lexbuf delta =
+  let pos = lexbuf.Lexing.lex_curr_p in
+  lexbuf.Lexing.lex_curr_p <- { pos with
+    Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
+    Lexing.pos_bol = pos.Lexing.pos_cnum - delta;
+  }
+
+type token =
+  | Theader of Lexing.position * Lexing.position
+  | Taction of Lexing.position * Lexing.position
+  | Ttrailer of Lexing.position * Lexing.position
+  | Teof
+
+type state = HeaderDeclarations | Rules | Trailer
+let state = ref HeaderDeclarations
+let expect_action = ref false
+
+type comment = OCaml | Yacc
+
+let reset_mll_mly_lexer () =
+  brace_depth := 0;
+  ocaml_comment_depth := 0;
+  state := HeaderDeclarations
+
+} (* End of header *)
+
+(* Lex strings, quoted strings, and characters, in order not to be
+   confused by what is inside them. *)
+
+let identstart =
+  ['A'-'Z' 'a'-'z' '_' '\192'-'\214' '\216'-'\246' '\248'-'\255']
+let identbody =
+  ['A'-'Z' 'a'-'z' '_' '\192'-'\214' '\216'-'\246' '\248'-'\255' '\'' '0'-'9']
+let backslash_escapes =
+  ['\\' '\'' '"' 'n' 't' 'b' 'r' ' ']
+
+let lowercase = ['a'-'z' '_']
+let ident = identstart identbody*
+let extattrident = ident ('.' ident)*
+let blank = [' ' '\009' '\012']
+
+rule mly_main = parse
+  | "/*"
+    { handle_lexical_error (comment Yacc) lexbuf;
+      mly_main lexbuf }
+  | "(*"
+    { ocaml_comment_depth := 1;
+      handle_lexical_error (comment OCaml) lexbuf;
+      mly_main lexbuf }
+  | '\010'
+    { Lexing.new_line lexbuf;
+      mly_main lexbuf }
+  | "%{"
+    { let start = Lexing.lexeme_end_p lexbuf in
+      Theader (start, handle_lexical_error mly_header lexbuf) }
+  | "%%"
+    { match !state with
+      | HeaderDeclarations ->
+         state := Rules;
+         mly_rules lexbuf
+      | Rules ->
+         state := Trailer;
+         let start = Lexing.lexeme_end_p lexbuf in
+         Ttrailer (start, handle_lexical_error action lexbuf)
+      | Trailer -> assert false }
+  | "{"
+    { incr brace_depth;
+      match !state with
+      | Rules ->
+         let start = Lexing.lexeme_end_p lexbuf in
+         Taction (start, handle_lexical_error action lexbuf)
+      | HeaderDeclarations | Trailer -> mly_main lexbuf }
+  | '"'
+    { handle_lexical_error string lexbuf;
+      mly_main lexbuf }
+  (* note: ''' is a valid character literal (by contrast with the compiler) *)
+  | "'" [^ '\\'] "'"
+    { mly_main lexbuf }
+  | "'" '\\' backslash_escapes "'"
+    { mly_main lexbuf }
+  | "'" '\\' (['0'-'9'] as c) (['0'-'9'] as d) (['0'-'9'] as u)"'"
+    { let v = decimal_code c d u in
+      if v > 255 then
+        raise_lexical_error lexbuf
+          (Printf.sprintf "illegal escape sequence \\%c%c%c" c d u)
+      else
+        mly_main lexbuf }
+  | "'" '\\' 'o' ['0'-'3'] ['0'-'7'] ['0'-'7'] "'"
+    { mly_main lexbuf }
+  | "'" '\\' 'x'
+      ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "'"
+    { mly_main lexbuf }
+  | "'" '\\' (_ as c)
+    { raise_lexical_error lexbuf
+        (Printf.sprintf "illegal escape sequence \\%c" c)
+    }
+  | eof { Teof }
+  | _ { mly_main lexbuf }
+
+and mly_header = parse
+  | "(*"
+    { incr ocaml_comment_depth;
+      handle_lexical_error (comment OCaml) lexbuf;
+      mly_header lexbuf }
+  | '\010'
+    { Lexing.new_line lexbuf; mly_header lexbuf }
+  | "%}"
+    { Lexing.lexeme_start_p lexbuf }
+  | eof
+    { raise (Lexical_error ("unterminated header", "", 0, 0)) }
+  | _
+    { mly_header lexbuf }
+
+and mly_rules = parse
+  | "/*"
+    { handle_lexical_error (comment Yacc) lexbuf;
+      mly_rules lexbuf }
+  | "(*"
+    { incr ocaml_comment_depth;
+      handle_lexical_error (comment OCaml) lexbuf;
+      mly_rules lexbuf }
+  | "{"
+    { incr brace_depth;
+      let start = Lexing.lexeme_end_p lexbuf in
+      Taction (start, handle_lexical_error action lexbuf) }
+  | '\010'
+    { Lexing.new_line lexbuf; mly_rules lexbuf }
+  | "%%"
+    { assert (!state = Rules);
+      state := Trailer;
+      let start = Lexing.lexeme_end_p lexbuf in
+      Ttrailer (start, handle_lexical_error action lexbuf) }
+  | eof { Teof }
+  | _ { mly_rules lexbuf }
+
+and mll_main = parse
+  | "(*"
+    { ocaml_comment_depth := 1;
+      handle_lexical_error (comment OCaml) lexbuf;
+      mll_main lexbuf }
+  | '\010'
+    { Lexing.new_line lexbuf;
+      mll_main lexbuf }
+  | "rule"
+    { match !state with
+      | HeaderDeclarations ->
+         state := Rules;
+         expect_action := true;
+         mll_main lexbuf
+      | Rules | Trailer -> mll_main lexbuf }
+  | "and" | "|"
+    { expect_action := true;
+      mll_main lexbuf }
+  | "{"
+    { incr brace_depth;
+      let start = Lexing.lexeme_end_p lexbuf in
+      match !state with
+      | HeaderDeclarations ->
+         let x = Theader (start, handle_lexical_error action lexbuf) in
+         assert (!brace_depth = 0);
+         x
+      | Rules ->
+         if !expect_action then begin
+           expect_action := false;
+           Taction (start, handle_lexical_error action lexbuf)
+         end else begin
+           state := Trailer;
+           Ttrailer (start, handle_lexical_error action lexbuf)
+         end
+      | Trailer ->
+         raise_lexical_error lexbuf "unexpected trailer" }
+  | '"'
+    { handle_lexical_error string lexbuf;
+      mll_main lexbuf }
+(* note: ''' is a valid character literal (by contrast with the compiler) *)
+  | "'" [^ '\\'] "'"
+    { mll_main lexbuf }
+  | "'" '\\' backslash_escapes "'"
+    { mll_main lexbuf }
+  | "'" '\\' (['0'-'9'] as c) (['0'-'9'] as d) (['0'-'9'] as u)"'"
+    { let v = decimal_code c d u in
+      if v > 255 then
+        raise_lexical_error lexbuf
+          (Printf.sprintf "illegal escape sequence \\%c%c%c" c d u)
+      else
+        mll_main lexbuf }
+  | "'" '\\' 'o' ['0'-'3'] ['0'-'7'] ['0'-'7'] "'"
+    { mll_main lexbuf }
+  | "'" '\\' 'x'
+       ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "'"
+       { mll_main lexbuf }
+  | "'" '\\' (_ as c)
+    { raise_lexical_error lexbuf
+        (Printf.sprintf "illegal escape sequence \\%c" c)
+    }
+  | eof { Teof }
+  | _ { mll_main lexbuf }
+
+and action = parse
+  | "(*"
+    { incr ocaml_comment_depth;
+      handle_lexical_error (comment OCaml) lexbuf;
+      action lexbuf }
+  | '"'
+    { handle_lexical_error string lexbuf;
+      action lexbuf }
+      (* note: ''' is a valid character literal (by contrast with the compiler) *)
+  | "'" [^ '\\'] "'"
+    { action lexbuf }
+  | "'" '\\' backslash_escapes "'"
+    { action lexbuf }
+  | "'" '\\' (['0'-'9'] as c) (['0'-'9'] as d) (['0'-'9'] as u)"'"
+    { let v = decimal_code c d u in
+      if v > 255 then
+        raise_lexical_error lexbuf
+          (Printf.sprintf "illegal escape sequence \\%c%c%c" c d u)
+      else
+        action lexbuf }
+  | "'" '\\' 'o' ['0'-'3'] ['0'-'7'] ['0'-'7'] "'"
+    { action lexbuf }
+  | "'" '\\' 'x'
+    ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "'"
+    { action lexbuf }
+  | "'" '\\' (_ as c)
+    { raise_lexical_error lexbuf
+        (Printf.sprintf "illegal escape sequence \\%c" c)
+    }
+  | "{"
+    { incr brace_depth; action lexbuf }
+  | "}"
+    { decr brace_depth;
+      if !brace_depth = 0 then Lexing.lexeme_start_p lexbuf
+      else action lexbuf }
+  | '\010'
+    { Lexing.new_line lexbuf;
+      action lexbuf }
+  | eof
+    {
+      if !brace_depth = 0 then Lexing.lexeme_start_p lexbuf
+      else raise (Lexical_error ("unterminated action", "", 0, 0)) }
+  | _
+    { action lexbuf }
+
+and comment style = parse
+  | "(*"
+    { begin match style with
+      | OCaml -> incr ocaml_comment_depth
+      | Yacc -> () end;
+      comment style lexbuf }
+  | "*)"
+    { match style with
+      | OCaml -> decr ocaml_comment_depth;
+                 if !ocaml_comment_depth = 0 then () else comment style lexbuf
+      | Yacc -> comment style lexbuf }
+  | "*/"
+    { match style with
+      | OCaml -> comment style lexbuf
+      | Yacc -> () }
+  | '"'
+    { begin match style with
+      | OCaml -> string lexbuf
+      | Yacc -> () end;
+      comment style lexbuf }
+  | '{' ('%' '%'? extattrident blank*)? (lowercase* as delim) "|"
+    { quoted_string delim lexbuf;
+      comment style lexbuf }
+  | "'"
+    { skip_char lexbuf ;
+      comment style lexbuf }
+  | eof
+    { let style = match style with OCaml -> "ocaml" | Yacc -> "yacc" in
+      raise_lexical_error lexbuf (Printf.sprintf "unterminated comment %d %s"
+                                    !ocaml_comment_depth style) }
+  | '\010'
+    { Lexing.new_line lexbuf; comment style lexbuf }
+  | _
+    { comment style lexbuf }
+
+(* String parsing comes from the compiler lexer *)
+and string = parse
+    '"'
+    { () }
+  | '\\' ('\013'* '\010') ([' ' '\009'] * as spaces)
+    { incr_loc lexbuf (String.length spaces);
+      string lexbuf }
+  | '\\' (backslash_escapes)
+    { string lexbuf }
+  | '\\' (['0'-'9'] as c) (['0'-'9'] as d) (['0'-'9']  as u)
+    { let v = decimal_code c d u in
+      if in_pattern () then
+        if v > 255 then
+          raise_lexical_error lexbuf
+            (Printf.sprintf
+               "illegal backslash escape in string: '\\%c%c%c'" c d u);
+      string lexbuf }
+  | '\\' 'o' (['0'-'3']) (['0'-'7']) (['0'-'7'])
+    { string lexbuf }
+  | '\\' 'x' (['0'-'9' 'a'-'f' 'A'-'F']) (['0'-'9' 'a'-'f' 'A'-'F'])
+    { string lexbuf }
+  | '\\' 'u' '{' (['0'-'9' 'a'-'f' 'A'-'F'] + as s) '}'
+    { let v = hexadecimal_code s in
+      if in_pattern () then
+        if not (Uchar.is_valid v) then
+          raise_lexical_error lexbuf
+            (Printf.sprintf
+              "illegal uchar escape in string: '\\u{%s}'" s);
+      string lexbuf }
+  | '\\' (_ as c)
+    {if in_pattern () then
+       warning lexbuf
+        (Printf.sprintf "illegal backslash escape in string: '\\%c'" c) ;
+     string lexbuf }
+  | eof
+    { raise(Lexical_error("unterminated string", "", 0, 0)) }
+  | '\013'* '\010'
+    { if !ocaml_comment_depth = 0 then
+        raise_lexical_error lexbuf (Printf.sprintf "unescaped newline in string") ;
+      incr_loc lexbuf 0;
+      string lexbuf }
+  | _
+    { string lexbuf }
+
+and quoted_string delim = parse
+  | '\013'* '\010'
+    { incr_loc lexbuf 0;
+      quoted_string delim lexbuf }
+  | eof
+    { raise (Lexical_error ("unterminated string", "", 0, 0)) }
+  | '|' (lowercase* as delim') '}'
+    { if delim <> delim' then
+      quoted_string delim lexbuf }
+  | _
+    { quoted_string delim lexbuf }
+
+and skip_char = parse
+  | '\\'? ('\013'* '\010') "'"
+    { incr_loc lexbuf 1;
+    }
+  | [^ '\\' '\'' '\010' '\013'] "'" (* regular character *)
+(* one character and numeric escape sequences *)
+  | '\\' _ "'"
+  | '\\' ['0'-'9'] ['0'-'9'] ['0'-'9'] "'"
+  | '\\' 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] "'"
+  | '\\' 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "'"
+    {()}
+(* Perilous *)
+  | "" {()}
 
 { (* Beginning of trailer *)
 
@@ -29,10 +426,12 @@ module String = Misc.Stdlib.String
 
 let stderr = Format.err_formatter
 
-type file_kind = ML | MLI
+type file_kind = ML | MLI | MLL | MLY
 
 let ml_synonyms = ref [".ml"]
 let mli_synonyms = ref [".mli"]
+let mll_synonyms = ref [".mll"]
+let mly_synonyms = ref [".mly"]
 let shared = ref false
 let native_only = ref false
 let bytecode_only = ref false
@@ -107,10 +506,11 @@ let add_to_synonym_list synonyms suffix =
 
 (* Find file 'name' (capitalized) in search path *)
 let find_module_in_load_path name =
-  let names = List.map (fun ext -> name ^ ext) (!mli_synonyms @ !ml_synonyms) in
+  let synonyms = !mli_synonyms @ !ml_synonyms @ !mll_synonyms @ !mly_synonyms in
+  let names = List.map (fun ext -> name ^ ext) synonyms in
   let unames =
     let uname = Unit_info.normalize name in
-    List.map (fun ext -> uname ^ ext) (!mli_synonyms @ !ml_synonyms)
+    List.map (fun ext -> uname ^ ext) synonyms
   in
   let rec find_in_path = function
     | [] -> raise Not_found
@@ -131,20 +531,25 @@ let find_dependency target_kind modname (byt_deps, opt_deps) =
     let cmi_file = basename ^ ".cmi" in
     let cmx_file = basename ^ ".cmx" in
     let mli_exists =
-      List.exists (fun ext -> Sys.file_exists (basename ^ ext)) !mli_synonyms in
-    let ml_exists =
-      List.exists (fun ext -> Sys.file_exists (basename ^ ext)) !ml_synonyms in
-    if mli_exists then
+      List.exists (fun ext -> Sys.file_exists (basename ^ ext)) !mli_synonyms
+    and ml_exists =
+      List.exists (fun ext -> Sys.file_exists (basename ^ ext)) !ml_synonyms
+    and mll_exists =
+      List.exists (fun ext -> Sys.file_exists (basename ^ ext)) !mll_synonyms
+    and mly_exists =
+      List.exists (fun ext -> Sys.file_exists (basename ^ ext)) !mly_synonyms in
+    if mli_exists || mll_exists || mly_exists then
       let new_opt_dep =
         if !all_dependencies then
           match target_kind with
           | MLI -> [ cmi_file ]
           | ML  ->
-              cmi_file :: (if ml_exists then [ cmx_file ] else [])
+             cmi_file :: (if ml_exists then [ cmx_file ] else [])
+          | MLL | MLY -> assert false
         else
         (* this is a make-specific hack that makes .cmx to be a 'proxy'
            target that would force the dependency on .cmi via transitivity *)
-        if ml_exists
+        if ml_exists || mll_exists || mly_exists
         then [ cmx_file ]
         else [ cmi_file ]
       in
@@ -156,6 +561,7 @@ let find_dependency target_kind modname (byt_deps, opt_deps) =
           match target_kind with
           | MLI -> [ cmi_file ]
           | ML  -> [ cmi_file ]
+          | MLL | MLY -> assert false
         else
           (* again, make-specific hack *)
           [basename ^ (if !native_only then ".cmx" else ".cmo")] in
@@ -164,6 +570,7 @@ let find_dependency target_kind modname (byt_deps, opt_deps) =
         then match target_kind with
           | MLI -> [ cmi_file ]
           | ML  -> [ cmi_file; cmx_file ]
+          | MLL | MLY -> assert false
         else [ cmx_file ]
       in
       (bytenames @ byt_deps, optnames @  opt_deps)
@@ -369,6 +776,18 @@ let print_mli_dependencies source_file extracted_deps pp_deps =
       extracted_deps ([], []) in
   print_dependencies [basename ^ ".cmi"] (byt_deps @ pp_deps)
 
+(* let print_mll_dependencies source_file extracted_deps pp_deps = *)
+(*   ignore source_file; *)
+(*   ignore extracted_deps; *)
+(*   ignore pp_deps; *)
+(*   failwith "print_mll_dependencies" *)
+
+(* let print_mly_dependencies source_file extracted_deps pp_deps = *)
+(*   ignore source_file; *)
+(*   ignore extracted_deps; *)
+(*   ignore pp_deps; *)
+(*   failwith "print_mly_dependencies" *)
+
 let print_file_dependencies (source_file, kind, extracted_deps, pp_deps) =
   if !raw_dependencies then begin
     print_raw_dependencies source_file extracted_deps
@@ -376,17 +795,18 @@ let print_file_dependencies (source_file, kind, extracted_deps, pp_deps) =
     match kind with
     | ML -> print_ml_dependencies source_file extracted_deps pp_deps
     | MLI -> print_mli_dependencies source_file extracted_deps pp_deps
+    | MLL -> print_ml_dependencies source_file extracted_deps pp_deps
+    | MLY -> print_ml_dependencies source_file extracted_deps pp_deps
 
+let parse_use_file_as_impl lexbuf =
+  let f x =
+    match x with
+    | Ptop_def s -> s
+    | Ptop_dir _ -> []
+  in
+  List.concat_map f (Parse.use_file lexbuf)
 
 let ml_file_dependencies source_file =
-  let parse_use_file_as_impl lexbuf =
-    let f x =
-      match x with
-      | Ptop_def s -> s
-      | Ptop_dir _ -> []
-    in
-    List.concat_map f (Parse.use_file lexbuf)
-  in
   let (extracted_deps, ()) =
     read_parse_and_extract parse_use_file_as_impl Depend.add_implementation ()
                            Pparse.Structure source_file
@@ -399,6 +819,50 @@ let mli_file_dependencies source_file =
                            Pparse.Signature source_file
   in
   prepend_to_list files (source_file, MLI, extracted_deps, !Depend.pp_deps)
+
+let mll_mly_file_dependencies source_file kind =
+  reset_mll_mly_lexer ();
+  let contents = In_channel.with_open_bin source_file Misc.string_of_file in
+  let next_action =
+    let lexbuf = Lexing.from_string contents in
+    let main = match kind with
+      | MLL -> mll_main | MLY -> mly_main
+      | _ -> assert false in
+    fun () -> main lexbuf
+  in
+  let ast_from_fragment ~need_struct_item start finish =
+    let len = finish.Lexing.pos_cnum - start.Lexing.pos_cnum in
+    let fragment = String.sub contents start.Lexing.pos_cnum len in
+    let fragment = if kind = MLY then
+                     String.map (function '$' -> '_' | c -> c) fragment
+                   else fragment in
+    let fragment = if need_struct_item then "let _ = " ^ fragment
+                   else fragment in
+    let lexbuf = Lexing.from_string fragment in
+    parse_use_file_as_impl lexbuf
+  in
+  let rec extract items =
+    match next_action () with
+    | Theader (start, finish)
+    | Ttrailer (start, finish) ->
+       let ast = ast_from_fragment ~need_struct_item:false start finish in
+       extract (ast :: items)
+    | Taction (start, finish) ->
+       let ast = ast_from_fragment ~need_struct_item:true start finish in
+       extract (ast :: items)
+    | Teof -> List.rev items
+  in
+  let ast = List.flatten (extract []) in
+  let (extracted_deps, ()) =
+    extract_from_ast Depend.add_implementation ast
+  in
+  files := (source_file, kind, extracted_deps, !Depend.pp_deps) :: !files
+
+let mll_file_dependencies source_file =
+  mll_mly_file_dependencies source_file MLL
+
+let mly_file_dependencies source_file =
+  mll_mly_file_dependencies source_file MLY
 
 let process_file_as process_fun def source_file =
   Compenv.readenv stderr (Before_compile source_file);
@@ -415,22 +879,30 @@ let process_file_as process_fun def source_file =
     if Sys.file_exists source_file then process_fun source_file else def
   with x -> report_err x; def
 
-let process_file source_file ~ml_file ~mli_file ~def =
+let process_file source_file ~ml_file ~mli_file ~mll_file ~mly_file ~def =
   if List.exists (Filename.check_suffix source_file) !ml_synonyms then
     process_file_as ml_file def source_file
   else if List.exists (Filename.check_suffix source_file) !mli_synonyms then
     process_file_as mli_file def source_file
+  else if List.exists (Filename.check_suffix source_file) !mll_synonyms then
+    process_file_as mll_file def source_file
+  else if List.exists (Filename.check_suffix source_file) !mly_synonyms then
+    process_file_as mly_file def source_file
   else def
 
 let file_dependencies source_file =
   process_file source_file ~def:()
     ~ml_file:ml_file_dependencies
     ~mli_file:mli_file_dependencies
+    ~mll_file:mll_file_dependencies
+    ~mly_file:mly_file_dependencies
 
 let file_dependencies_as kind =
   match kind with
   | ML -> process_file_as ml_file_dependencies ()
   | MLI -> process_file_as mli_file_dependencies ()
+  | MLL -> process_file_as mll_file_dependencies ()
+  | MLY -> process_file_as mly_file_dependencies ()
 
 let sort_files_by_dependencies files =
   let h = Hashtbl.create 31 in
@@ -457,6 +929,7 @@ let sort_files_by_dependencies files =
         | MLI -> (* MLI depends on MLI if exists, or ML otherwise *)
           if Hashtbl.mem h (modname, MLI) then add_dep modname MLI
           else if Hashtbl.mem h (modname, ML) then add_dep modname ML
+        | MLL | MLY -> ()
     ) deps;
     if file_kind = ML then (* add dep from .ml to .mli *)
       if Hashtbl.mem h (modname, MLI) then add_dep modname MLI
@@ -528,6 +1001,14 @@ let process_mli_map =
   read_parse_and_extract Parse.interface Depend.add_signature_binding
                          String.Map.empty Pparse.Signature
 
+let process_mll_map fname =
+  report_err (Failure (fname ^ " : maps are not supported on mll files."));
+  String.Set.empty, String.Map.empty
+
+let process_mly_map fname =
+  report_err (Failure (fname ^ " : maps are not supported on mll files."));
+  String.Set.empty, String.Map.empty
+
 let parse_map fname =
   let old_transp = !Clflags.transparent_modules in
   Clflags.transparent_modules := true;
@@ -535,6 +1016,8 @@ let parse_map fname =
     process_file fname ~def:(String.Set.empty, String.Map.empty)
       ~ml_file:process_ml_map
       ~mli_file:process_mli_map
+      ~mll_file:process_mll_map
+      ~mly_file:process_mly_map
   in
   Clflags.transparent_modules := old_transp;
   let modname = Unit_info.modname_from_source fname in
@@ -603,12 +1086,20 @@ let run_main argv =
         "<f>  Process <f> as a .ml file";
       "-intf", Arg.String (add_dep_arg (fun f -> Src (f, Some MLI))),
         "<f>  Process <f> as a .mli file";
+      "-lex", Arg.String (add_dep_arg (fun f -> Src (f, Some MLL))),
+        "<f>  Process <f> as a .mll file";
+      "-yacc", Arg.String (add_dep_arg (fun f -> Src (f, Some MLY))),
+        "<f>  Process <f> as a .mly file";
       "-map", Arg.String (add_dep_arg (fun f -> Map f)),
         "<f>  Read <f> and propagate delayed dependencies to following files";
       "-ml-synonym", Arg.String(add_to_synonym_list ml_synonyms),
         "<e>  Consider <e> as a synonym of the .ml extension";
       "-mli-synonym", Arg.String(add_to_synonym_list mli_synonyms),
         "<e>  Consider <e> as a synonym of the .mli extension";
+      "-mll-synonym", Arg.String(add_to_synonym_list mll_synonyms),
+        "<e>  Consider <e> as a synonym of the .mll extension";
+      "-mly-synonym", Arg.String(add_to_synonym_list mly_synonyms),
+        "<e>  Consider <e> as a synonym of the .mly extension";
       "-modules", Arg.Set raw_dependencies,
         " Print module dependencies in raw form (not suitable for make)";
       "-native", Arg.Set native_only,
