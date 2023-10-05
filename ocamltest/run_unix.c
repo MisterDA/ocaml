@@ -136,9 +136,9 @@ static void update_environment(array local_env)
 static int run_command_child(const command_settings *settings)
 {
   int stdin_fd = -1, stdout_fd = -1, stderr_fd = -1; /* -1 = no redir */
-  int inputFlags = O_RDONLY;
+  int inputFlags = O_RDONLY | O_CLOEXEC;
   int outputFlags =
-    O_CREAT | O_WRONLY | (settings->append ? O_APPEND : O_TRUNC);
+    O_CREAT | O_WRONLY | (settings->append ? O_APPEND : O_TRUNC) | O_CLOEXEC;
   int inputMode = 0400, outputMode = 0666;
 
   if (setpgid(0, 0) == -1)
