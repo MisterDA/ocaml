@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "run.h"
 #include "run_common.h"
@@ -82,17 +83,6 @@ static void open_error_with_location(
 #define open_error(filename) \
 open_error_with_location(__FILE__, __LINE__, settings, filename)
 
-static void realpath_error_with_location(
-  const char *file, int line,
-  const command_settings *settings,
-  const char *msg)
-{
-  myperror_with_location(file, line, settings, "realpath(\"%s\") failed", msg);
-}
-
-#define realpath_error(filename) \
-realpath_error_with_location(__FILE__, __LINE__, settings, filename)
-
 static void handle_alarm(int sig)
 {
   timeout_expired = 1;
@@ -101,36 +91,16 @@ static void handle_alarm(int sig)
 static int paths_same_file(
   const command_settings *settings, const char * path1, const char * path2)
 {
-  int same_file = 0;
-#ifdef __GLIBC__
-  char *realpath1, *realpath2;
-  realpath1 = realpath(path1, NULL);
-  if (realpath1 == NULL)
-    realpath_error(path1);
-  realpath2 = realpath(path2, NULL);
-  if (realpath2 == NULL)
-  {
-    free(realpath1);
-    if (errno == ENOENT) return 0;
-    else realpath_error(path2);
-  }
-#else
-  char realpath1[PATH_MAX], realpath2[PATH_MAX];
-  if (realpath(path1, realpath1) == NULL)
-    realpath_error(path1);
-  if (realpath(path2, realpath2) == NULL)
-  {
-    if (errno == ENOENT) return 0;
-    else realpath_error(path2);
-  }
-#endif /* __GLIBC__ */
-  if (strcmp(realpath1, realpath2) == 0)
-    same_file = 1;
-#ifdef __GLIBC__
-  free(realpath1);
-  free(realpath2);
-#endif /* __GLIBC__ */
-  return same_file;
+  struct stat st1, st2;
+  int rc1, rc2;
+  if ((rc1 = stat(path1, &st1)) == -1)
+    myperror_with_location(__FILE__, __LINE__ - 1, settings,
+                           "stat(\"%s\") failed", path1);
+  if ((rc2 = stat(path2, &st2)) == -1)
+    myperror_with_location(__FILE__, __LINE__ - 1, settings,
+                           "stat(\"%s\") failed", path2);
+  return rc1 == 0 && rc2 == 0 &&
+    st1.st_dev == st2.st_dev && st1.st_ino == st2.st_ino;
 }
 
 static void update_environment(array local_env)
