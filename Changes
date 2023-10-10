@@ -33,6 +33,9 @@ _______________
   (Damien Doligez, report by Stephen Dolan, review by Gabriel Scherer
    and Stephen Dolan)
 
+- #13083: Use macros from limits.h to avoid signed-integer wrap-around.
+  (Antonin Décimo, review by Miod Vallat and Nick Barnes)
+
 ### Code generation and optimizations:
 
 - #13014: Enable compile-time option -function-sections on all previously
