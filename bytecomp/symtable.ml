@@ -173,6 +173,7 @@ open Printf
 
 let output_primitive_table outchan =
   let prim = all_primitives() in
+  fprintf outchan "#pragma GCC diagnostic ignored \"-Wlto-type-mismatch\"\n";
   for i = 0 to Array.length prim - 1 do
     fprintf outchan "extern value %s(void);\n" prim.(i)
   done;

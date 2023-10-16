@@ -837,7 +837,8 @@ runtime/primitives: \
 
 runtime/prims.c : runtime/primitives
 	$(V_GEN)export LC_ALL=C; \
-	(echo '#include "caml/config.h"'; \
+	(echo '#pragma GCC diagnostic ignored "-Wlto-type-mismatch"' \
+	 echo '#include "caml/config.h"'; \
 	 echo 'typedef intnat value;'; \
 	 echo 'typedef value (*c_primitive)(void);'; \
 	 echo; \
