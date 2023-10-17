@@ -13542,7 +13542,7 @@ printf %s "checking C compiler vendor... " >&6; }
 msvc _MSC_VER
 #elif defined(__INTEL_COMPILER)
 icc __INTEL_COMPILER
-#elif defined(__MINGW64__)
+#elif defined(__MINGW32__)
 #include <_mingw_mac.h>
 mingw32 __MINGW64_VERSION_MAJOR __MINGW64_VERSION_MINOR
 # if defined(__clang_major__) && defined(__clang_minor__)
@@ -13880,7 +13880,7 @@ case $ocaml_cv_cc_vendor in #(
     common_cflags="-O2 -fno-strict-aliasing -fwrapv";
     internal_cflags="$cc_warnings -fno-common -fexcess-precision=standard \
 -Wvla" ;; #(
-  mingw32-*-*-gcc-*) :
+  mingw32-*-*-gcc-*|mingw32-*-*-clang-*) :
     internal_cflags="-Wno-unused $cc_warnings \
 -fexcess-precision=standard"
     # TODO: see whether the code can be fixed to avoid -Wno-unused

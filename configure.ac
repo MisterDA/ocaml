@@ -800,7 +800,7 @@ AS_CASE([$ocaml_cv_cc_vendor],
     [common_cflags="-O2 -fno-strict-aliasing -fwrapv";
     internal_cflags="$cc_warnings -fno-common -fexcess-precision=standard \
 -Wvla"],
-  [mingw32-*-*-gcc-*],
+  [mingw32-*-*-gcc-*|mingw32-*-*-clang-*],
     [internal_cflags="-Wno-unused $cc_warnings \
 -fexcess-precision=standard"
     # TODO: see whether the code can be fixed to avoid -Wno-unused
