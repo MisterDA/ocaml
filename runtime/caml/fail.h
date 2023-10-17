@@ -42,31 +42,14 @@
 #define ASSERT_FAILURE_EXN 10   /* "Assert_failure" */
 #define UNDEFINED_RECURSIVE_MODULE_EXN 11 /* "Undefined_recursive_module" */
 
-#ifdef POSIX_SIGNALS
+#undef sigsetjmp
+#undef siglongjmp
+
 struct longjmp_buffer {
-  sigjmp_buf buf;
-};
-#elif defined(__MINGW64__) && defined(__clang__)
-/* MPR#7638: issues with setjmp/longjmp in Mingw64, use LLVM builtins instead */
-struct longjmp_buffer {
-    uint8_t buf[5];
+    uintptr_t buf[5];
 };
 #define sigsetjmp(buf,save) __builtin_setjmp((void **)(buf))
 #define siglongjmp(buf,val) __builtin_longjmp((void **)(buf),val)
-#elif defined(__MINGW64__) && defined(__GNUC__) && __GNUC__ >= 4
-/* MPR#7638: issues with setjmp/longjmp in Mingw64, use GCC builtins instead */
-struct longjmp_buffer {
-  intptr_t buf[5];
-};
-#define sigsetjmp(buf,save) __builtin_setjmp(buf)
-#define siglongjmp(buf,val) __builtin_longjmp(buf,val)
-#else
-struct longjmp_buffer {
-  jmp_buf buf;
-};
-#define sigsetjmp(buf,save) setjmp(buf)
-#define siglongjmp(buf,val) longjmp(buf,val)
-#endif
 
 struct caml_exception_context {
   struct longjmp_buffer* jmp;
