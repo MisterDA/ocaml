@@ -23,7 +23,7 @@
 #include "caml/platform.h"
 #include "caml/fail.h"
 #include "caml/lf_skiplist.h"
-#ifdef HAS_SYS_MMAN_H
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
 #ifdef _WIN32

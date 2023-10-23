@@ -54,7 +54,7 @@
 #define HAS_LOCALE
 #endif
 
-#ifdef HAS_STDINT_H
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
 
@@ -120,7 +120,7 @@
   #endif
 #endif
 
-#ifndef HAS_STDINT_H
+#ifndef HAVE_STDINT_H
 /* Not a C99 compiler, typically MSVC.  Define the C99 types we use. */
 typedef ARCH_INT32_TYPE int32_t;
 typedef ARCH_UINT32_TYPE uint32_t;

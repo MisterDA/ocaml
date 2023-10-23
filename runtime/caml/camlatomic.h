@@ -38,7 +38,7 @@ using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 }
 
-#elif defined(HAS_STDATOMIC_H)
+#elif defined(HAVE_STDATOMIC_H)
 
 #include <stdatomic.h>
 #define ATOMIC_UINTNAT_INIT(x) (x)

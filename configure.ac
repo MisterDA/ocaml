@@ -1017,19 +1017,13 @@ AC_SEARCH_LIBS([cos], [m],
 
 # Checks for header files
 
-AC_CHECK_HEADER([math.h])
-AC_CHECK_HEADERS([unistd.h],[AC_DEFINE([HAS_UNISTD])])
-AC_CHECK_HEADER([stdint.h],[AC_DEFINE([HAS_STDINT_H])])
-AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H])])
+AC_CHECK_HEADERS_ONCE([math.h unistd.h stdint.h pthread_np.h stdatomic.h \
+  sys/mman.h])
 AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT])], [],
   [#include <sys/types.h>])
 
 AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H])], [],
   [#include <sys/types.h>])
-
-AC_CHECK_HEADER([stdatomic.h], [AC_DEFINE([HAS_STDATOMIC_H])])
-
-AC_CHECK_HEADER([sys/mman.h], [AC_DEFINE([HAS_SYS_MMAN_H])])
 
 # Checks for types
 
@@ -2192,7 +2186,7 @@ AC_LINK_IFELSE(
   [AC_LANG_PROGRAM(
     [[#define _GNU_SOURCE
       #include <sched.h>
-      #ifdef HAS_PTHREAD_NP_H
+      #ifdef HAVE_PTHREAD_NP_H
       #include <pthread_np.h>
       #endif
       #include <pthread.h>]],

@@ -78,9 +78,9 @@
 
 #undef HAS_ISSETUGID
 
-#undef HAS_STDATOMIC_H
+#undef HAVE_STDATOMIC_H
 
-#undef HAS_SYS_MMAN_H
+#undef HAVE_SYS_MMAN_H
 
 /* 2. For the Unix library. */
 
@@ -106,13 +106,13 @@
 
 #undef HAS_IPV6
 
-#undef HAS_STDINT_H
+#undef HAVE_STDINT_H
 
-#undef HAS_PTHREAD_NP_H
+#undef HAVE_PTHREAD_NP_H
 
-#undef HAS_UNISTD
+#undef HAVE_UNISTD_H
 
-/* Define HAS_UNISTD if you have /usr/include/unistd.h. */
+/* Define HAVE_UNISTD_H if you have /usr/include/unistd.h. */
 
 #undef HAS_DIRENT
 

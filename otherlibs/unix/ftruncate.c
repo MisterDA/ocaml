@@ -21,7 +21,7 @@
 #include <caml/io.h>
 #include <caml/signals.h>
 #include "unixsupport.h"
-#ifdef HAS_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 

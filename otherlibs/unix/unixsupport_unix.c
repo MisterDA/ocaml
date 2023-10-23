@@ -24,7 +24,7 @@
 #include "unixsupport.h"
 #include "cst2constr.h"
 #include <errno.h>
-#ifdef HAS_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <fcntl.h>

@@ -3046,6 +3046,10 @@ as_fn_append ac_header_c_list " strings.h strings_h HAVE_STRINGS_H"
 as_fn_append ac_header_c_list " sys/stat.h sys_stat_h HAVE_SYS_STAT_H"
 as_fn_append ac_header_c_list " sys/types.h sys_types_h HAVE_SYS_TYPES_H"
 as_fn_append ac_header_c_list " unistd.h unistd_h HAVE_UNISTD_H"
+as_fn_append ac_header_c_list " math.h math_h HAVE_MATH_H"
+as_fn_append ac_header_c_list " pthread_np.h pthread_np_h HAVE_PTHREAD_NP_H"
+as_fn_append ac_header_c_list " stdatomic.h stdatomic_h HAVE_STDATOMIC_H"
+as_fn_append ac_header_c_list " sys/mman.h sys_mman_h HAVE_SYS_MMAN_H"
 
 # Auxiliary files required by this configure script.
 ac_aux_files="install-sh ltmain.sh config.guess config.sub"
@@ -14522,36 +14526,10 @@ fi
 
 # Checks for header files
 
-ac_fn_c_check_header_compile "$LINENO" "math.h" "ac_cv_header_math_h" "$ac_includes_default"
-if test "x$ac_cv_header_math_h" = xyes
-then :
 
-fi
 
-       for ac_header in unistd.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
-if test "x$ac_cv_header_unistd_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_UNISTD_H 1" >>confdefs.h
- printf "%s\n" "#define HAS_UNISTD 1" >>confdefs.h
 
-fi
 
-done
-ac_fn_c_check_header_compile "$LINENO" "stdint.h" "ac_cv_header_stdint_h" "$ac_includes_default"
-if test "x$ac_cv_header_stdint_h" = xyes
-then :
-  printf "%s\n" "#define HAS_STDINT_H 1" >>confdefs.h
-
-fi
-
-ac_fn_c_check_header_compile "$LINENO" "pthread_np.h" "ac_cv_header_pthread_np_h" "$ac_includes_default"
-if test "x$ac_cv_header_pthread_np_h" = xyes
-then :
-  printf "%s\n" "#define HAS_PTHREAD_NP_H 1" >>confdefs.h
-
-fi
 
 ac_fn_c_check_header_compile "$LINENO" "dirent.h" "ac_cv_header_dirent_h" "#include <sys/types.h>
 "
@@ -14567,22 +14545,6 @@ ac_fn_c_check_header_compile "$LINENO" "sys/select.h" "ac_cv_header_sys_select_h
 if test "x$ac_cv_header_sys_select_h" = xyes
 then :
   printf "%s\n" "#define HAS_SYS_SELECT_H 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_header_compile "$LINENO" "stdatomic.h" "ac_cv_header_stdatomic_h" "$ac_includes_default"
-if test "x$ac_cv_header_stdatomic_h" = xyes
-then :
-  printf "%s\n" "#define HAS_STDATOMIC_H 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_header_compile "$LINENO" "sys/mman.h" "ac_cv_header_sys_mman_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_mman_h" = xyes
-then :
-  printf "%s\n" "#define HAS_SYS_MMAN_H 1" >>confdefs.h
 
 fi
 
@@ -19389,7 +19351,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #define _GNU_SOURCE
       #include <sched.h>
-      #ifdef HAS_PTHREAD_NP_H
+      #ifdef HAVE_PTHREAD_NP_H
       #include <pthread_np.h>
       #endif
       #include <pthread.h>

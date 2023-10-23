@@ -40,7 +40,7 @@
 #include <dlfcn.h>
 #endif
 #endif
-#ifdef HAS_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef HAS_POSIX_MONOTONIC_CLOCK
@@ -56,7 +56,7 @@
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif
-#ifdef HAS_SYS_MMAN_H
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
 #include "caml/fail.h"
