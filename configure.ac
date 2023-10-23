@@ -1017,8 +1017,7 @@ AC_SEARCH_LIBS([cos], [m],
 
 # Checks for header files
 
-AC_CHECK_HEADERS_ONCE([math.h unistd.h stdint.h pthread_np.h stdatomic.h \
-  sys/mman.h])
+AC_CHECK_HEADERS_ONCE([math.h pthread_np.h stdatomic.h sys/mman.h])
 AC_CHECK_HEADERS([dirent.h], [], [], [#include <sys/types.h>])
 AC_CHECK_HEADERS([sys/select.h], [], [], [#include <sys/types.h>])
 
