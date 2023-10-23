@@ -175,11 +175,11 @@
 #undef HAVE_REALPATH
 /* Define HAVE_REALPATH if you have realpath(). */
 
-#undef HAS_WAIT4
-#undef HAS_WAITPID
+#undef HAVE_WAIT4
+#undef HAVE_WAITPID
 
-/* Define HAS_WAIT4 if you have wait4().
-   Define HAS_WAITPID if you have waitpid(). */
+/* Define HAVE_WAIT4 if you have wait4().
+   Define HAVE_WAITPID if you have waitpid(). */
 
 #undef HAVE_GETGROUPS
 
@@ -198,9 +198,9 @@
 /* Define HAS_TERMIOS if you have /usr/include/termios.h and it is
    Posix-compliant. */
 
-#undef HAS_SETITIMER
+#undef HAVE_SETITIMER
 
-/* Define HAS_SETITIMER if you have setitimer(). */
+/* Define HAVE_SETITIMER if you have setitimer(). */
 
 #undef HAS_GETHOSTNAME
 
@@ -210,9 +210,9 @@
 
 /* Define HAS_UNAME if you have uname(). */
 
-#undef HAS_GETTIMEOFDAY
+#undef HAVE_GETTIMEOFDAY
 
-/* Define HAS_GETTIMEOFDAY if you have gettimeofday(). */
+/* Define HAVE_GETTIMEOFDAY if you have gettimeofday(). */
 
 #undef HAVE_MKTIME
 

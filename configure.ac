@@ -1534,8 +1534,9 @@ AC_CHECK_DECLS([getentropy], [], [], [
 ])
 
 AC_CHECK_FUNCS_ONCE(m4_normalize([accept4 dup3 execvpe getauxval getcwd
-  getgroups getrusage initgroups issetugid lockf mkfifo mkstemp mktime nanosleep
-  nice pipe2 putenv pwrite realpath rewinddir setgroups system times utimes]))
+  getgroups getrusage gettimeofday initgroups issetugid lockf mkfifo mkstemp
+  mktime nanosleep nice pipe2 putenv pwrite realpath rewinddir setgroups
+  setitimer system times utimes wait4 waitpid]))
 
 ## secure_getenv and __secure_getenv
 
@@ -1837,22 +1838,6 @@ AC_CHECK_FUNC([symlink],
   [AC_CHECK_FUNC([readlink],
     [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK])])])])
 
-# wait
-AC_CHECK_FUNC(
-  [waitpid],
-  [
-    wait=true
-    AC_DEFINE([HAS_WAITPID])
-  ],
-  [wait=false])
-
-AC_CHECK_FUNC(
-  [wait4],
-  [
-    has_wait=true
-    AC_DEFINE([HAS_WAIT4])
-  ])
-
 ## termios
 
 AC_CHECK_HEADER([termios.h],
@@ -1861,15 +1846,6 @@ AC_CHECK_HEADER([termios.h],
       [AC_CHECK_FUNC([tcsendbreak],
         [AC_CHECK_FUNC([tcflush],
           [AC_CHECK_FUNC([tcflow], [AC_DEFINE([HAS_TERMIOS])])])])])])])
-
-## setitimer
-
-AC_CHECK_FUNC([setitimer],
-  [
-    setitimer=true
-    AC_DEFINE([HAS_SETITIMER])
-  ],
-  [setitimer=false])
 
 ## gethostname
 # Note: detection fails on Windows so hardcoding the result
@@ -1882,15 +1858,6 @@ AS_CASE([$host],
 
 AC_CHECK_HEADER([sys/utsname.h],
   [AC_CHECK_FUNC([uname], [AC_DEFINE([HAS_UNAME])])])
-
-## gettimeofday
-
-AC_CHECK_FUNC([gettimeofday],
-  [
-    gettimeofday=true
-    AC_DEFINE([HAS_GETTIMEOFDAY])
-  ],
-  [gettimeofday=false])
 
 ## setsid
 

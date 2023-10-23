@@ -42,7 +42,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
-#ifdef HAS_GETTIMEOFDAY
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
 #if HAVE_DECL_GETENTROPY && defined(__APPLE__)
@@ -621,7 +621,7 @@ int caml_unix_random_seed(intnat data[16])
   /* Otherwise, complement whatever we got (probably nothing)
      with some not-very-random data. */
   {
-#ifdef HAS_GETTIMEOFDAY
+#ifdef HAVE_GETTIMEOFDAY
     struct timeval tv;
     gettimeofday(&tv, NULL);
     if (n < 16) data[n++] = tv.tv_usec;

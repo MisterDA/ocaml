@@ -435,7 +435,7 @@ uint64_t caml_time_counter(void)
   return
     (uint64_t)t.tv_sec  * (uint64_t)1000000000 +
     (uint64_t)t.tv_nsec;
-#elif defined(HAS_GETTIMEOFDAY)
+#elif defined(HAVE_GETTIMEOFDAY)
   struct timeval t;
   gettimeofday(&t, 0);
   return

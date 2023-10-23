@@ -3058,6 +3058,7 @@ as_fn_append ac_func_c_list " getauxval HAVE_GETAUXVAL"
 as_fn_append ac_func_c_list " getcwd HAVE_GETCWD"
 as_fn_append ac_func_c_list " getgroups HAVE_GETGROUPS"
 as_fn_append ac_func_c_list " getrusage HAVE_GETRUSAGE"
+as_fn_append ac_func_c_list " gettimeofday HAVE_GETTIMEOFDAY"
 as_fn_append ac_func_c_list " initgroups HAVE_INITGROUPS"
 as_fn_append ac_func_c_list " issetugid HAVE_ISSETUGID"
 as_fn_append ac_func_c_list " lockf HAVE_LOCKF"
@@ -3072,9 +3073,12 @@ as_fn_append ac_func_c_list " pwrite HAVE_PWRITE"
 as_fn_append ac_func_c_list " realpath HAVE_REALPATH"
 as_fn_append ac_func_c_list " rewinddir HAVE_REWINDDIR"
 as_fn_append ac_func_c_list " setgroups HAVE_SETGROUPS"
+as_fn_append ac_func_c_list " setitimer HAVE_SETITIMER"
 as_fn_append ac_func_c_list " system HAVE_SYSTEM"
 as_fn_append ac_func_c_list " times HAVE_TIMES"
 as_fn_append ac_func_c_list " utimes HAVE_UTIMES"
+as_fn_append ac_func_c_list " wait4 HAVE_WAIT4"
+as_fn_append ac_func_c_list " waitpid HAVE_WAITPID"
 
 # Auxiliary files required by this configure script.
 ac_aux_files="install-sh ltmain.sh config.guess config.sub"
@@ -16330,6 +16334,10 @@ done
 
 
 
+
+
+
+
 ## secure_getenv and __secure_getenv
 
 saved_CPPFLAGS="$CPPFLAGS"
@@ -17288,31 +17296,6 @@ fi
 fi
 
 
-# wait
-ac_fn_c_check_func "$LINENO" "waitpid" "ac_cv_func_waitpid"
-if test "x$ac_cv_func_waitpid" = xyes
-then :
-
-    wait=true
-    printf "%s\n" "#define HAS_WAITPID 1" >>confdefs.h
-
-
-else $as_nop
-  wait=false
-fi
-
-
-ac_fn_c_check_func "$LINENO" "wait4" "ac_cv_func_wait4"
-if test "x$ac_cv_func_wait4" = xyes
-then :
-
-    has_wait=true
-    printf "%s\n" "#define HAS_WAIT4 1" >>confdefs.h
-
-
-fi
-
-
 ## termios
 
 ac_fn_c_check_header_compile "$LINENO" "termios.h" "ac_cv_header_termios_h" "$ac_includes_default"
@@ -17348,21 +17331,6 @@ fi
 fi
 
 
-## setitimer
-
-ac_fn_c_check_func "$LINENO" "setitimer" "ac_cv_func_setitimer"
-if test "x$ac_cv_func_setitimer" = xyes
-then :
-
-    setitimer=true
-    printf "%s\n" "#define HAS_SETITIMER 1" >>confdefs.h
-
-
-else $as_nop
-  setitimer=false
-fi
-
-
 ## gethostname
 # Note: detection fails on Windows so hardcoding the result
 # (should be debugged later)
@@ -17392,21 +17360,6 @@ then :
 
 fi
 
-fi
-
-
-## gettimeofday
-
-ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
-if test "x$ac_cv_func_gettimeofday" = xyes
-then :
-
-    gettimeofday=true
-    printf "%s\n" "#define HAS_GETTIMEOFDAY 1" >>confdefs.h
-
-
-else $as_nop
-  gettimeofday=false
 fi
 
 
