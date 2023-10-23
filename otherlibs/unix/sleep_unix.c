@@ -22,7 +22,7 @@
 #ifdef HAS_SELECT
 #include <sys/types.h>
 #include <sys/time.h>
-#ifdef HAS_SYS_SELECT_H
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #endif

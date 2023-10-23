@@ -18,7 +18,7 @@
 #include "unixsupport.h"
 #include <errno.h>
 #include <sys/types.h>
-#ifdef HAS_DIRENT
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
 #else
 #include <sys/dir.h>

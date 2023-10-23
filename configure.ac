@@ -1019,11 +1019,8 @@ AC_SEARCH_LIBS([cos], [m],
 
 AC_CHECK_HEADERS_ONCE([math.h unistd.h stdint.h pthread_np.h stdatomic.h \
   sys/mman.h])
-AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT])], [],
-  [#include <sys/types.h>])
-
-AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H])], [],
-  [#include <sys/types.h>])
+AC_CHECK_HEADERS([dirent.h], [], [], [#include <sys/types.h>])
+AC_CHECK_HEADERS([sys/select.h], [], [], [#include <sys/types.h>])
 
 # Checks for types
 
@@ -1789,8 +1786,7 @@ AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON])])
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
-    [AC_CHECK_HEADERS([afunix.h], [AC_DEFINE([HAS_AFUNIX_H])], [],
-      [#include <winsock2.h>])])
+    [AC_CHECK_HEADERS([afunix.h], [], [], [#include <winsock2.h>])])
 
 ## IPv6 support
 
@@ -2087,11 +2083,8 @@ AC_CHECK_FUNC([accept4], [AC_DEFINE([HAS_ACCEPT4])])
 AC_CHECK_FUNC([getauxval], [AC_DEFINE([HAS_GETAUXVAL])])
 
 ## shmat
-AC_CHECK_HEADER([sys/shm.h],
-  [
-    AC_DEFINE([HAS_SYS_SHM_H])
-    AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT])])
-  ])
+AC_CHECK_HEADERS([sys/shm.h],
+  [AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT])])])
 
 ## execvpe
 

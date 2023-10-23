@@ -48,7 +48,7 @@
 #elif HAS_CLOCK_GETTIME_NSEC_NP
 #include <time.h>
 #endif
-#ifdef HAS_DIRENT
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
 #else
 #include <sys/dir.h>
@@ -336,7 +336,7 @@ char * caml_dlerror(void)
 CAMLexport int caml_read_directory(char * dirname, struct ext_table * contents)
 {
   DIR * d;
-#ifdef HAS_DIRENT
+#ifdef HAVE_DIRENT_H
   struct dirent * e;
 #else
   struct direct * e;

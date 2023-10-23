@@ -19,7 +19,7 @@
 #include <caml/signals.h>
 #include "unixsupport.h"
 #include <sys/types.h>
-#ifdef HAS_DIRENT
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
 #else
 #include <sys/dir.h>

@@ -15,7 +15,7 @@
 
 /* POSIX thread implementation of the "st" interface */
 
-#ifdef HAS_SYS_SELECT_H
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 
