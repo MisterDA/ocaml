@@ -26,7 +26,7 @@
 
 #include "unixsupport.h"
 
-#ifdef HAS_PUTENV
+#ifdef HAVE_PUTENV
 
 CAMLprim value caml_unix_putenv(value name, value val)
 {

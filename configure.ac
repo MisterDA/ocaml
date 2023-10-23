@@ -1533,11 +1533,9 @@ AC_CHECK_DECLS([getentropy], [], [], [
 #endif
 ])
 
-## getrusage
-AC_CHECK_FUNC([getrusage], [AC_DEFINE([HAS_GETRUSAGE])])
-
-## times
-AC_CHECK_FUNC([times], [AC_DEFINE([HAS_TIMES])])
+AC_CHECK_FUNCS_ONCE(m4_normalize([accept4 dup3 execvpe getauxval getcwd
+  getgroups getrusage initgroups issetugid lockf mkfifo mkstemp mktime nanosleep
+  nice pipe2 putenv pwrite realpath rewinddir setgroups system times utimes]))
 
 ## secure_getenv and __secure_getenv
 
@@ -1549,10 +1547,6 @@ AC_CHECK_FUNC([secure_getenv],
   [AC_CHECK_FUNC([__secure_getenv], [AC_DEFINE([HAS___SECURE_GETENV])])])
 
 CPPFLAGS="$saved_CPPFLAGS"
-
-## issetugid
-
-AC_CHECK_FUNC([issetugid], [AC_DEFINE([HAS_ISSETUGID])])
 
 ## Checking for monotonic clock source
 ## On Windows MSVC, QueryPerformanceCounter and QueryPerformanceFrequency
@@ -1820,16 +1814,6 @@ AS_IF([$ipv6],
 AS_IF([$ipv6],
   [AC_CHECK_FUNC([inet_ntop], [AC_DEFINE([HAS_IPV6])])])
 
-AC_CHECK_FUNC([rewinddir], [AC_DEFINE([HAS_REWINDDIR])])
-
-AC_CHECK_FUNC([lockf], [AC_DEFINE([HAS_LOCKF])])
-
-AC_CHECK_FUNC([mkfifo], [AC_DEFINE([HAS_MKFIFO])])
-
-AC_CHECK_FUNC([getcwd], [AC_DEFINE([HAS_GETCWD])])
-
-AC_CHECK_DECL([system], [AC_DEFINE([HAS_SYSTEM])], [], [[#include <stdlib.h>]])
-
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
 # seem to detect it properly on Windows so we hardcode the definition
@@ -1839,8 +1823,6 @@ AS_CASE([$host],
   [AC_CHECK_HEADER([sys/types.h],
     [AC_CHECK_HEADER([utime.h],
       [AC_CHECK_FUNC([utime], [AC_DEFINE([HAS_UTIME])])])])])
-
-AC_CHECK_FUNC([utimes], [AC_DEFINE([HAS_UTIMES])])
 
 AC_CHECK_FUNC([fchmod],
   [AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD])])])
@@ -1857,13 +1839,9 @@ AC_CHECK_FUNC([select],
 #include <sys/select.h>
   ])])
 
-AC_CHECK_FUNC([nanosleep], [AC_DEFINE([HAS_NANOSLEEP])])
-
 AC_CHECK_FUNC([symlink],
   [AC_CHECK_FUNC([readlink],
     [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK])])])])
-
-AC_CHECK_FUNC([realpath], [AC_DEFINE([HAS_REALPATH])])
 
 # wait
 AC_CHECK_FUNC(
@@ -1880,15 +1858,6 @@ AC_CHECK_FUNC(
     has_wait=true
     AC_DEFINE([HAS_WAIT4])
   ])
-
-## getgroups
-AC_CHECK_FUNC([getgroups], [AC_DEFINE([HAS_GETGROUPS])])
-
-## setgroups
-AC_CHECK_FUNC([setgroups], [AC_DEFINE([HAS_SETGROUPS])])
-
-## initgroups
-AC_CHECK_FUNC([initgroups], [AC_DEFINE([HAS_INITGROUPS])])
 
 ## termios
 
@@ -1929,19 +1898,11 @@ AC_CHECK_FUNC([gettimeofday],
   ],
   [gettimeofday=false])
 
-## mktime
-
-AC_CHECK_FUNC([mktime], [AC_DEFINE([HAS_MKTIME])])
-
 ## setsid
 
 AS_CASE([$host],
   [*-cygwin|*-*-mingw32*|*-pc-windows], [],
   [AC_CHECK_FUNC([setsid], [AC_DEFINE([HAS_SETSID])])])
-
-## putenv
-
-AC_CHECK_FUNC([putenv], [AC_DEFINE([HAS_PUTENV])])
 
 ## setenv and unsetenv
 
@@ -1992,10 +1953,6 @@ AS_IF([$supports_shared_libraries],
 AC_CHECK_HEADER([sys/mman.h],
   [AC_CHECK_FUNC([mmap],
     [AC_CHECK_FUNC([munmap], [AC_DEFINE([HAS_MMAP])])])])
-
-## pwrite
-
-AC_CHECK_FUNC([pwrite], [AC_DEFINE([HAS_PWRITE])])
 
 ## -fdebug-prefix-map support by the C compiler
 AS_CASE([$ocaml_cv_cc_vendor,$host],
@@ -2060,37 +2017,9 @@ AS_CASE([$ac_cv_func_which_gethostbyaddr_r],
   [eight], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[8])],
   [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7])])
 
-## mkstemp
-
-AC_CHECK_FUNC([mkstemp], [AC_DEFINE([HAS_MKSTEMP])])
-
-## nice
-
-AC_CHECK_FUNC([nice], [AC_DEFINE([HAS_NICE])])
-
-## dup3
-
-AC_CHECK_FUNC([dup3], [AC_DEFINE([HAS_DUP3])])
-
-## pipe2
-
-AC_CHECK_FUNC([pipe2], [AC_DEFINE([HAS_PIPE2])])
-
-## accept4
-
-AC_CHECK_FUNC([accept4], [AC_DEFINE([HAS_ACCEPT4])])
-
-## getauxval
-
-AC_CHECK_FUNC([getauxval], [AC_DEFINE([HAS_GETAUXVAL])])
-
 ## shmat
 AC_CHECK_HEADERS([sys/shm.h],
   [AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT])])])
-
-## execvpe
-
-AC_CHECK_FUNC([execvpe], [AC_DEFINE([HAS_EXECVPE])])
 
 ## posix_spawn
 
@@ -2433,12 +2362,12 @@ AS_CASE([$host],
     [AC_DEFINE([HAS_BROKEN_PRINTF])
     AC_DEFINE([HAS_STRERROR])
     AC_DEFINE([HAS_IPV6])
-    AC_DEFINE([HAS_NICE])],
+    AC_DEFINE([HAVE_NICE])],
   [*-pc-windows],
     [AC_DEFINE([HAS_BROKEN_PRINTF])
     AC_DEFINE([HAS_STRERROR])
     AC_DEFINE([HAS_IPV6])
-    AC_DEFINE([HAS_NICE])],
+    AC_DEFINE([HAVE_NICE])],
   [*-*-solaris*],
     # This is required as otherwise floats are printed
     # as "Infinity" and "Inf" instead of the expected "inf"

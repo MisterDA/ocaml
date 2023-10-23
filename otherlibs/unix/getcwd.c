@@ -33,7 +33,7 @@
 #endif
 #endif
 
-#ifdef HAS_GETCWD
+#ifdef HAVE_GETCWD
 
 CAMLprim value caml_unix_getcwd(value unit)
 {

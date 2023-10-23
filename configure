@@ -715,6 +715,7 @@ ac_includes_default="\
 #endif"
 
 ac_header_c_list=
+ac_func_c_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 DIFF
@@ -3050,6 +3051,30 @@ as_fn_append ac_header_c_list " math.h math_h HAVE_MATH_H"
 as_fn_append ac_header_c_list " pthread_np.h pthread_np_h HAVE_PTHREAD_NP_H"
 as_fn_append ac_header_c_list " stdatomic.h stdatomic_h HAVE_STDATOMIC_H"
 as_fn_append ac_header_c_list " sys/mman.h sys_mman_h HAVE_SYS_MMAN_H"
+as_fn_append ac_func_c_list " accept4 HAVE_ACCEPT4"
+as_fn_append ac_func_c_list " dup3 HAVE_DUP3"
+as_fn_append ac_func_c_list " execvpe HAVE_EXECVPE"
+as_fn_append ac_func_c_list " getauxval HAVE_GETAUXVAL"
+as_fn_append ac_func_c_list " getcwd HAVE_GETCWD"
+as_fn_append ac_func_c_list " getgroups HAVE_GETGROUPS"
+as_fn_append ac_func_c_list " getrusage HAVE_GETRUSAGE"
+as_fn_append ac_func_c_list " initgroups HAVE_INITGROUPS"
+as_fn_append ac_func_c_list " issetugid HAVE_ISSETUGID"
+as_fn_append ac_func_c_list " lockf HAVE_LOCKF"
+as_fn_append ac_func_c_list " mkfifo HAVE_MKFIFO"
+as_fn_append ac_func_c_list " mkstemp HAVE_MKSTEMP"
+as_fn_append ac_func_c_list " mktime HAVE_MKTIME"
+as_fn_append ac_func_c_list " nanosleep HAVE_NANOSLEEP"
+as_fn_append ac_func_c_list " nice HAVE_NICE"
+as_fn_append ac_func_c_list " pipe2 HAVE_PIPE2"
+as_fn_append ac_func_c_list " putenv HAVE_PUTENV"
+as_fn_append ac_func_c_list " pwrite HAVE_PWRITE"
+as_fn_append ac_func_c_list " realpath HAVE_REALPATH"
+as_fn_append ac_func_c_list " rewinddir HAVE_REWINDDIR"
+as_fn_append ac_func_c_list " setgroups HAVE_SETGROUPS"
+as_fn_append ac_func_c_list " system HAVE_SYSTEM"
+as_fn_append ac_func_c_list " times HAVE_TIMES"
+as_fn_append ac_func_c_list " utimes HAVE_UTIMES"
 
 # Auxiliary files required by this configure script.
 ac_aux_files="install-sh ltmain.sh config.guess config.sub"
@@ -16267,22 +16292,42 @@ fi
 printf "%s\n" "#define HAVE_DECL_GETENTROPY $ac_have_decl" >>confdefs.h
 
 
-## getrusage
-ac_fn_c_check_func "$LINENO" "getrusage" "ac_cv_func_getrusage"
-if test "x$ac_cv_func_getrusage" = xyes
-then :
-  printf "%s\n" "#define HAS_GETRUSAGE 1" >>confdefs.h
+ac_func=
+for ac_item in $ac_func_c_list
+do
+  if test $ac_func; then
+    ac_fn_c_check_func "$LINENO" $ac_func ac_cv_func_$ac_func
+    if eval test \"x\$ac_cv_func_$ac_func\" = xyes; then
+      echo "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_func=
+  else
+    ac_func=$ac_item
+  fi
+done
 
-fi
 
 
-## times
-ac_fn_c_check_func "$LINENO" "times" "ac_cv_func_times"
-if test "x$ac_cv_func_times" = xyes
-then :
-  printf "%s\n" "#define HAS_TIMES 1" >>confdefs.h
 
-fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## secure_getenv and __secure_getenv
@@ -16307,16 +16352,6 @@ fi
 
 
 CPPFLAGS="$saved_CPPFLAGS"
-
-## issetugid
-
-ac_fn_c_check_func "$LINENO" "issetugid" "ac_cv_func_issetugid"
-if test "x$ac_cv_func_issetugid" = xyes
-then :
-  printf "%s\n" "#define HAS_ISSETUGID 1" >>confdefs.h
-
-fi
-
 
 ## Checking for monotonic clock source
 ## On Windows MSVC, QueryPerformanceCounter and QueryPerformanceFrequency
@@ -17182,46 +17217,6 @@ fi
 
 fi
 
-ac_fn_c_check_func "$LINENO" "rewinddir" "ac_cv_func_rewinddir"
-if test "x$ac_cv_func_rewinddir" = xyes
-then :
-  printf "%s\n" "#define HAS_REWINDDIR 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "lockf" "ac_cv_func_lockf"
-if test "x$ac_cv_func_lockf" = xyes
-then :
-  printf "%s\n" "#define HAS_LOCKF 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "mkfifo" "ac_cv_func_mkfifo"
-if test "x$ac_cv_func_mkfifo" = xyes
-then :
-  printf "%s\n" "#define HAS_MKFIFO 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "getcwd" "ac_cv_func_getcwd"
-if test "x$ac_cv_func_getcwd" = xyes
-then :
-  printf "%s\n" "#define HAS_GETCWD 1" >>confdefs.h
-
-fi
-
-
-ac_fn_check_decl "$LINENO" "system" "ac_cv_have_decl_system" "#include <stdlib.h>
-" "$ac_c_undeclared_builtin_options" "CFLAGS"
-if test "x$ac_cv_have_decl_system" = xyes
-then :
-  printf "%s\n" "#define HAS_SYSTEM 1" >>confdefs.h
-
-fi
-
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
 # seem to detect it properly on Windows so we hardcode the definition
@@ -17249,14 +17244,6 @@ fi
 fi
  ;;
 esac
-
-ac_fn_c_check_func "$LINENO" "utimes" "ac_cv_func_utimes"
-if test "x$ac_cv_func_utimes" = xyes
-then :
-  printf "%s\n" "#define HAS_UTIMES 1" >>confdefs.h
-
-fi
-
 
 ac_fn_c_check_func "$LINENO" "fchmod" "ac_cv_func_fchmod"
 if test "x$ac_cv_func_fchmod" = xyes
@@ -17305,14 +17292,6 @@ fi
 fi
 
 
-ac_fn_c_check_func "$LINENO" "nanosleep" "ac_cv_func_nanosleep"
-if test "x$ac_cv_func_nanosleep" = xyes
-then :
-  printf "%s\n" "#define HAS_NANOSLEEP 1" >>confdefs.h
-
-fi
-
-
 ac_fn_c_check_func "$LINENO" "symlink" "ac_cv_func_symlink"
 if test "x$ac_cv_func_symlink" = xyes
 then :
@@ -17327,14 +17306,6 @@ then :
 fi
 
 fi
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "realpath" "ac_cv_func_realpath"
-if test "x$ac_cv_func_realpath" = xyes
-then :
-  printf "%s\n" "#define HAS_REALPATH 1" >>confdefs.h
 
 fi
 
@@ -17360,33 +17331,6 @@ then :
     has_wait=true
     printf "%s\n" "#define HAS_WAIT4 1" >>confdefs.h
 
-
-fi
-
-
-## getgroups
-ac_fn_c_check_func "$LINENO" "getgroups" "ac_cv_func_getgroups"
-if test "x$ac_cv_func_getgroups" = xyes
-then :
-  printf "%s\n" "#define HAS_GETGROUPS 1" >>confdefs.h
-
-fi
-
-
-## setgroups
-ac_fn_c_check_func "$LINENO" "setgroups" "ac_cv_func_setgroups"
-if test "x$ac_cv_func_setgroups" = xyes
-then :
-  printf "%s\n" "#define HAS_SETGROUPS 1" >>confdefs.h
-
-fi
-
-
-## initgroups
-ac_fn_c_check_func "$LINENO" "initgroups" "ac_cv_func_initgroups"
-if test "x$ac_cv_func_initgroups" = xyes
-then :
-  printf "%s\n" "#define HAS_INITGROUPS 1" >>confdefs.h
 
 fi
 
@@ -17488,16 +17432,6 @@ else $as_nop
 fi
 
 
-## mktime
-
-ac_fn_c_check_func "$LINENO" "mktime" "ac_cv_func_mktime"
-if test "x$ac_cv_func_mktime" = xyes
-then :
-  printf "%s\n" "#define HAS_MKTIME 1" >>confdefs.h
-
-fi
-
-
 ## setsid
 
 case $host in #(
@@ -17512,16 +17446,6 @@ then :
 fi
  ;;
 esac
-
-## putenv
-
-ac_fn_c_check_func "$LINENO" "putenv" "ac_cv_func_putenv"
-if test "x$ac_cv_func_putenv" = xyes
-then :
-  printf "%s\n" "#define HAS_PUTENV 1" >>confdefs.h
-
-fi
-
 
 ## setenv and unsetenv
 
@@ -17698,16 +17622,6 @@ then :
 fi
 
 fi
-
-fi
-
-
-## pwrite
-
-ac_fn_c_check_func "$LINENO" "pwrite" "ac_cv_func_pwrite"
-if test "x$ac_cv_func_pwrite" = xyes
-then :
-  printf "%s\n" "#define HAS_PWRITE 1" >>confdefs.h
 
 fi
 
@@ -18216,66 +18130,6 @@ case $ac_cv_func_which_gethostbyaddr_r in #(
      ;;
 esac
 
-## mkstemp
-
-ac_fn_c_check_func "$LINENO" "mkstemp" "ac_cv_func_mkstemp"
-if test "x$ac_cv_func_mkstemp" = xyes
-then :
-  printf "%s\n" "#define HAS_MKSTEMP 1" >>confdefs.h
-
-fi
-
-
-## nice
-
-ac_fn_c_check_func "$LINENO" "nice" "ac_cv_func_nice"
-if test "x$ac_cv_func_nice" = xyes
-then :
-  printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
-
-fi
-
-
-## dup3
-
-ac_fn_c_check_func "$LINENO" "dup3" "ac_cv_func_dup3"
-if test "x$ac_cv_func_dup3" = xyes
-then :
-  printf "%s\n" "#define HAS_DUP3 1" >>confdefs.h
-
-fi
-
-
-## pipe2
-
-ac_fn_c_check_func "$LINENO" "pipe2" "ac_cv_func_pipe2"
-if test "x$ac_cv_func_pipe2" = xyes
-then :
-  printf "%s\n" "#define HAS_PIPE2 1" >>confdefs.h
-
-fi
-
-
-## accept4
-
-ac_fn_c_check_func "$LINENO" "accept4" "ac_cv_func_accept4"
-if test "x$ac_cv_func_accept4" = xyes
-then :
-  printf "%s\n" "#define HAS_ACCEPT4 1" >>confdefs.h
-
-fi
-
-
-## getauxval
-
-ac_fn_c_check_func "$LINENO" "getauxval" "ac_cv_func_getauxval"
-if test "x$ac_cv_func_getauxval" = xyes
-then :
-  printf "%s\n" "#define HAS_GETAUXVAL 1" >>confdefs.h
-
-fi
-
-
 ## shmat
        for ac_header in sys/shm.h
 do :
@@ -18293,16 +18147,6 @@ fi
 fi
 
 done
-
-## execvpe
-
-ac_fn_c_check_func "$LINENO" "execvpe" "ac_cv_func_execvpe"
-if test "x$ac_cv_func_execvpe" = xyes
-then :
-  printf "%s\n" "#define HAS_EXECVPE 1" >>confdefs.h
-
-fi
-
 
 ## posix_spawn
 
@@ -20091,7 +19935,7 @@ case $host in #(
 
     printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
 
-    printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_NICE 1" >>confdefs.h
  ;; #(
   *-pc-windows) :
     printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
@@ -20100,7 +19944,7 @@ case $host in #(
 
     printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
 
-    printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_NICE 1" >>confdefs.h
  ;; #(
   *-*-solaris*) :
     # This is required as otherwise floats are printed

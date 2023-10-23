@@ -18,7 +18,7 @@
 #include <caml/fail.h>
 #include <caml/memory.h>
 
-#ifdef HAS_SETGROUPS
+#ifdef HAVE_SETGROUPS
 
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H

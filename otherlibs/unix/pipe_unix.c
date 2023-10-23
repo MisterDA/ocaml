@@ -23,7 +23,7 @@ CAMLprim value caml_unix_pipe(value cloexec, value vunit)
 {
   int fd[2];
   value res;
-#ifdef HAS_PIPE2
+#ifdef HAVE_PIPE2
   if (pipe2(fd, caml_unix_cloexec_p(cloexec) ? O_CLOEXEC : 0) == -1)
     caml_uerror("pipe", Nothing);
 #else

@@ -17,7 +17,7 @@
 #include <caml/alloc.h>
 #include <caml/fail.h>
 
-#ifdef HAS_INITGROUPS
+#ifdef HAVE_INITGROUPS
 
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
