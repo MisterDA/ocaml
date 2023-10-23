@@ -152,9 +152,6 @@ uintnat caml_mem_round_up_pages(uintnat size)
 static struct lf_skiplist mmap_blocks = {NULL};
 #endif
 
-#ifndef _WIN32
-#endif
-
 void* caml_mem_map(uintnat size, uintnat alignment, int reserve_only)
 {
   CAMLassert(Is_power_of_2(alignment));
