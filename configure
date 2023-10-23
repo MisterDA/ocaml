@@ -17100,7 +17100,9 @@ case $host in #(
 "
 if test "x$ac_cv_type_socklen_t" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKLEN_T 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_SOCKLEN_T 1" >>confdefs.h
+
 
 fi
  ;; #(
@@ -17109,7 +17111,9 @@ fi
 "
 if test "x$ac_cv_type_socklen_t" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKLEN_T 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_SOCKLEN_T 1" >>confdefs.h
+
 
 fi
  ;;

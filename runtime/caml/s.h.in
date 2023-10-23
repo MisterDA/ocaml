@@ -93,9 +93,9 @@
 /* Define HAVE_SOCKETPAIR if you have the socketpair function. Only
    relevant on Windows. */
 
-#undef HAS_SOCKLEN_T
+#undef HAVE_SOCKLEN_T
 
-/* Define HAS_SOCKLEN_T if the type socklen_t is defined in
+/* Define HAVE_SOCKLEN_T if the type socklen_t is defined in
    /usr/include/sys/socket.h. */
 
 #undef HAVE_AFUNIX_H

@@ -1767,10 +1767,8 @@ AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS])])
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
-    [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
-      [#include <ws2tcpip.h>])],
-  [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
-    [#include <sys/socket.h>])])
+    [AC_CHECK_TYPES([socklen_t], [], [], [#include <ws2tcpip.h>])],
+  [AC_CHECK_TYPES([socklen_t], [], [], [#include <sys/socket.h>])])
 
 AC_CHECK_FUNCS([inet_aton])
 
