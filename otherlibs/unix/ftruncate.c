@@ -25,7 +25,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAS_TRUNCATE
+#ifdef HAVE_FTRUNCATE
 
 CAMLprim value caml_unix_ftruncate(value fd, value len)
 {

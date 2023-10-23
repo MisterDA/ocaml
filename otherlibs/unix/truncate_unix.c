@@ -26,7 +26,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAS_TRUNCATE
+#ifdef HAVE_TRUNCATE
 
 CAMLprim value caml_unix_truncate(value path, value len)
 {

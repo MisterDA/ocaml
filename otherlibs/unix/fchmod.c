@@ -20,7 +20,7 @@
 #include <caml/signals.h>
 #include "unixsupport.h"
 
-#ifdef HAS_FCHMOD
+#ifdef HAVE_FCHMOD
 
 CAMLprim value caml_unix_fchmod(value fd, value perm)
 {

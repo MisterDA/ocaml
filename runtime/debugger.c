@@ -195,7 +195,7 @@ void caml_debugger_init(void)
      the debugger. */
 #if defined(_WIN32)
   _wputenv(L"CAML_DEBUG_SOCKET=");
-#elif defined(HAS_SETENV_UNSETENV)
+#elif defined(HAVE_UNSETENV)
   unsetenv("CAML_DEBUG_SOCKET");
 #endif
 

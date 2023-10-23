@@ -147,14 +147,21 @@
 /* Define HAVE_UTIME if you have /usr/include/utime.h and the library
    provides utime(). Define HAVE_UTIMES if the library provides utimes(). */
 
-#undef HAS_FCHMOD
+#undef HAVE_FCHMOD
 
-/* Define HAS_FCHMOD if you have fchmod() and fchown(). */
+/* Define HAVE_FCHMOD if the library provides the fchmod() function. */
 
-#undef HAS_TRUNCATE
+#undef HAVE_FCHOWN
 
-/* Define HAS_TRUNCATE if you have truncate() and
-   ftruncate(). */
+/* Define HAVE_FCHOWN if the library provides the fchown() function. */
+
+#undef HAVE_TRUNCATE
+
+/* Define HAVE_TRUNCATE if the library provides the truncate() function. */
+
+#undef HAVE_FTRUNCATE
+
+/* Define HAVE_FTRUNCATE if the library provides the ftruncate() function. */
 
 #undef HAS_SELECT
 
@@ -168,9 +175,17 @@
 #undef HAVE_NANOSLEEP
 /* Define HAVE_NANOSLEEP if you have nanosleep(). */
 
-#undef HAS_SYMLINK
+#undef HAVE_SYMLINK
 
-/* Define HAS_SYMLINK if you have symlink() and readlink() and lstat(). */
+/* Define HAVE_SYMLINK if the library provides the symlink() function. */
+
+#undef HAVE_READLINK
+
+/* Define HAVE_READLINK if the library provides the readlink() function. */
+
+#undef HAVE_LSTAT
+
+/* Define HAVE_LSTAT if the library provides the lstat() function. */
 
 #undef HAVE_REALPATH
 /* Define HAVE_REALPATH if you have realpath(). */
@@ -226,9 +241,13 @@
 
 /* Define HAVE_PUTENV if you have putenv(). */
 
-#undef HAS_SETENV_UNSETENV
+#undef HAVE_SETENV
 
-/* Define HAS_SETENV_UNSETENV if you have setenv() and unsetenv(). */
+/* Define HAVE_SETENV if you have setenv(). */
+
+#undef HAVE_UNSETENV
+
+/* Define HAVE_UNSETENV if you have unsetenv(). */
 
 #undef HAS_LOCALE_H
 

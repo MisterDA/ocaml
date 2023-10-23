@@ -3054,6 +3054,9 @@ as_fn_append ac_header_c_list " sys/mman.h sys_mman_h HAVE_SYS_MMAN_H"
 as_fn_append ac_func_c_list " accept4 HAVE_ACCEPT4"
 as_fn_append ac_func_c_list " dup3 HAVE_DUP3"
 as_fn_append ac_func_c_list " execvpe HAVE_EXECVPE"
+as_fn_append ac_func_c_list " fchmod HAVE_FCHMOD"
+as_fn_append ac_func_c_list " fchown HAVE_FCHOWN"
+as_fn_append ac_func_c_list " ftruncate HAVE_FTRUNCATE"
 as_fn_append ac_func_c_list " getauxval HAVE_GETAUXVAL"
 as_fn_append ac_func_c_list " getcwd HAVE_GETCWD"
 as_fn_append ac_func_c_list " getgroups HAVE_GETGROUPS"
@@ -3062,6 +3065,7 @@ as_fn_append ac_func_c_list " gettimeofday HAVE_GETTIMEOFDAY"
 as_fn_append ac_func_c_list " initgroups HAVE_INITGROUPS"
 as_fn_append ac_func_c_list " issetugid HAVE_ISSETUGID"
 as_fn_append ac_func_c_list " lockf HAVE_LOCKF"
+as_fn_append ac_func_c_list " lstat HAVE_LSTAT"
 as_fn_append ac_func_c_list " mkfifo HAVE_MKFIFO"
 as_fn_append ac_func_c_list " mkstemp HAVE_MKSTEMP"
 as_fn_append ac_func_c_list " mktime HAVE_MKTIME"
@@ -3070,12 +3074,17 @@ as_fn_append ac_func_c_list " nice HAVE_NICE"
 as_fn_append ac_func_c_list " pipe2 HAVE_PIPE2"
 as_fn_append ac_func_c_list " putenv HAVE_PUTENV"
 as_fn_append ac_func_c_list " pwrite HAVE_PWRITE"
+as_fn_append ac_func_c_list " readlink HAVE_READLINK"
 as_fn_append ac_func_c_list " realpath HAVE_REALPATH"
 as_fn_append ac_func_c_list " rewinddir HAVE_REWINDDIR"
+as_fn_append ac_func_c_list " setenv HAVE_SETENV"
 as_fn_append ac_func_c_list " setgroups HAVE_SETGROUPS"
 as_fn_append ac_func_c_list " setitimer HAVE_SETITIMER"
+as_fn_append ac_func_c_list " symlink HAVE_SYMLINK"
 as_fn_append ac_func_c_list " system HAVE_SYSTEM"
 as_fn_append ac_func_c_list " times HAVE_TIMES"
+as_fn_append ac_func_c_list " truncate HAVE_TRUNCATE"
+as_fn_append ac_func_c_list " unsetenv HAVE_UNSETENV"
 as_fn_append ac_func_c_list " utimes HAVE_UTIMES"
 as_fn_append ac_func_c_list " wait4 HAVE_WAIT4"
 as_fn_append ac_func_c_list " waitpid HAVE_WAITPID"
@@ -16338,6 +16347,15 @@ done
 
 
 
+
+
+
+
+
+
+
+
+
 ## secure_getenv and __secure_getenv
 
 saved_CPPFLAGS="$CPPFLAGS"
@@ -17229,32 +17247,6 @@ fi
  ;;
 esac
 
-ac_fn_c_check_func "$LINENO" "fchmod" "ac_cv_func_fchmod"
-if test "x$ac_cv_func_fchmod" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "fchown" "ac_cv_func_fchown"
-if test "x$ac_cv_func_fchown" = xyes
-then :
-  printf "%s\n" "#define HAS_FCHMOD 1" >>confdefs.h
-
-fi
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "truncate" "ac_cv_func_truncate"
-if test "x$ac_cv_func_truncate" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "ftruncate" "ac_cv_func_ftruncate"
-if test "x$ac_cv_func_ftruncate" = xyes
-then :
-  printf "%s\n" "#define HAS_TRUNCATE 1" >>confdefs.h
-
-fi
-
-fi
-
-
 ## select
 ac_fn_c_check_func "$LINENO" "select" "ac_cv_func_select"
 if test "x$ac_cv_func_select" = xyes
@@ -17271,24 +17263,6 @@ then :
     select=true
 else $as_nop
   select=false
-fi
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "symlink" "ac_cv_func_symlink"
-if test "x$ac_cv_func_symlink" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "readlink" "ac_cv_func_readlink"
-if test "x$ac_cv_func_readlink" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "lstat" "ac_cv_func_lstat"
-if test "x$ac_cv_func_lstat" = xyes
-then :
-  printf "%s\n" "#define HAS_SYMLINK 1" >>confdefs.h
-
-fi
-
 fi
 
 fi
@@ -17375,21 +17349,6 @@ then :
 fi
  ;;
 esac
-
-## setenv and unsetenv
-
-ac_fn_c_check_func "$LINENO" "setenv" "ac_cv_func_setenv"
-if test "x$ac_cv_func_setenv" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "unsetenv" "ac_cv_func_unsetenv"
-if test "x$ac_cv_func_unsetenv" = xyes
-then :
-  printf "%s\n" "#define HAS_SETENV_UNSETENV 1" >>confdefs.h
-
-fi
-
-fi
-
 
 ## newlocale() and <locale.h>
 # Note: the detection fails on msvc so we hardcode the result

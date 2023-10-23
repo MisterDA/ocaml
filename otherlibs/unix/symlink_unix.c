@@ -19,7 +19,7 @@
 #include <caml/signals.h>
 #include "unixsupport.h"
 
-#ifdef HAS_SYMLINK
+#ifdef HAVE_SYMLINK
 
 CAMLprim value caml_unix_symlink(value to_dir, value path1, value path2)
 {

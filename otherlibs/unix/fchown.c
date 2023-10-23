@@ -18,7 +18,7 @@
 #include <caml/signals.h>
 #include "unixsupport.h"
 
-#ifdef HAS_FCHMOD
+#ifdef HAVE_FCHOWN
 
 CAMLprim value caml_unix_fchown(value fd, value uid, value gid)
 {

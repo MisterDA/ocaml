@@ -19,7 +19,7 @@
 #include <caml/fail.h>
 #include <caml/signals.h>
 
-#ifdef HAS_SYMLINK
+#ifdef HAVE_READLINK
 
 #include <sys/param.h>
 #include "unixsupport.h"

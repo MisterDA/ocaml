@@ -1533,10 +1533,11 @@ AC_CHECK_DECLS([getentropy], [], [], [
 #endif
 ])
 
-AC_CHECK_FUNCS_ONCE(m4_normalize([accept4 dup3 execvpe getauxval getcwd
-  getgroups getrusage gettimeofday initgroups issetugid lockf mkfifo mkstemp
-  mktime nanosleep nice pipe2 putenv pwrite realpath rewinddir setgroups
-  setitimer system times utimes wait4 waitpid]))
+AC_CHECK_FUNCS_ONCE(m4_normalize([accept4 dup3 execvpe fchmod fchown ftruncate
+  getauxval getcwd getgroups getrusage gettimeofday initgroups issetugid
+  lockf lstat mkfifo mkstemp mktime nanosleep nice pipe2 putenv pwrite readlink
+  realpath rewinddir setenv setgroups setitimer symlink system times truncate
+  unsetenv utimes wait4 waitpid]))
 
 ## secure_getenv and __secure_getenv
 
@@ -1812,12 +1813,6 @@ AS_CASE([$host],
     [AC_CHECK_HEADER([utime.h],
       [AC_CHECK_FUNCS([utime])])])])
 
-AC_CHECK_FUNC([fchmod],
-  [AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD])])])
-
-AC_CHECK_FUNC([truncate],
-  [AC_CHECK_FUNC([ftruncate], [AC_DEFINE([HAS_TRUNCATE])])])
-
 ## select
 AC_CHECK_FUNC([select],
   [AC_CHECK_TYPE([fd_set],
@@ -1826,10 +1821,6 @@ AC_CHECK_FUNC([select],
 #include <sys/types.h>
 #include <sys/select.h>
   ])])
-
-AC_CHECK_FUNC([symlink],
-  [AC_CHECK_FUNC([readlink],
-    [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK])])])])
 
 ## termios
 
@@ -1856,11 +1847,6 @@ AC_CHECK_HEADER([sys/utsname.h], [AC_CHECK_FUNCS([uname])])
 AS_CASE([$host],
   [*-cygwin|*-*-mingw32*|*-pc-windows], [],
   [AC_CHECK_FUNCS([setsid])])
-
-## setenv and unsetenv
-
-AC_CHECK_FUNC([setenv],
-  [AC_CHECK_FUNC([unsetenv], [AC_DEFINE([HAS_SETENV_UNSETENV])])])
 
 ## newlocale() and <locale.h>
 # Note: the detection fails on msvc so we hardcode the result

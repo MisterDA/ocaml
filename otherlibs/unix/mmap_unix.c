@@ -78,7 +78,7 @@ static int caml_grow_file(int fd, file_offset size)
   }
   else p=-1;
 #endif
-#ifdef HAS_TRUNCATE
+#ifdef HAVE_FTRUNCATE
   if (p == -1 && errno == ESPIPE) {
     /* Plan B. Check if at least ftruncate is possible. There are
        some non-seekable descriptor types that do not support pwrite
