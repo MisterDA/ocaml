@@ -55,7 +55,7 @@ CAMLprim value caml_unix_utimes(value path, value atime, value mtime)
   CAMLreturn(Val_unit);
 }
 
-#elif defined(HAS_UTIME)
+#elif defined(HAVE_UTIME)
 
 #include <sys/types.h>
 #include <utime.h>

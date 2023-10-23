@@ -45,7 +45,7 @@
 #endif
 #ifdef HAS_POSIX_MONOTONIC_CLOCK
 #include <time.h>
-#elif HAS_CLOCK_GETTIME_NSEC_NP
+#elif HAVE_CLOCK_GETTIME_NSEC_NP
 #include <time.h>
 #endif
 #ifdef HAVE_DIRENT_H
@@ -408,9 +408,9 @@ char * caml_executable_name(void)
 
 char *caml_secure_getenv (char const *var)
 {
-#ifdef HAS_SECURE_GETENV
+#ifdef HAVE_SECURE_GETENV
   return secure_getenv (var);
-#elif defined (HAS___SECURE_GETENV)
+#elif defined (HAVE___SECURE_GETENV)
   return __secure_getenv (var);
 #elif defined(HAVE_ISSETUGID)
   if (!issetugid ())
@@ -427,7 +427,7 @@ char *caml_secure_getenv (char const *var)
 
 uint64_t caml_time_counter(void)
 {
-#if defined(HAS_CLOCK_GETTIME_NSEC_NP)
+#if defined(HAVE_CLOCK_GETTIME_NSEC_NP)
   return (clock_gettime_nsec_np(CLOCK_UPTIME_RAW));
 #elif defined(HAS_POSIX_MONOTONIC_CLOCK)
   struct timespec t;

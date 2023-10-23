@@ -1543,9 +1543,7 @@ AC_CHECK_FUNCS_ONCE(m4_normalize([accept4 dup3 execvpe getauxval getcwd
 saved_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
 
-AC_CHECK_FUNC([secure_getenv],
-  [AC_DEFINE([HAS_SECURE_GETENV])],
-  [AC_CHECK_FUNC([__secure_getenv], [AC_DEFINE([HAS___SECURE_GETENV])])])
+AC_CHECK_FUNCS([secure_getenv __secure_getenv])
 
 CPPFLAGS="$saved_CPPFLAGS"
 
@@ -1561,10 +1559,7 @@ AS_CASE([$host],
     [has_monotonic_clock=true],
   [*-apple-darwin*], [
     AC_CHECK_FUNCS([clock_gettime_nsec_np],
-      [
-        has_monotonic_clock=true
-        AC_DEFINE([HAS_CLOCK_GETTIME_NSEC_NP])
-      ],
+      [has_monotonic_clock=true],
       [has_monotonic_clock=false])],
   [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <unistd.h>
@@ -1746,11 +1741,11 @@ AS_CASE([$host],
   [*-*-mingw32*],
     [cclibs="$cclibs -lws2_32"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR])])],
+    AC_CHECK_FUNCS([socketpair])],
   [*-pc-windows],
     [cclibs="$cclibs ws2_32.lib"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR])])],
+    AC_CHECK_FUNCS([socketpair])],
   [*-*-haiku],
     [cclibs="$cclibs -lnetwork"
     AC_SEARCH_LIBS([socket], [network])],
@@ -1777,7 +1772,7 @@ AS_CASE([$host],
   [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
     [#include <sys/socket.h>])])
 
-AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON])])
+AC_CHECK_FUNCS([inet_aton])
 
 ## Unix domain sockets support on Windows
 
@@ -1812,12 +1807,12 @@ AS_IF([$ipv6],
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
 # seem to detect it properly on Windows so we hardcode the definition
-# of HAS_UTIME on Windows but this will probably need to be clarified
+# of HAVE_UTIME on Windows but this will probably need to be clarified
 AS_CASE([$host],
-  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_UTIME])],
+  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAVE_UTIME])],
   [AC_CHECK_HEADER([sys/types.h],
     [AC_CHECK_HEADER([utime.h],
-      [AC_CHECK_FUNC([utime], [AC_DEFINE([HAS_UTIME])])])])])
+      [AC_CHECK_FUNCS([utime])])])])
 
 AC_CHECK_FUNC([fchmod],
   [AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD])])])
@@ -1851,19 +1846,18 @@ AC_CHECK_HEADER([termios.h],
 # Note: detection fails on Windows so hardcoding the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_GETHOSTNAME])],
-  [AC_CHECK_FUNC([gethostname], [AC_DEFINE([HAS_GETHOSTNAME])])])
+  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAVE_GETHOSTNAME])],
+  [AC_CHECK_FUNCS([gethostname])])
 
 ## uname
 
-AC_CHECK_HEADER([sys/utsname.h],
-  [AC_CHECK_FUNC([uname], [AC_DEFINE([HAS_UNAME])])])
+AC_CHECK_HEADER([sys/utsname.h], [AC_CHECK_FUNCS([uname])])
 
 ## setsid
 
 AS_CASE([$host],
   [*-cygwin|*-*-mingw32*|*-pc-windows], [],
-  [AC_CHECK_FUNC([setsid], [AC_DEFINE([HAS_SETSID])])])
+  [AC_CHECK_FUNCS([setsid])])
 
 ## setenv and unsetenv
 
@@ -1889,8 +1883,8 @@ AC_CHECK_HEADER([xlocale.h],
 # Note: not detected on MSVC so hardcoding the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-pc-windows], [AC_DEFINE([HAS_STRTOD_L])],
-  [AC_CHECK_FUNC([strtod_l], [AC_DEFINE([HAS_STRTOD_L])])])
+  [*-pc-windows], [AC_DEFINE([HAVE_STRTOD_L])],
+  [AC_CHECK_FUNC([strtod_l])])
 
 ## shared library support
 AS_IF([$supports_shared_libraries],
@@ -1979,8 +1973,8 @@ AS_CASE([$ac_cv_func_which_gethostbyaddr_r],
   [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7])])
 
 ## shmat
-AC_CHECK_HEADERS([sys/shm.h],
-  [AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT])])])
+
+AC_CHECK_HEADERS([sys/shm.h], [AC_CHECK_FUNCS([shmat])])
 
 ## posix_spawn
 
@@ -2061,7 +2055,7 @@ AS_CASE([$host],
     # tests can rely on the assumption that pthread is enabled.
     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
     LIBS="$LIBS $PTHREAD_LIBS"
-    AC_CHECK_FUNC([sigwait], [AC_DEFINE([HAS_SIGWAIT])])],
+    AC_CHECK_FUNCS([sigwait])],
     [AC_MSG_ERROR(m4_normalize([POSIX threads are required but not supported on
       this platform]))])])
 

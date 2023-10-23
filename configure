@@ -16346,15 +16346,13 @@ CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
 ac_fn_c_check_func "$LINENO" "secure_getenv" "ac_cv_func_secure_getenv"
 if test "x$ac_cv_func_secure_getenv" = xyes
 then :
-  printf "%s\n" "#define HAS_SECURE_GETENV 1" >>confdefs.h
-
-else $as_nop
-  ac_fn_c_check_func "$LINENO" "__secure_getenv" "ac_cv_func___secure_getenv"
-if test "x$ac_cv_func___secure_getenv" = xyes
-then :
-  printf "%s\n" "#define HAS___SECURE_GETENV 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SECURE_GETENV 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "__secure_getenv" "ac_cv_func___secure_getenv"
+if test "x$ac_cv_func___secure_getenv" = xyes
+then :
+  printf "%s\n" "#define HAVE___SECURE_GETENV 1" >>confdefs.h
 
 fi
 
@@ -16380,11 +16378,7 @@ do :
 if test "x$ac_cv_func_clock_gettime_nsec_np" = xyes
 then :
   printf "%s\n" "#define HAVE_CLOCK_GETTIME_NSEC_NP 1" >>confdefs.h
-
-        has_monotonic_clock=true
-        printf "%s\n" "#define HAS_CLOCK_GETTIME_NSEC_NP 1" >>confdefs.h
-
-
+ has_monotonic_clock=true
 else $as_nop
   has_monotonic_clock=false
 fi
@@ -16817,7 +16811,7 @@ fi
     ac_fn_c_check_func "$LINENO" "socketpair" "ac_cv_func_socketpair"
 if test "x$ac_cv_func_socketpair" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKETPAIR 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SOCKETPAIR 1" >>confdefs.h
 
 fi
  ;; #(
@@ -16885,7 +16879,7 @@ fi
     ac_fn_c_check_func "$LINENO" "socketpair" "ac_cv_func_socketpair"
 if test "x$ac_cv_func_socketpair" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKETPAIR 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SOCKETPAIR 1" >>confdefs.h
 
 fi
  ;; #(
@@ -17124,7 +17118,7 @@ esac
 ac_fn_c_check_func "$LINENO" "inet_aton" "ac_cv_func_inet_aton"
 if test "x$ac_cv_func_inet_aton" = xyes
 then :
-  printf "%s\n" "#define HAS_INET_ATON 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_INET_ATON 1" >>confdefs.h
 
 fi
 
@@ -17206,10 +17200,10 @@ fi
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
 # seem to detect it properly on Windows so we hardcode the definition
-# of HAS_UTIME on Windows but this will probably need to be clarified
+# of HAVE_UTIME on Windows but this will probably need to be clarified
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
-    printf "%s\n" "#define HAS_UTIME 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_UTIME 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_header_compile "$LINENO" "sys/types.h" "ac_cv_header_sys_types_h" "$ac_includes_default"
@@ -17221,7 +17215,7 @@ then :
   ac_fn_c_check_func "$LINENO" "utime" "ac_cv_func_utime"
 if test "x$ac_cv_func_utime" = xyes
 then :
-  printf "%s\n" "#define HAS_UTIME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_UTIME 1" >>confdefs.h
 
 fi
 
@@ -17336,13 +17330,13 @@ fi
 # (should be debugged later)
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
-    printf "%s\n" "#define HAS_GETHOSTNAME 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_GETHOSTNAME 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "gethostname" "ac_cv_func_gethostname"
 if test "x$ac_cv_func_gethostname" = xyes
 then :
-  printf "%s\n" "#define HAS_GETHOSTNAME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_GETHOSTNAME 1" >>confdefs.h
 
 fi
  ;;
@@ -17356,7 +17350,7 @@ then :
   ac_fn_c_check_func "$LINENO" "uname" "ac_cv_func_uname"
 if test "x$ac_cv_func_uname" = xyes
 then :
-  printf "%s\n" "#define HAS_UNAME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_UNAME 1" >>confdefs.h
 
 fi
 
@@ -17372,7 +17366,7 @@ case $host in #(
     ac_fn_c_check_func "$LINENO" "setsid" "ac_cv_func_setsid"
 if test "x$ac_cv_func_setsid" = xyes
 then :
-  printf "%s\n" "#define HAS_SETSID 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SETSID 1" >>confdefs.h
 
 fi
  ;;
@@ -17453,13 +17447,12 @@ fi
 # (should be debugged later)
 case $host in #(
   *-pc-windows) :
-    printf "%s\n" "#define HAS_STRTOD_L 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_STRTOD_L 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "strtod_l" "ac_cv_func_strtod_l"
 if test "x$ac_cv_func_strtod_l" = xyes
 then :
-  printf "%s\n" "#define HAS_STRTOD_L 1" >>confdefs.h
 
 fi
  ;;
@@ -18062,6 +18055,7 @@ case $ac_cv_func_which_gethostbyaddr_r in #(
 esac
 
 ## shmat
+
        for ac_header in sys/shm.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "sys/shm.h" "ac_cv_header_sys_shm_h" "$ac_includes_default"
@@ -18071,7 +18065,7 @@ then :
  ac_fn_c_check_func "$LINENO" "shmat" "ac_cv_func_shmat"
 if test "x$ac_cv_func_shmat" = xyes
 then :
-  printf "%s\n" "#define HAS_SHMAT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SHMAT 1" >>confdefs.h
 
 fi
 
@@ -19101,7 +19095,7 @@ if test "x$ax_pthread_ok" = "xyes"; then
     ac_fn_c_check_func "$LINENO" "sigwait" "ac_cv_func_sigwait"
 if test "x$ac_cv_func_sigwait" = xyes
 then :
-  printf "%s\n" "#define HAS_SIGWAIT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SIGWAIT 1" >>confdefs.h
 
 fi
 

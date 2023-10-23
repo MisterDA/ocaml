@@ -72,9 +72,9 @@
 
 #undef HAVE_TIMES
 
-#undef HAS_SECURE_GETENV
+#undef HAVE_SECURE_GETENV
 
-#undef HAS___SECURE_GETENV
+#undef HAVE___SECURE_GETENV
 
 #undef HAVE_ISSETUGID
 
@@ -88,9 +88,9 @@
 
 /* Define HAS_SOCKETS if you have BSD sockets. */
 
-#undef HAS_SOCKETPAIR
+#undef HAVE_SOCKETPAIR
 
-/* Define HAS_SOCKETPAIR if you have the socketpair function. Only
+/* Define HAVE_SOCKETPAIR if you have the socketpair function. Only
    relevant on Windows. */
 
 #undef HAS_SOCKLEN_T
@@ -102,7 +102,7 @@
 
 /* Define HAVE_AFUNIX_H if you have <afunix.h>. */
 
-#undef HAS_INET_ATON
+#undef HAVE_INET_ATON
 
 #undef HAS_IPV6
 
@@ -141,10 +141,10 @@
 
 /* Define HAVE_SYSTEM if the library provides the system() function. */
 
-#undef HAS_UTIME
+#undef HAVE_UTIME
 #undef HAVE_UTIMES
 
-/* Define HAS_UTIME if you have /usr/include/utime.h and the library
+/* Define HAVE_UTIME if you have /usr/include/utime.h and the library
    provides utime(). Define HAVE_UTIMES if the library provides utimes(). */
 
 #undef HAS_FCHMOD
@@ -202,13 +202,13 @@
 
 /* Define HAVE_SETITIMER if you have setitimer(). */
 
-#undef HAS_GETHOSTNAME
+#undef HAVE_GETHOSTNAME
 
-/* Define HAS_GETHOSTNAME if you have gethostname(). */
+/* Define HAVE_GETHOSTNAME if you have gethostname(). */
 
-#undef HAS_UNAME
+#undef HAVE_UNAME
 
-/* Define HAS_UNAME if you have uname(). */
+/* Define HAVE_UNAME if you have uname(). */
 
 #undef HAVE_GETTIMEOFDAY
 
@@ -218,9 +218,9 @@
 
 /* Define HAVE_MKTIME if you have mktime(). */
 
-#undef HAS_SETSID
+#undef HAVE_SETSID
 
-/* Define HAS_SETSID if you have setsid(). */
+/* Define HAVE_SETSID if you have setsid(). */
 
 #undef HAVE_PUTENV
 
@@ -240,9 +240,9 @@
 /* Define HAS_XLOCALE_H if you have the include file <xlocale.h> and the
    uselocale() function. */
 
-#undef HAS_STRTOD_L
+#undef HAVE_STRTOD_L
 
-/* Define HAS_STRTOD_L if you have strtod_l */
+/* Define HAVE_STRTOD_L if you have strtod_l */
 
 #undef HAS_MMAP
 
@@ -283,13 +283,13 @@
 
 #undef HAVE_SYS_SHM_H
 
-#undef HAS_SHMAT
+#undef HAVE_SHMAT
 
 #undef HAVE_EXECVPE
 
 #undef HAS_POSIX_SPAWN
 
-#undef HAS_SIGWAIT
+#undef HAVE_SIGWAIT
 
 #undef HAS_HUGE_PAGES
 
@@ -303,7 +303,7 @@
 
 #undef HAS_POSIX_MONOTONIC_CLOCK
 
-#undef HAS_CLOCK_GETTIME_NSEC_NP
+#undef HAVE_CLOCK_GETTIME_NSEC_NP
 
 #undef HAS_GNU_GETAFFINITY_NP
 #undef HAS_BSD_GETAFFINITY_NP

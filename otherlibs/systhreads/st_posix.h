@@ -79,7 +79,7 @@ value caml_thread_sigmask(value cmd, value sigs)
 
 value caml_wait_signal(value sigs)
 {
-#ifdef HAS_SIGWAIT
+#ifdef HAVE_SIGWAIT
   sigset_t set;
   int retcode, signo;
 
