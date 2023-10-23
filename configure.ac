@@ -1919,35 +1919,14 @@ AS_CASE([$ocaml_cv_cc_vendor,$host],
 
 stat_has_ns_precision=false
 
-AC_CHECK_MEMBER([struct stat.st_atim.tv_nsec],
-  [stat_has_ns_precision=true
-  AC_DEFINE([HAS_NANOSECOND_STAT], [1])],
-  [],
+AC_CHECK_MEMBERS(m4_normalize([
+  struct stat.st_atim.tv_nsec, struct stat.st_atimespec.tv_nsec,
+  struct stat.st_atimensec]),
+  [stat_has_ns_precision=true], [],
   [
     AC_INCLUDES_DEFAULT
     #include <sys/stat.h>
   ])
-
-
-AS_IF([! $stat_has_ns_precision],
-  [AC_CHECK_MEMBER([struct stat.st_atimespec.tv_nsec],
-    [stat_has_ns_precision=true
-    AC_DEFINE([HAS_NANOSECOND_STAT], [2])],
-    [],
-    [
-      AC_INCLUDES_DEFAULT
-      #include <sys/stat.h>
-    ])])
-
-AS_IF([! $stat_has_ns_precision],
-  [AC_CHECK_MEMBER([struct stat.st_atimensec],
-    [stat_has_ns_precision=true
-    AC_DEFINE([HAS_NANOSECOND_STAT], [3])],
-    [],
-    [
-      AC_INCLUDES_DEFAULT
-      #include <sys/stat.h>
-    ])])
 
 AS_IF([$stat_has_ns_precision],
   [AC_MSG_NOTICE([stat supports nanosecond precision])],
