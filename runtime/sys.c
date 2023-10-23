@@ -45,7 +45,7 @@
 #ifdef HAS_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
-#ifdef __APPLE__
+#if HAVE_DECL_GETENTROPY && defined(__APPLE__)
 #include <sys/random.h> /* for getentropy */
 #endif
 #include "caml/alloc.h"
@@ -602,7 +602,7 @@ int caml_unix_random_seed(intnat data[16])
   int nread = 0;
 
   /* Try kernel entropy first */
-#if defined(HAS_GETENTROPY) || defined(__APPLE__)
+#if HAVE_DECL_GETENTROPY
   if (getentropy(buffer, 12) != -1) {
     nread = 12;
   } else

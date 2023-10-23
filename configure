@@ -16169,6 +16169,7 @@ fi
 fi
 
 ## getentropy
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CC options needed to detect all undeclared functions" >&5
 printf %s "checking for $CC options needed to detect all undeclared functions... " >&6; }
 if test ${ac_cv_c_undeclared_builtin_options+y}
@@ -16249,17 +16250,21 @@ See \`config.log' for more details" "$LINENO" 5; } ;; #(
     ac_c_undeclared_builtin_options=$ac_cv_c_undeclared_builtin_options ;;
 esac
 
-ac_fn_c_check_header_compile "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
-if test "x$ac_cv_header_unistd_h" = xyes
-then :
-  ac_fn_check_decl "$LINENO" "getentropy" "ac_cv_have_decl_getentropy" "#include <unistd.h>
+ac_fn_check_decl "$LINENO" "getentropy" "ac_cv_have_decl_getentropy" "
+#ifdef __APPLE__
+#include <sys/random.h>
+#elif HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 " "$ac_c_undeclared_builtin_options" "CFLAGS"
 if test "x$ac_cv_have_decl_getentropy" = xyes
 then :
-  printf "%s\n" "#define HAS_GETENTROPY 1" >>confdefs.h
-
+  ac_have_decl=1
+else $as_nop
+  ac_have_decl=0
 fi
-fi
+printf "%s\n" "#define HAVE_DECL_GETENTROPY $ac_have_decl" >>confdefs.h
 
 
 ## getrusage

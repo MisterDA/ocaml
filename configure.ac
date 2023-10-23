@@ -1524,11 +1524,14 @@ AS_IF([$has_c99_float_ops],
          (ancient Visual Studio)]))])])])
 
 ## getentropy
-AC_CHECK_HEADER([unistd.h],
-  [AC_CHECK_DECL([getentropy],
-                 [AC_DEFINE([HAS_GETENTROPY])], [],
-                 [[#include <unistd.h>]])],
-  [])
+
+AC_CHECK_DECLS([getentropy], [], [], [
+#ifdef __APPLE__
+#include <sys/random.h>
+#elif HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+])
 
 ## getrusage
 AC_CHECK_FUNC([getrusage], [AC_DEFINE([HAS_GETRUSAGE])])
