@@ -84,7 +84,8 @@ CAMLdeprecated_typedef(addr, char *);
    Note: CAMLnoreturn is a different macro defined in memory.h,
    to be used in function bodies rather than as a function attribute.
 */
-#if __STDC_VERSION__ >= 202300L || __cplusplus >= 201103L
+#if __STDC_VERSION__ >= 202300L \
+    || (defined(__cplusplus) && __cplusplus >= 201103L)
   #define CAMLnoret [[noreturn]]
 #elif __STDC_VERSION__ >= 201112L
   #define CAMLnoret _Noreturn

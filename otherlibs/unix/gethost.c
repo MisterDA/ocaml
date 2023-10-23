@@ -101,7 +101,7 @@ CAMLprim value caml_unix_gethostbyaddr(value a)
 #if HAS_IPV6
   }
 #endif
-#if HAS_GETHOSTBYADDR_R == 7
+#if defined(HAS_GETHOSTBYADDR_R) && HAS_GETHOSTBYADDR_R == 7
   struct hostent h;
   char buffer[NETDB_BUFFER_SIZE];
   int h_errnop;
@@ -109,7 +109,7 @@ CAMLprim value caml_unix_gethostbyaddr(value a)
   hp = gethostbyaddr_r(adr, addr_len, addr_type,
                        &h, buffer, sizeof(buffer), &h_errnop);
   caml_leave_blocking_section();
-#elif HAS_GETHOSTBYADDR_R == 8
+#elif defined(HAS_GETHOSTBYADDR_R) && HAS_GETHOSTBYADDR_R == 8
   struct hostent h;
   char buffer[NETDB_BUFFER_SIZE];
   int h_errnop, rc;
@@ -135,7 +135,7 @@ CAMLprim value caml_unix_gethostbyname(value name)
 {
   struct hostent * hp;
   char * hostname;
-#if HAS_GETHOSTBYNAME_R
+#ifdef HAS_GETHOSTBYNAME_R
   struct hostent h;
   char buffer[NETDB_BUFFER_SIZE];
   int err;
@@ -145,13 +145,13 @@ CAMLprim value caml_unix_gethostbyname(value name)
 
   hostname = caml_stat_strdup(String_val(name));
 
-#if HAS_GETHOSTBYNAME_R == 5
+#if defined(HAS_GETHOSTBYNAME_R) && HAS_GETHOSTBYNAME_R == 5
   {
     caml_enter_blocking_section();
     hp = gethostbyname_r(hostname, &h, buffer, sizeof(buffer), &err);
     caml_leave_blocking_section();
   }
-#elif HAS_GETHOSTBYNAME_R == 6
+#elif defined(HAS_GETHOSTBYNAME_R) && HAS_GETHOSTBYNAME_R == 6
   {
     int rc;
     caml_enter_blocking_section();
