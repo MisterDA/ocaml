@@ -146,9 +146,9 @@ uintnat caml_mem_round_up_pages(uintnat size)
   return round_up(size, caml_plat_pagesize);
 }
 
+#ifdef DEBUG
 #define Is_page_aligned(size) ((size & (caml_plat_pagesize - 1)) == 0)
 
-#ifdef DEBUG
 static struct lf_skiplist mmap_blocks = {NULL};
 #endif
 

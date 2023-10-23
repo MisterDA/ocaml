@@ -391,9 +391,6 @@ extern int caml_parser_trace;
 
 CAMLprim value caml_runtime_parameters (value unit)
 {
-#define F_Z ARCH_INTNAT_PRINTF_FORMAT
-#define F_S ARCH_SIZET_PRINTF_FORMAT
-
   CAMLassert (unit == Val_unit);
   /* TODO KC */
   return caml_alloc_sprintf ("caml_runtime_parameters not implemented: %d", 0);

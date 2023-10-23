@@ -13756,7 +13756,7 @@ case $ocaml_cv_cc_vendor in #(
     outputobj='-o '
   warn_error_flag='-Werror'
   cc_warnings="-Wall -Wint-conversion -Wstrict-prototypes \
--Wold-style-definition -Wundef" ;;
+-Wold-style-definition -Wundef -Wunused-macros" ;;
 esac
 
 # Use -Wold-style-declaration if supported

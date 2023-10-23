@@ -28,18 +28,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _WIN32
-#define strncmp_os wcsncmp
-#define toupper_os towupper
-#define printf_os wprintf
-#else
-#define strncmp_os strncmp
-/* NOTE: See CAVEATS section in https://man.netbsd.org/ctype.3 */
-/* and NOTE section in https://man7.org/linux/man-pages/man3/toupper.3.html */
-#define toupper_os(x) toupper((unsigned char)x)
-#define printf_os printf
-#endif
-
 /* Operations
    - encode-C-literal. Used for the OCAML_STDLIB_DIR macro in
      runtime/build_config.h to ensure the LIBDIR make variable is correctly

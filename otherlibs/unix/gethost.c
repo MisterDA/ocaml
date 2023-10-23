@@ -29,7 +29,9 @@
 #include <netdb.h>
 #endif
 
+#if defined(HAS_GETHOSTBYADDR_R) || defined(HAS_GETHOSTBYNAME_R)
 #define NETDB_BUFFER_SIZE 10000
+#endif
 
 #ifdef _WIN32
 #define GETHOSTBYADDR_IS_REENTRANT 1
