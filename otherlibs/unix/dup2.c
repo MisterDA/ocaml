@@ -13,7 +13,10 @@
 /*                                                                        */
 /**************************************************************************/
 
+#ifdef HAS_DUP3
 #define _GNU_SOURCE
+#endif
+
 #include <caml/mlvalues.h>
 #include "unixsupport.h"
 #include <fcntl.h>

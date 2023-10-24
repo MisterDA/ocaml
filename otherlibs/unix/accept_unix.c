@@ -13,7 +13,10 @@
 /*                                                                        */
 /**************************************************************************/
 
+#if defined(HAS_ACCEPT4) && defined(SOCK_CLOEXEC)
 #define _GNU_SOURCE
+#endif
+
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/fail.h>

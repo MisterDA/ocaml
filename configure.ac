@@ -89,6 +89,8 @@ AC_CONFIG_SRCDIR([runtime/interp.c])
 ## Directory containing auxiliary scripts used during build
 AC_CONFIG_AUX_DIR([build-aux])
 
+AC_USE_SYSTEM_EXTENSIONS
+
 ## Output variables
 
 AC_SUBST([CONFIGURE_ARGS])

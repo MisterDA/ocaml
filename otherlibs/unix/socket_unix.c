@@ -30,6 +30,7 @@ int caml_unix_socket_domain_table[] = {
 #elif defined(PF_UNSPEC)
   PF_UNSPEC
 #else
+  #error "looking for PF_UNSPEC"
   0
 #endif
 };

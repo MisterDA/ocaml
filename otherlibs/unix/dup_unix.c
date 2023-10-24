@@ -13,7 +13,6 @@
 /*                                                                        */
 /**************************************************************************/
 
-#define _GNU_SOURCE
 #include <caml/mlvalues.h>
 #include "unixsupport.h"
 #include <fcntl.h>
@@ -26,6 +25,7 @@ CAMLprim value caml_unix_dup(value cloexec, value fd)
               (caml_unix_cloexec_p(cloexec) ? F_DUPFD_CLOEXEC : F_DUPFD),
               0);
 #else
+  #error "looking for F_DUPFD_CLOEXEC"
   ret = dup(Int_val(fd));
 #endif
   if (ret == -1) caml_uerror("dup", Nothing);

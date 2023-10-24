@@ -13,7 +13,10 @@
 /*                                                                        */
 /**************************************************************************/
 
-#define _GNU_SOURCE  /* helps to find execvpe() */
+#ifdef HAS_EXECVPE
+#define _GNU_SOURCE
+#endif
+
 #include <errno.h>
 #include <sys/types.h>
 #include <caml/mlvalues.h>
