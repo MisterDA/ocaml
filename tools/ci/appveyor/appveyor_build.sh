@@ -87,11 +87,30 @@ function set_configuration {
     esac
 
     mkdir -p "$CACHE_DIRECTORY"
-    ./configure --cache-file="$CACHE_DIRECTORY/config.cache-$1" \
-                $dep $build $man $host --prefix="$2" --enable-ocamltest || ( \
-      rm -f "$CACHE_DIRECTORY/config.cache-$1" ; \
-      ./configure --cache-file="$CACHE_DIRECTORY/config.cache-$1" \
-                  $dep $build $man $host --prefix="$2" --enable-ocamltest )
+
+    local CACHE_FILE="$CACHE_DIRECTORY/config.cache-$1"
+
+    # Remove configure cache if the script has changed
+    local PR_HEAD=$APPVEYOR_PULL_REQUEST_HEAD_COMMIT
+    if [[ -n "$PR_HEAD" ]]; then
+        local MERGE_BASE
+        MERGE_BASE=$(git merge-base "$APPVEYOR_REPO_BRANCH" "$PR_HEAD")
+        if ! git diff --quiet "$MERGE_BASE..$PR_HEAD" -- ./configure; then
+            rm -f "$CACHE_FILE"
+        fi
+    else
+        printf 'Branch push, configure cache %s might be stale.' \
+               "$CACHE_FILE" >&2
+        rm -f "$CACHE_FILE"
+    fi
+
+    # Remove configure cache if the script has failed
+    if ! ./configure --cache-file="$CACHE_FILE" $dep $build $man $host \
+                     --prefix="$2" --enable-ocamltest; then
+        rm -f "$CACHE_FILE"
+        ./configure --cache-file="$CACHE_FILE" $dep $build $man $host \
+                    --prefix="$2" --enable-ocamltest
+    fi
 
 #    FILE=$(pwd | cygpath -f - -m)/Makefile.config
 #    run "Content of $FILE" cat Makefile.config
