@@ -22,7 +22,7 @@
 #ifdef CAML_INTERNALS
 
 #include <stdbool.h>
-#include "config.h"
+#include "misc.h"
 
 /* The compiler generates a "frame descriptor" for every potential
  * return address. Each loaded module has a block of memory, the
@@ -63,7 +63,7 @@ typedef struct {
   uintnat retaddr;
   uint16_t frame_data; /* frame size and various flags */
   uint16_t num_live;
-  uint16_t live_ofs[/* num_live */]; /* flexible array member */
+  uint16_t live_ofs[] CAMLcounted_by(num_live);
   /*
     If frame_has_allocs(), alloc lengths follow:
         uint8_t num_allocs;

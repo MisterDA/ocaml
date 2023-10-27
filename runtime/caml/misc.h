@@ -165,6 +165,12 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLthread_local _Thread_local
 #endif
 
+#if __has_attribute(counted_by)
+#define CAMLcounted_by(member) __attribute__((counted_by(member)))
+#else
+#define CAMLcounted_by(member)
+#endif
+
 /* Prefetching */
 
 #ifdef CAML_INTERNALS

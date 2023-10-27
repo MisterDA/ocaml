@@ -45,7 +45,7 @@ struct finalisable {
 struct final_todo {
   struct final_todo *next;
   int size;
-  struct final item[]; /* flexible array member */
+  struct final item[] CAMLcounted_by(size);
 };
 
 /*

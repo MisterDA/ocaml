@@ -172,7 +172,7 @@ struct core
     short number;
     short accessing_symbol;
     short nitems;
-    short items[]; /* flexible array member */
+    short items[] CAMLcounted_by(nitems);
 };
 
 
@@ -184,7 +184,7 @@ struct shifts
     struct shifts *next;
     short number;
     short nshifts;
-    short shift[]; /* flexible array member */
+    short shift[] CAMLcounted_by(nshifts);
 };
 
 
@@ -196,7 +196,7 @@ struct reductions
     struct reductions *next;
     short number;
     short nreds;
-    short rules[]; /* flexible array member */
+    short rules[] CAMLcounted_by(nreds);
 };
 
 
