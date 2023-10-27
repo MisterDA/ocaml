@@ -856,6 +856,18 @@ for flag in '-Wimplicit-fallthrough=5' '-Wimplicit-fallthrough'; do
     [cc_warnings="$cc_warnings $flag"; break], [], [$warn_error_flag])
 done
 
+# Forbid non-standard flexible array member
+AS_CASE([$host],
+  dnl WinAPI often uses one-sized FAM
+  [*-pc-windows], [AX_CHECK_COMPILE_FLAG([/clang:-fstrict-flex-arrays=1],
+    [internal_cflags="$internal_cflags $flag"], [], [$warn_error_flag])],
+  [*-w64-mingw32*], [AX_CHECK_COMPILE_FLAG([-fstrict-flex-arrays=1],
+    [internal_cflags="$internal_cflags $flag"], [], [$warn_error_flag])],
+  [for flag in '-fstrict-flex-arrays=3' '-fstrict-flex-arrays=2'; do
+    AX_CHECK_COMPILE_FLAG([$flag],
+      [internal_cflags="$internal_cflags $flag"; break], [], [$warn_error_flag])
+  done])
+
 AS_CASE([$enable_warn_error,OCAML__DEVELOPMENT_VERSION],
   [yes,*|,true],
     [cc_warnings="$cc_warnings $warn_error_flag"])
