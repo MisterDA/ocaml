@@ -481,25 +481,13 @@ CAMLexport value caml_alloc_shr_noexc(mlsize_t wosize, tag_t tag) {
    the implementation from the user.
 */
 
-/* A type with the most strict alignment requirements */
-union max_align {
-  char c;
-  short s;
-  long l;
-  int i;
-  float f;
-  double d;
-  void *v;
-  void (*q)(void);
-};
-
 struct pool_block {
 #ifdef DEBUG
   intnat magic;
 #endif
   struct pool_block *next;
   struct pool_block *prev;
-  union max_align data[];  /* not allocated, used for alignment purposes */
+  max_align_t data[]; /* not allocated, used for alignment purposes */
 };
 
 #define SIZEOF_POOL_BLOCK sizeof(struct pool_block)
