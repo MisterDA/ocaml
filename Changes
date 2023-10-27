@@ -178,6 +178,9 @@ Working version
   Updates usage of sigprocmask to pthread_sigmask in otherlibs/unix.
   (Max Slater, review by Miod Vallat and Xavier Leroy)
 
+* #?????: Remove CAMLalign, replaced with C11/C++11 alignas.
+  (Antonin Décimo, review by ???)
+
 ### Code generation and optimizations:
 
 - #11239: on x86-64 and RISC-V, reduce alignment of OCaml stacks from 16 to 8.

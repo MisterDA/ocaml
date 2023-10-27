@@ -1261,8 +1261,6 @@ AS_CASE(["$cc_basename,$host"],
     AS_IF([$cc_has_fno_tree_vrp],
       [internal_cflags="$internal_cflags -fno-tree-vrp"])])
 
-OCAML_CC_SUPPORTS_ALIGNED
-
 ## Check whether __attribute__((optimize("tree-vectorize")))) is supported
 OCAML_CC_SUPPORTS_TREE_VECTORIZE
 
