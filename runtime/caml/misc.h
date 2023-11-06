@@ -154,6 +154,17 @@ CAMLdeprecated_typedef(addr, char *);
 #error "How do I align values on this platform?"
 #endif
 
+#if defined(__cplusplus) && __cplusplus >= 201103L ||   \
+    defined(__STDC_VERSION__) && __STDC_VERSION__ > 201710L
+#define CAMLthread_local thread_local
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define CAMLthread_local _Thread_local
+#elif defined(__GNUC__)
+#define CAMLthread_local __thread
+#else
+#error "How do I use thread-local storage on this platform?"
+#endif
+
 /* Prefetching */
 
 #ifdef CAML_INTERNALS
