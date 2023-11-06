@@ -20,7 +20,9 @@
 #include <unistd.h>
 #endif
 #include <errno.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 #include "caml/osdeps.h"
 #include "caml/platform.h"
 #include "caml/fail.h"
@@ -218,6 +220,11 @@ void caml_mem_unmap(void* mem, uintnat size)
 #endif
 }
 
+#ifdef _WIN32
+/* from win32.c */
+extern void caml_win32_usleep(__int64 usecs);
+#endif
+
 #define Min_sleep_ns       10000 // 10 us
 #define Slow_sleep_ns    1000000 //  1 ms
 #define Max_sleep_ns  1000000000 //  1 s
@@ -233,6 +240,10 @@ unsigned caml_plat_spin_wait(unsigned spins,
   if (spins < Slow_sleep_ns && Slow_sleep_ns <= next_spins) {
     caml_gc_log("Slow spin-wait loop in %s at %s:%d", function, file, line);
   }
+#ifdef _WIN32
+  caml_win32_usleep(spins/1000);
+#else
   usleep(spins/1000);
+#endif
   return next_spins;
 }

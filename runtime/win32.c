@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
+#include <stdbool.h>
 #include "caml/alloc.h"
 #include "caml/codefrag.h"
 #include "caml/fail.h"
@@ -1107,6 +1108,47 @@ CAMLexport clock_t caml_win32_clock(void)
   return (clock_t)((stime.ul + utime.ul) / clocks_per_sec);
 }
 
+static _Bool caml_win32_have_high_res_timer = false;
+
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+static HANDLE caml_win32_create_high_res_timer(void)
+{
+  return CreateWaitableTimerEx(NULL, NULL,
+    CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+    SYNCHRONIZE | TIMER_QUERY_STATE | TIMER_MODIFY_STATE);
+}
+
+/* FIXME: error handling? */
+void caml_win32_usleep(__int64 usecs)
+{
+  static __thread HANDLE timer = INVALID_HANDLE_VALUE;
+  DWORD timeout;
+
+  /* If the high-resolution timer is available, use it. Otherwise,
+   * fall-back to the low-resolution timer, which doesn't need a
+   * handle. */
+  if (caml_win32_have_high_res_timer) {
+    if (timer == INVALID_HANDLE_VALUE) {
+      timer = caml_win32_create_high_res_timer();
+      if (timer == INVALID_HANDLE_VALUE)
+        caml_fatal_error("Couldn't create high resolution timer.");
+    }
+
+    LARGE_INTEGER dt;
+    dt.QuadPart = -(10*usecs); /* relative sleep (negative), 100ns units */
+
+    SetWaitableTimer(timer, &dt, 0, NULL, NULL, FALSE);
+    timeout = INFINITE;
+  } else {
+    timeout = usecs / 1000; /* ms units */
+  }
+
+  WaitForSingleObject(timer, timeout);
+}
+
 static double clock_period = 0;
 
 void caml_init_os_params(void)
@@ -1123,6 +1165,13 @@ void caml_init_os_params(void)
   /* Get the number of nanoseconds for each tick in QueryPerformanceCounter */
   QueryPerformanceFrequency(&frequency);
   clock_period = (1000000000.0 / frequency.QuadPart);
+
+  /* Test whether the host supports high resolution timers */
+  HANDLE h = caml_win32_create_high_res_timer();
+  if (h != NULL) {
+    caml_win32_have_high_res_timer = true;
+    CloseHandle(h);
+  }
 }
 
 uint64_t caml_time_counter(void)
