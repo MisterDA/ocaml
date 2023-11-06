@@ -1124,19 +1124,13 @@ static HANDLE caml_win32_create_high_res_timer(void)
 /* FIXME: error handling? */
 void caml_win32_nanosleep(__int64 secs, __int64 nsecs)
 {
-  static __thread HANDLE timer = INVALID_HANDLE_VALUE;
+  HANDLE timer = Caml_state->timer;
   DWORD timeout;
 
   /* If the high-resolution timer is available, use it. Otherwise,
    * fall-back to the low-resolution timer, which doesn't need a
    * handle. */
   if (caml_win32_have_high_res_timer) {
-    if (timer == INVALID_HANDLE_VALUE) {
-      timer = caml_win32_create_high_res_timer();
-      if (timer == INVALID_HANDLE_VALUE)
-        caml_fatal_error("Couldn't create high resolution timer.");
-    }
-
     LARGE_INTEGER dt;
     /* relative sleep (negative), 100ns units */
     dt.QuadPart = -(secs * 1e7 + nsecs / 1e2);

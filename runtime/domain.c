@@ -715,6 +715,17 @@ static void domain_create(uintnat initial_minor_heap_wsize) {
   domain_state->trap_barrier_block = -1;
 #endif
 
+#ifdef _WIN32
+  if (caml_win32_have_high_res_timer) {
+    domain_state->timer = caml_win32_create_high_res_timer();
+    if (domain_state->timer == INVALID_HANDLE_VALUE) {
+      caml_fatal_error("Couldn't create high resolution timer.");
+    }
+  } else {
+    domain_state->timer = INVALID_HANDLE_VALUE;
+  }
+#endif
+
   caml_reset_young_limit(domain_state);
   add_next_to_stw_domains();
   goto domain_init_complete;
@@ -1958,6 +1969,11 @@ static void domain_terminate (void)
   }
   caml_free_backtrace_buffer(domain_state->backtrace_buffer);
   caml_free_gc_regs_buckets(domain_state->gc_regs_buckets);
+
+#ifdef _WIN32
+  if (domain_state->timer != INVALID_HANDLE_VALUE)
+    CloseHandle(domain_state->timer);
+#endif
 
   /* signal the domain termination to the backup thread
      NB: for a program with no additional domains, the backup thread
