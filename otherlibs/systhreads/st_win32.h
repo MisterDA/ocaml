@@ -21,7 +21,7 @@
 
 Caml_inline void st_msleep(int msec)
 {
-  Sleep(msec);
+  caml_win32_usleep(msec * 1000);
 }
 
 #include "st_pthreads.h"

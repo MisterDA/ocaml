@@ -1036,7 +1036,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
     DEBUG_PRINT("nothing to do");
     if ( tm > 0.0 ) {
       caml_enter_blocking_section();
-      Sleep( (int)(tm * 1000));
+      caml_win32_usleep(tm * 1e6);
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1245,7 +1245,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       /* Nothing to monitor but some time to wait. */
       else if (!hasStaticData)
         {
-          Sleep(milliseconds);
+          caml_win32_usleep(milliseconds * 1000);
         }
       caml_leave_blocking_section();
 

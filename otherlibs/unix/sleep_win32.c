@@ -17,11 +17,13 @@
 #include <caml/signals.h>
 #include "unixsupport.h"
 
-CAMLprim value caml_unix_sleep(value t)
+extern void caml_win32_usleep(__int64 usecs); /* from win32.c */
+
+CAMLprim value caml_unix_sleep(value duration)
 {
-  double d = Double_val(t);
+  double d = Double_val(duration);
   caml_enter_blocking_section();
-  Sleep(d * 1e3);
+  caml_win32_usleep(d * 1e6);
   caml_leave_blocking_section();
   return Val_unit;
 }
