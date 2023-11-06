@@ -154,6 +154,15 @@ CAMLdeprecated_typedef(addr, char *);
 #error "How do I align values on this platform?"
 #endif
 
+#if !defined(thread_local) && !defined(__cplusplus) &&         \
+    defined(__STDC_VERSION__) && __STDC_VERSION__ < 202311L
+#if defined(__STDC_NO_THREADS__) || defined(_WIN32) /* non-compliant win32 cc */
+#define thread_local _Thread_local
+#else
+#include <threads.h>
+#endif
+#endif
+
 /* Prefetching */
 
 #ifdef CAML_INTERNALS
