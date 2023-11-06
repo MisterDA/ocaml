@@ -1035,8 +1035,10 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       && exceptfds == Val_emptylist) {
     DEBUG_PRINT("nothing to do");
     if ( tm > 0.0 ) {
+      double tv_secs, tv_nsecs;
+      tv_nsecs = modf(tm, &tv_secs);
       caml_enter_blocking_section();
-      caml_win32_usleep(tm * 1e6);
+      caml_win32_nanosleep(tv_secs, tv_nsecs);
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1048,8 +1050,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       if (tm < 0.0) {
         tvp = (struct timeval *) NULL;
       } else {
-        tv.tv_sec = (int) tm;
-        tv.tv_usec = (int) (1e6 * (tm - (int) tm));
+        tv.tv_usec = modf(tm, &tv.tv_sec);
         tvp = &tv;
       }
       caml_enter_blocking_section();
@@ -1245,7 +1246,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       /* Nothing to monitor but some time to wait. */
       else if (!hasStaticData)
         {
-          caml_win32_usleep(milliseconds * 1000);
+          caml_win32_nanosleep(0, milliseconds * 1e6);
         }
       caml_leave_blocking_section();
 

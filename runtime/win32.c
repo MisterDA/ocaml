@@ -1122,7 +1122,7 @@ static HANDLE caml_win32_create_high_res_timer(void)
 }
 
 /* FIXME: error handling? */
-void caml_win32_usleep(__int64 usecs)
+void caml_win32_nanosleep(__int64 secs, __int64 nsecs)
 {
   static __thread HANDLE timer = INVALID_HANDLE_VALUE;
   DWORD timeout;
@@ -1138,12 +1138,13 @@ void caml_win32_usleep(__int64 usecs)
     }
 
     LARGE_INTEGER dt;
-    dt.QuadPart = -(10*usecs); /* relative sleep (negative), 100ns units */
+    /* relative sleep (negative), 100ns units */
+    dt.QuadPart = -(secs * 1e7 + nsecs / 1e2);
 
     SetWaitableTimer(timer, &dt, 0, NULL, NULL, FALSE);
     timeout = INFINITE;
   } else {
-    timeout = usecs / 1000; /* ms units */
+    timeout = nsecs / 1e6; /* ms units */
   }
 
   WaitForSingleObject(timer, timeout);

@@ -19,9 +19,9 @@
 #define _WIN32_WINNT 0x0400
 #include <windows.h>
 
-Caml_inline void st_msleep(int msec)
+Caml_inline void st_msleep(int msecs)
 {
-  caml_win32_usleep(msec * 1000);
+  caml_win32_nanosleep(msecs / 1000, (msecs % 1000) * 1e6);
 }
 
 #include "st_pthreads.h"

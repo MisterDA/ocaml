@@ -222,7 +222,7 @@ void caml_mem_unmap(void* mem, uintnat size)
 
 #ifdef _WIN32
 /* from win32.c */
-extern void caml_win32_usleep(__int64 usecs);
+extern void caml_win32_nanosleep(__int64 secs, __int64 nsecs);
 #endif
 
 #define Min_sleep_ns       10000 // 10 us
@@ -241,9 +241,12 @@ unsigned caml_plat_spin_wait(unsigned spins,
     caml_gc_log("Slow spin-wait loop in %s at %s:%d", function, file, line);
   }
 #ifdef _WIN32
-  caml_win32_usleep(spins/1000);
+  caml_win32_nanosleep(0, spins);
+#elif defined(HAS_NANOSLEEP)
+  const struct timespec t = { .tv_sec = 0, .tv_nsec = spins };
+  nanosleep(&t, NULL);
 #else
-  usleep(spins/1000);
+  usleep(spin/1000);
 #endif
   return next_spins;
 }

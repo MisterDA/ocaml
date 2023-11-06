@@ -8,6 +8,9 @@
 #define MAX_WAITGROUP   8
 #define SPIN_WAIT_US    10
 
+static const struct timespec spin_wait =
+  { .tv_sec = 0; .tv_nsec = SPIN_WAIT_US * 1e3 };
+
 /* waitgroup inspired by Golang's `sync.WaitGroup`. This version does *not*
  * allow to restart a waitgroup. */
 typedef struct {
@@ -52,7 +55,7 @@ CAMLno_tsan value wg_wait(value t)
    * checkpoint. This allows TSan to always generate a report with a
    * 'As if synchronized via sleep' section. */
   do {
-    usleep(SPIN_WAIT_US);
+    nanosleep(&spin_wait, NULL);
   }
   while (wg->count != wg->limit);
   return Val_unit;
