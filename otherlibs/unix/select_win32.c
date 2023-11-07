@@ -24,6 +24,9 @@
 #include "windbug.h"
 #include "winlist.h"
 
+/* from win32.c */
+extern void caml_win32_nanosleep(uint64_t sec, uint64_t nsec);
+
 /* This constant define the maximum number of objects that
  * can be handle by a SELECTDATA.
  * It takes the following parameters into account:
@@ -1022,8 +1025,10 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       && exceptfds == Val_emptylist) {
     DEBUG_PRINT("nothing to do");
     if ( tm_sec > 0.0 ) {
+      tmfrac_sec = modf(tm_sec, &tmint_sec);
       caml_enter_blocking_section();
-      Sleep( (DWORD)(tm_sec * MSEC_PER_SEC));
+      caml_win32_nanosleep((uint64_t)tmint_sec,
+                           (uint64_t)(tmfrac_sec * NSEC_PER_SEC));
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1233,7 +1238,9 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       /* Nothing to monitor but some time to wait. */
       else if (!hasStaticData)
         {
-          Sleep(tm_msec);
+          tmfrac_sec = modf(tm_sec, &tmint_sec);
+          caml_win32_nanosleep((uint64_t)tmint_sec,
+                               (uint64_t)(tmfrac_sec * NSEC_PER_SEC));
         }
       caml_leave_blocking_section();
 

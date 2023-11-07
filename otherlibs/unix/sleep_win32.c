@@ -16,12 +16,20 @@
 #include <caml/mlvalues.h>
 #include <caml/signals.h>
 #include "caml/unixsupport.h"
+#include <math.h>
 
-CAMLprim value caml_unix_sleep(value t)
+#define NSEC_PER_SEC UINT64_C(1000000000)
+
+/* from win32.c */
+extern void caml_win32_nanosleep(uint64_t sec, uint64_t nsec);
+
+CAMLprim value caml_unix_sleep(value timeout_sec)
 {
-  DWORD ms = (DWORD)(Double_val(t) * 1e3);
+  double tmint_sec, tmfrac_sec;
+  tmfrac_sec = modf(Double_val(timeout_sec), &tmint_sec);
   caml_enter_blocking_section();
-  Sleep(ms);
+  caml_win32_nanosleep((uint64_t)tmint_sec,
+                       (uint64_t)(tmfrac_sec * NSEC_PER_SEC));
   caml_leave_blocking_section();
   return Val_unit;
 }

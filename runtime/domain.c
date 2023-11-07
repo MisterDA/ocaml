@@ -556,6 +556,12 @@ static uintnat fresh_domain_unique_id(void) {
     return next;
 }
 
+#ifdef _WIN32
+/* from win32.c */
+extern HANDLE caml_win32_create_timer(void);
+extern void caml_win32_destroy_timer(HANDLE timer);
+#endif
+
 /* must be run on the domain's thread */
 static void domain_create(uintnat initial_minor_heap_wsize,
                           caml_domain_state *parent)
@@ -756,6 +762,10 @@ static void domain_create(uintnat initial_minor_heap_wsize,
   domain_state->trap_sp_off = 1;
   domain_state->trap_barrier_off = 0;
   domain_state->trap_barrier_block = -1;
+#endif
+
+#ifdef _WIN32
+  domain_state->timer = caml_win32_create_timer();
 #endif
 
   add_next_to_stw_domains();
@@ -2141,6 +2151,10 @@ void caml_domain_terminate(bool last)
   }
   caml_free_backtrace_buffer(domain_state->backtrace_buffer);
   caml_free_gc_regs_buckets(domain_state->gc_regs_buckets);
+
+#ifdef _WIN32
+  caml_win32_destroy_timer(domain_state->timer);
+#endif
 
   /* signal the domain termination to the backup thread
      NB: for a program with no additional domains, the backup thread

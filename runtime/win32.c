@@ -1086,6 +1086,50 @@ int caml_num_rows_fd(int fd)
 #define NSEC_PER_MSEC UINT64_C(1000000)
 #define NSEC_PER_SEC  UINT64_C(1000000000)
 
+#define SEC_PER_MSEC UINT64_C(1000)
+
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+HANDLE caml_win32_create_timer(void)
+{
+  return CreateWaitableTimerEx(NULL, NULL,
+                               CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+                               SYNCHRONIZE | TIMER_QUERY_STATE
+                               | TIMER_MODIFY_STATE);
+}
+
+void caml_win32_destroy_timer(HANDLE timer)
+{
+  if (timer != INVALID_HANDLE_VALUE)
+    CloseHandle(timer);
+}
+
+/* FIXME: error handling? */
+void caml_win32_nanosleep(uint64_t sec, uint64_t nsec)
+{
+  HANDLE timer = Caml_state->timer;
+  DWORD timeout_msec;
+
+  /* If the high-resolution timer is available, use it. Otherwise,
+   * fall-back to the low-resolution timer, which doesn't need a
+   * handle. */
+  if (timer != INVALID_HANDLE_VALUE) {
+    LARGE_INTEGER dt;
+    /* relative sleep (negative), 100ns units */
+    dt.QuadPart = -(int64_t)(sec * (NSEC_PER_SEC / 100) + nsec / 100);
+
+    SetWaitableTimer(timer, &dt, 0, NULL, NULL, FALSE);
+    timeout_msec = INFINITE;
+  } else {
+    uint64_t msec = sec * SEC_PER_MSEC + nsec / NSEC_PER_MSEC;
+    timeout_msec = msec < INFINITE ? (DWORD)msec : INFINITE - 1;
+  }
+
+  WaitForSingleObject(timer, timeout_ms);
+}
+
 /* UCRT clock function returns wall-clock time */
 CAMLexport clock_t caml_win32_clock(void)
 {
