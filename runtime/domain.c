@@ -1293,7 +1293,9 @@ static void* domain_thread_func(void* v)
   } else {
     caml_gc_log("Failed to create domain");
   }
-#ifndef _WIN32
+#ifdef _WIN32
+  caml_win32_destroy_high_resolution_timer();
+#else
   caml_free_signal_stack(signal_stack);
 #endif
   return 0;

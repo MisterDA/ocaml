@@ -19,6 +19,7 @@
 #include <caml/memory.h>
 #include <caml/fail.h>
 #include <caml/signals.h>
+#include <caml/osdeps.h>
 #include "winworker.h"
 #include <stdio.h>
 #include "windbug.h"
@@ -1020,8 +1021,9 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       && exceptfds == Val_emptylist) {
     DEBUG_PRINT("nothing to do");
     if ( tm_sec > 0.0 ) {
+      const struct timespec req = caml_timespec_of_sec(tm_sec);
       caml_enter_blocking_section();
-      Sleep((DWORD) (tm_sec * MSEC_PER_SEC));
+      caml_win32_nanosleep(&req, NULL);
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1229,7 +1231,8 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       /* Nothing to monitor but some time to wait. */
       else if (!hasStaticData)
         {
-          Sleep(tm_msec);
+          const struct timespec req = caml_timespec_of_sec(tm_sec);
+          caml_win32_nanosleep(&req, NULL);
         }
       caml_leave_blocking_section();
 

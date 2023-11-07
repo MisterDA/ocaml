@@ -1139,6 +1139,118 @@ int caml_num_rows_fd(int fd)
   return -1;
 }
 
+/* High-resolution timer used for sleeping */
+
+struct high_resolution_timer_list {
+  HANDLE timer;
+  struct high_resolution_timer_list *next;
+};
+
+static struct high_resolution_timer_list *_Atomic high_resolution_timers = NULL;
+static CAMLthread_local struct high_resolution_timer_list *
+  high_resolution_timer = NULL;
+
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+static inline HANDLE create_high_resolution_timer(void)
+{
+  return CreateWaitableTimerEx(NULL, NULL,
+                               CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+                               SYNCHRONIZE | TIMER_QUERY_STATE
+                               | TIMER_MODIFY_STATE);
+}
+
+static INIT_ONCE have_high_resolution_timer_init_once = INIT_ONCE_STATIC_INIT;
+static BOOL CALLBACK
+have_high_resolution_timer_init_function(PINIT_ONCE InitOnce,
+                                         PVOID Parameter,
+                                         PVOID *lpContext)
+{
+  HANDLE h = create_high_resolution_timer();
+  if ((*((bool *) *lpContext) = (h != NULL)))
+    CloseHandle(h);
+  return TRUE;
+}
+
+void caml_win32_destroy_high_resolution_timers(void)
+{
+  struct high_resolution_timer_list *hd = high_resolution_timer, *next = NULL;
+  while (hd != NULL) {
+    next = hd->next;
+    if (hd->timer)
+      CloseHandle(hd->timer);
+    caml_stat_free(hd);
+    hd = next;
+  }
+}
+
+void caml_win32_destroy_high_resolution_timer(void)
+{
+  if (high_resolution_timer != NULL && high_resolution_timer->timer != NULL) {
+    CloseHandle(high_resolution_timer->timer);
+    high_resolution_timer->timer = NULL;
+  }
+}
+
+int caml_win32_nanosleep(const struct timespec *rqtp,
+                         struct timespec *rmtp)
+{
+  DWORD timeout_msec;
+  (void) rmtp; /* ignored */
+
+  CAMLassert(rmtp == NULL);
+  if (rqtp->tv_nsec < 0 || rqtp->tv_nsec >= 1000000000) {
+    errno = EINVAL;
+    return -1;
+  }
+
+  bool have_high_resolution_timer;
+  InitOnceExecuteOnce(&have_high_resolution_timer_init_once,
+                      have_high_resolution_timer_init_function,
+                      NULL, (LPVOID *) &have_high_resolution_timer);
+
+  if (have_high_resolution_timer && high_resolution_timer == NULL) {
+    high_resolution_timer =
+      caml_stat_alloc_noexc(sizeof(high_resolution_timer));
+    if (high_resolution_timer != NULL) {
+      if (! (high_resolution_timer->timer = create_high_resolution_timer())) {
+        caml_stat_free(high_resolution_timer);
+        high_resolution_timer = NULL;
+      } else {
+        do { high_resolution_timer->next = high_resolution_timers; }
+        while (! atomic_compare_exchange_strong(&high_resolution_timers,
+                                                &high_resolution_timer->next,
+                                                high_resolution_timer));
+      }
+    }
+  }
+
+  /* If the high-resolution timer is available, use it. Otherwise,
+   * fall-back to the low-resolution timer, which doesn't need a
+   * handle. */
+  if (high_resolution_timer != NULL) {
+    /* relative sleep (negative), 100ns units */
+    int64_t timeout_100_nsec =
+      - (int64_t) (rqtp->tv_sec * (NSEC_PER_SEC / 100) + rqtp->tv_nsec / 100);
+
+    SetWaitableTimer(high_resolution_timer->timer,
+                     (LARGE_INTEGER *) &timeout_100_nsec,
+                     0 /* aperiodic */,
+                     NULL, NULL, /* no callback */
+                     FALSE /* do not resume the system */);
+    timeout_msec = INFINITE;
+  } else {
+    /* FIXME: should we wait at least 1 msec? */
+    uint64_t msec = rqtp->tv_sec * MSEC_PER_SEC + rqtp->tv_nsec / NSEC_PER_MSEC;
+    timeout_msec = msec < INFINITE ? (DWORD) msec : INFINITE - 1;
+  }
+
+  WaitForSingleObject(high_resolution_timer->timer, timeout_msec);
+  return 0;
+}
+
 /* UCRT clock function returns wall-clock time */
 CAMLexport clock_t caml_win32_clock(void)
 {

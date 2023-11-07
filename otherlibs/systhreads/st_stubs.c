@@ -668,6 +668,9 @@ static void thread_detach_from_runtime(void)
   caml_thread_remove_and_free(th);
   /* Forget the now-freed thread info */
   st_tls_set(caml_thread_key, NULL);
+#ifdef _WIN32
+  caml_win32_destroy_high_resolution_timer();
+#endif
   /* Release domain lock */
   thread_lock_release(Caml_state->id);
 }
@@ -726,6 +729,10 @@ static void * caml_thread_tick(void * arg)
     atomic_store_release(&domain->requested_external_interrupt, 1);
     caml_interrupt_self();
   }
+
+#ifdef _WIN32
+  caml_win32_destroy_high_resolution_timer();
+#endif
   return NULL;
 }
 

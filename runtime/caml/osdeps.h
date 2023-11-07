@@ -138,6 +138,12 @@ CAMLextern value caml_win32_xdg_defaults(void);
 
 CAMLextern value caml_win32_get_temp_path(void);
 
+CAMLextern int caml_win32_nanosleep(const struct timespec *rqtp,
+                                    struct timespec *rmtp /* no-op */);
+
+CAMLextern void caml_win32_destroy_high_resolution_timer(void);
+CAMLextern void caml_win32_destroy_high_resolution_timers(void);
+
 #endif /* _WIN32 */
 
 /* Returns the current value of a counter that increments once per nanosecond.

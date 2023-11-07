@@ -208,6 +208,7 @@ CAMLexport void caml_shutdown(void)
   caml_terminate_signals();
 #if defined(_WIN32) && defined(NATIVE_CODE)
   caml_win32_unregister_overflow_detection();
+  caml_win32_destroy_high_resolution_timers();
 #endif
 
   shutdown_happened = 1;
