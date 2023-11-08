@@ -4,7 +4,7 @@
 #include "caml/gc.h"
 #include "caml/memory.h"
 #include "caml/callback.h"
-#include "threads.h"
+#include "caml/threads.h"
 
 void *thread_func(void *fn) {
   caml_c_thread_register();
