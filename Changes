@@ -480,6 +480,9 @@ Working version
   rename Env.add_local_type to add_local_constraint
   (Takafumi Saikawa and Jacques Garrigue, review by Florian Angeletti)
 
+- #?????: Move all installable headers in `caml/` sub-directories.
+  (Antonin Décimo, review by ???)
+
 ### Build system:
 
 - #12198, #12321, #12586, #12616: continue the merge of the sub-makefiles
