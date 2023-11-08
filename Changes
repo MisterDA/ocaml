@@ -7,6 +7,10 @@ _______________
 
 ### Runtime system:
 
+- #12951: Constify constructors and flags tables in C code (take 2).
+  Now these tables will go in the readonly segment, where they belong.
+  (Antonin Décimo, review by David Allsopp)
+
 ### Code generation and optimizations:
 
 ### Standard library:
