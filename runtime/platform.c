@@ -465,7 +465,7 @@ unsigned caml_plat_spin_back_off(unsigned sleep_ns,
                 loc->function, loc->file, loc->line);
   }
 #ifdef _WIN32
-  Sleep(sleep_ns/1000000);
+  caml_win32_nanosleep(sleep_ns / 1000000000, sleep_ns % 1000000000);
 #elif defined (HAS_NANOSLEEP)
   const struct timespec ts = {
     .tv_sec = sleep_ns / 1000000000,
