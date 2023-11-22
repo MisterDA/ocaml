@@ -962,7 +962,7 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
 
 mkexe_cmd_exp="$CC"
 
-AS_CASE([$cc_basename,$host],
+AS_CASE([$ocaml_cv_cc_vendor,$host],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
@@ -1004,10 +1004,10 @@ AS_CASE([$cc_basename,$host],
     mkexedebugflag=''],
   [*,x86_64-*-linux*],
     AC_DEFINE([HAS_ARCH_CODE32], [1]),
-  [xlc*,powerpc-ibm-aix*],
+  [xlc-*,powerpc-ibm-aix*],
     [oc_ldflags='-brtl -bexpfull'
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
-  [gcc*,powerpc-*-linux*],
+  [gcc-*,powerpc-*-linux*],
     [oc_ldflags="-mbss-plt"])
 
 ## Program to use to install files
@@ -1164,8 +1164,8 @@ AS_IF([test x"$enable_shared" != "xno"],
     [[*-*-linux*|*-*-freebsd[3-9]*|*-*-freebsd[1-9][0-9]*\
     |*-*-openbsd*|*-*-netbsd*|*-*-dragonfly*|*-*-gnu*|*-*-haiku*]],
       [sharedlib_cflags="-fPIC"
-       AS_CASE([$cc_basename,$host],
-           [*gcc*,powerpc-*-linux*],
+       AS_CASE([$ocaml_cv_cc_vendor,$host],
+           [gcc-*,powerpc-*-linux*],
            [mkdll_flags='-shared -mbss-plt'],
            [[*,i[3456]86-*]],
            # Disable DT_TEXTREL warnings on Linux and BSD i386
@@ -1244,7 +1244,7 @@ AS_CASE([$enable_native_toplevel,$natdynlink],
     [install_ocamlnat=false])
 
 # Try to work around the Skylake/Kaby Lake processor bug.
-AS_CASE(["$cc_basename,$host"],
+AS_CASE(["$ocaml_cv_cc_vendor,$host"],
   [*gcc*,x86_64-*|*gcc*,i686-*],
     [OCAML_CC_HAS_FNO_TREE_VRP
     AS_IF([$cc_has_fno_tree_vrp],
@@ -1405,10 +1405,10 @@ AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
 
 AC_CHECK_TOOL([DIRECT_LD],[ld])
 AS_IF([test -z "$PARTIALLD"],
-  [AS_CASE(["$host,$cc_basename"],
-    [x86_64-*-darwin*,*gcc*], [PACKLD_FLAGS=' -arch x86_64'],
-    [powerpc64le*-*-linux*,*gcc*], [PACKLD_FLAGS=' -m elf64lppc'],
-    [powerpc*-*-linux*,*gcc*],
+  [AS_CASE(["$host,$ocaml_cv_cc_vendor"],
+    [x86_64-*-darwin*,gcc-*], [PACKLD_FLAGS=' -arch x86_64'],
+    [powerpc64le*-*-linux*,gcc-*], [PACKLD_FLAGS=' -m elf64lppc'],
+    [powerpc*-*-linux*,gcc-*],
        [AS_IF([$arch64],
               [PACKLD_FLAGS=' -m elf64ppc'],
               [PACKLD_FLAGS=' -m elf32ppclinux'])],
@@ -1417,10 +1417,11 @@ AS_IF([test -z "$PARTIALLD"],
   # output filename. Don't assume that all C compilers understand GNU -ofoo
   # form, so ensure that the definition includes a space at the end (which is
   # achieved using the $(EMPTY) expansion trick in Makefile.config.in).
-  AS_IF([test x"$cc_basename" = "xcl"],
-    # For the Microsoft C compiler there must be no space at the end of the
-    # string.
-    [PACKLD="link -lib -nologo $machine -out:"],
+  AS_CASE(["$ocaml_cv_cc_vendor"],
+    [msvc-*],
+      # For the Microsoft C compiler there must be no space at the end of the
+      # string.
+      [PACKLD="link -lib -nologo $machine -out:"],
     [PACKLD="$DIRECT_LD -r$PACKLD_FLAGS -o "])],
   [PACKLD="$PARTIALLD -o "])
 
@@ -2249,8 +2250,8 @@ AS_IF([$native_compiler],
 ## Frame pointers
 
 AS_IF([test x"$enable_frame_pointers" = "xyes"],
-  [AS_CASE(["$host,$cc_basename"],
-    [x86_64-*-linux*,gcc*|x86_64-*-linux*,clang*],
+  [AS_CASE(["$host,$ocaml_cv_cc_vendor"],
+    [x86_64-*-linux*,gcc-*|x86_64-*-linux*,clang-*],
       [common_cflags="$common_cflags -g  -fno-omit-frame-pointer"
       frame_pointers=true
       AC_DEFINE([WITH_FRAME_POINTERS])
