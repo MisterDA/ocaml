@@ -51,8 +51,13 @@ struct longjmp_buffer {
 struct longjmp_buffer {
   intptr_t buf[5];
 };
+#if defined(__clang__)
+#define sigsetjmp(buf,save) __builtin_setjmp((void **)(buf))
+#define siglongjmp(buf,val) __builtin_longjmp((void **)(buf),val)
+#else
 #define sigsetjmp(buf,save) __builtin_setjmp(buf)
 #define siglongjmp(buf,val) __builtin_longjmp(buf,val)
+#endif
 #else
 struct longjmp_buffer {
   jmp_buf buf;
