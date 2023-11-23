@@ -1664,11 +1664,10 @@ AS_IF([test "x$enable_tsan" = "xyes" ],
     [amd64],
       [AS_CASE(["$system"],
         [linux|macosx],
-        [AS_CASE(["$cc_basename"],
-          [gcc*|clang*],
-          [tsan=true],
-          [AC_MSG_ERROR([thread sanitizer not supported with compiler \
-$cc_basename"])]
+        [AS_CASE(["$ocaml_cv_cc_vendor"],
+          [gcc-*|clang-*], [tsan=true],
+          [AC_MSG_ERROR(m4_normalize([thread sanitizer not supported with
+            vendor=$ocaml_cv_cc_vendor"]))]
          )],
        )],
       [AC_MSG_ERROR([thread sanitizer not supported on arch $arch])]

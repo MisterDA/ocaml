@@ -16588,12 +16588,11 @@ then :
   amd64) :
     case "$system" in #(
   linux|macosx) :
-    case "$cc_basename" in #(
-  gcc*|clang*) :
+    case "$ocaml_cv_cc_vendor" in #(
+  gcc-*|clang-*) :
     tsan=true ;; #(
   *) :
-    as_fn_error $? "thread sanitizer not supported with compiler \
-$cc_basename\"" "$LINENO" 5
+    as_fn_error $? "thread sanitizer not supported with vendor=$ocaml_cv_cc_vendor\"" "$LINENO" 5
           ;;
 esac ;; #(
   *) :
