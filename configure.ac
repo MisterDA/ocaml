@@ -1059,18 +1059,18 @@ AC_SEARCH_LIBS([cos], [m],
 # Don't check for unistd.h on Windows
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows], [],
-  [AC_CHECK_HEADERS([unistd.h],[AC_DEFINE([HAS_UNISTD])])])
+  [AC_CHECK_HEADERS([unistd.h],[AC_DEFINE([HAS_UNISTD], [1], [x])])])
 
 AC_CHECK_HEADER([math.h])
-AC_CHECK_HEADER([stdint.h],[AC_DEFINE([HAS_STDINT_H])])
-AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H])])
-AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT])], [],
+AC_CHECK_HEADER([stdint.h],[AC_DEFINE([HAS_STDINT_H], [1], [x])])
+AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H], [1], [x])])
+AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT], [1], [x])], [],
   [#include <sys/types.h>])
 
-AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H])], [],
+AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H], [1], [x])], [],
   [#include <sys/types.h>])
 
-AC_CHECK_HEADER([sys/mman.h], [AC_DEFINE([HAS_SYS_MMAN_H])])
+AC_CHECK_HEADER([sys/mman.h], [AC_DEFINE([HAS_SYS_MMAN_H], [1], [x])])
 
 # Checks for types
 
@@ -1605,15 +1605,15 @@ AS_IF([$has_c99_float_ops],
 ## getentropy
 AC_CHECK_HEADER([unistd.h],
   [AC_CHECK_DECL([getentropy],
-                 [AC_DEFINE([HAS_GETENTROPY])], [],
+                 [AC_DEFINE([HAS_GETENTROPY], [1], [x])], [],
                  [[#include <unistd.h>]])],
   [])
 
 ## getrusage
-AC_CHECK_FUNC([getrusage], [AC_DEFINE([HAS_GETRUSAGE])])
+AC_CHECK_FUNC([getrusage], [AC_DEFINE([HAS_GETRUSAGE], [1], [x])])
 
 ## times
-AC_CHECK_FUNC([times], [AC_DEFINE([HAS_TIMES])])
+AC_CHECK_FUNC([times], [AC_DEFINE([HAS_TIMES], [1], [x])])
 
 ## secure_getenv and __secure_getenv
 
@@ -1621,14 +1621,14 @@ saved_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
 
 AC_CHECK_FUNC([secure_getenv],
-  [AC_DEFINE([HAS_SECURE_GETENV])],
-  [AC_CHECK_FUNC([__secure_getenv], [AC_DEFINE([HAS___SECURE_GETENV])])])
+  [AC_DEFINE([HAS_SECURE_GETENV], [1], [x])],
+  [AC_CHECK_FUNC([__secure_getenv], [AC_DEFINE([HAS___SECURE_GETENV], [1], [x])])])
 
 CPPFLAGS="$saved_CPPFLAGS"
 
 ## issetugid
 
-AC_CHECK_FUNC([issetugid], [AC_DEFINE([HAS_ISSETUGID])])
+AC_CHECK_FUNC([issetugid], [AC_DEFINE([HAS_ISSETUGID], [1], [x])])
 
 ## Checking for monotonic clock source
 ## On Windows MSVC, QueryPerformanceCounter and QueryPerformanceFrequency
@@ -1644,7 +1644,7 @@ AS_CASE([$host],
     AC_CHECK_FUNCS([clock_gettime_nsec_np],
       [
         has_monotonic_clock=true
-        AC_DEFINE([HAS_CLOCK_GETTIME_NSEC_NP])
+        AC_DEFINE([HAS_CLOCK_GETTIME_NSEC_NP], [1], [x])
       ],
       [has_monotonic_clock=false])],
   [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
@@ -1661,7 +1661,7 @@ AS_CASE([$host],
     ]])],
     [
       has_monotonic_clock=true
-      AC_DEFINE([HAS_POSIX_MONOTONIC_CLOCK])
+      AC_DEFINE([HAS_POSIX_MONOTONIC_CLOCK], [1], [x])
     ],
     [has_monotonic_clock=false])
   ]
@@ -1836,11 +1836,11 @@ AS_CASE([$host],
   [*-*-mingw32*],
     [cclibs="$cclibs -lws2_32"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR])])],
+    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1], [x])])],
   [*-pc-windows],
     [cclibs="$cclibs ws2_32.lib"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR])])],
+    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1], [x])])],
   [*-*-haiku],
     [cclibs="$cclibs -lnetwork"
     AC_SEARCH_LIBS([socket], [network])],
@@ -1856,24 +1856,24 @@ AS_CASE([$host],
   ]
 )
 
-AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS])])
+AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS], [1], [x])])
 
 ## socklen_t
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
-    [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
+  [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T], [1], [x])], [],
       [#include <ws2tcpip.h>])],
-  [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T])], [],
+      [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T], [1], [x])], [],
     [#include <sys/socket.h>])])
 
-AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON])])
+AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON], [1], [x])])
 
 ## Unix domain sockets support on Windows
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
-    [AC_CHECK_HEADERS([afunix.h], [AC_DEFINE([HAS_AFUNIX_H])], [],
+  [AC_CHECK_HEADERS([afunix.h], [AC_DEFINE([HAS_AFUNIX_H], [1], [x])], [],
       [#include <winsock2.h>])])
 
 ## IPv6 support
@@ -1904,59 +1904,59 @@ AS_IF([$ipv6],
   [AC_CHECK_FUNC([inet_pton], [], [ipv6=false])])
 
 AS_IF([$ipv6],
-  [AC_CHECK_FUNC([inet_ntop], [AC_DEFINE([HAS_IPV6])])])
+[AC_CHECK_FUNC([inet_ntop], [AC_DEFINE([HAS_IPV6], [1], [x])])])
 
-AC_CHECK_FUNC([rewinddir], [AC_DEFINE([HAS_REWINDDIR])])
+AC_CHECK_FUNC([rewinddir], [AC_DEFINE([HAS_REWINDDIR], [1], [x])])
 
-AC_CHECK_FUNC([lockf], [AC_DEFINE([HAS_LOCKF])])
+AC_CHECK_FUNC([lockf], [AC_DEFINE([HAS_LOCKF], [1], [x])])
 
-AC_CHECK_FUNC([mkfifo], [AC_DEFINE([HAS_MKFIFO])])
+AC_CHECK_FUNC([mkfifo], [AC_DEFINE([HAS_MKFIFO], [1], [x])])
 
-AC_CHECK_FUNC([getcwd], [AC_DEFINE([HAS_GETCWD])])
+AC_CHECK_FUNC([getcwd], [AC_DEFINE([HAS_GETCWD], [1], [x])])
 
-AC_CHECK_DECL([system], [AC_DEFINE([HAS_SYSTEM])], [], [[#include <stdlib.h>]])
+AC_CHECK_DECL([system], [AC_DEFINE([HAS_SYSTEM], [1], [x])], [], [[#include <stdlib.h>]])
 
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
 # seem to detect it properly on Windows so we hardcode the definition
 # of HAS_UTIME on Windows but this will probably need to be clarified
 AS_CASE([$host],
-  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_UTIME])],
+[*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_UTIME], [1], [x])],
   [AC_CHECK_HEADER([sys/types.h],
     [AC_CHECK_HEADER([utime.h],
-      [AC_CHECK_FUNC([utime], [AC_DEFINE([HAS_UTIME])])])])])
+    [AC_CHECK_FUNC([utime], [AC_DEFINE([HAS_UTIME], [1], [x])])])])])
 
-AC_CHECK_FUNC([utimes], [AC_DEFINE([HAS_UTIMES])])
+AC_CHECK_FUNC([utimes], [AC_DEFINE([HAS_UTIMES], [1], [x])])
 
 AC_CHECK_FUNC([fchmod],
-  [AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD])])])
+[AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD], [1], [x])])])
 
 AC_CHECK_FUNC([truncate],
-  [AC_CHECK_FUNC([ftruncate], [AC_DEFINE([HAS_TRUNCATE])])])
+[AC_CHECK_FUNC([ftruncate], [AC_DEFINE([HAS_TRUNCATE], [1], [x])])])
 
 ## select
 AC_CHECK_FUNC([select],
   [AC_CHECK_TYPE([fd_set],
-    [AC_DEFINE([HAS_SELECT])
+  [AC_DEFINE([HAS_SELECT], [1], [x])
     select=true], [select=false], [
 #include <sys/types.h>
 #include <sys/select.h>
   ])])
 
-AC_CHECK_FUNC([nanosleep], [AC_DEFINE([HAS_NANOSLEEP])])
+AC_CHECK_FUNC([nanosleep], [AC_DEFINE([HAS_NANOSLEEP], [1], [x])])
 
 AC_CHECK_FUNC([symlink],
   [AC_CHECK_FUNC([readlink],
-    [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK])])])])
+  [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK], [1], [x])])])])
 
-AC_CHECK_FUNC([realpath], [AC_DEFINE([HAS_REALPATH])])
+AC_CHECK_FUNC([realpath], [AC_DEFINE([HAS_REALPATH], [1], [x])])
 
 # wait
 AC_CHECK_FUNC(
   [waitpid],
   [
     wait=true
-    AC_DEFINE([HAS_WAITPID])
+    AC_DEFINE([HAS_WAITPID], [1], [x])
   ],
   [wait=false])
 
@@ -1964,17 +1964,17 @@ AC_CHECK_FUNC(
   [wait4],
   [
     has_wait=true
-    AC_DEFINE([HAS_WAIT4])
+    AC_DEFINE([HAS_WAIT4], [1], [x])
   ])
 
 ## getgroups
-AC_CHECK_FUNC([getgroups], [AC_DEFINE([HAS_GETGROUPS])])
+AC_CHECK_FUNC([getgroups], [AC_DEFINE([HAS_GETGROUPS], [1], [x])])
 
 ## setgroups
-AC_CHECK_FUNC([setgroups], [AC_DEFINE([HAS_SETGROUPS])])
+AC_CHECK_FUNC([setgroups], [AC_DEFINE([HAS_SETGROUPS], [1], [x])])
 
 ## initgroups
-AC_CHECK_FUNC([initgroups], [AC_DEFINE([HAS_INITGROUPS])])
+AC_CHECK_FUNC([initgroups], [AC_DEFINE([HAS_INITGROUPS], [1], [x])])
 
 ## termios
 
@@ -1983,14 +1983,14 @@ AC_CHECK_HEADER([termios.h],
     [AC_CHECK_FUNC([tcsetattr],
       [AC_CHECK_FUNC([tcsendbreak],
         [AC_CHECK_FUNC([tcflush],
-          [AC_CHECK_FUNC([tcflow], [AC_DEFINE([HAS_TERMIOS])])])])])])])
+        [AC_CHECK_FUNC([tcflow], [AC_DEFINE([HAS_TERMIOS], [1], [x])])])])])])])
 
 ## setitimer
 
 AC_CHECK_FUNC([setitimer],
   [
     setitimer=true
-    AC_DEFINE([HAS_SETITIMER])
+    AC_DEFINE([HAS_SETITIMER], [1], [x])
   ],
   [setitimer=false])
 
@@ -1998,63 +1998,63 @@ AC_CHECK_FUNC([setitimer],
 # Note: detection fails on Windows so hardcoding the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_GETHOSTNAME])],
-  [AC_CHECK_FUNC([gethostname], [AC_DEFINE([HAS_GETHOSTNAME])])])
+[*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_GETHOSTNAME], [1], [x])],
+[AC_CHECK_FUNC([gethostname], [AC_DEFINE([HAS_GETHOSTNAME], [1], [x])])])
 
 ## uname
 
 AC_CHECK_HEADER([sys/utsname.h],
-  [AC_CHECK_FUNC([uname], [AC_DEFINE([HAS_UNAME])])])
+[AC_CHECK_FUNC([uname], [AC_DEFINE([HAS_UNAME], [1], [x])])])
 
 ## gettimeofday
 
 AC_CHECK_FUNC([gettimeofday],
   [
     gettimeofday=true
-    AC_DEFINE([HAS_GETTIMEOFDAY])
+    AC_DEFINE([HAS_GETTIMEOFDAY], [1], [x])
   ],
   [gettimeofday=false])
 
 ## mktime
 
-AC_CHECK_FUNC([mktime], [AC_DEFINE([HAS_MKTIME])])
+AC_CHECK_FUNC([mktime], [AC_DEFINE([HAS_MKTIME], [1], [x])])
 
 ## setsid
 
 AS_CASE([$host],
   [*-cygwin|*-*-mingw32*|*-pc-windows], [],
-  [AC_CHECK_FUNC([setsid], [AC_DEFINE([HAS_SETSID])])])
+  [AC_CHECK_FUNC([setsid], [AC_DEFINE([HAS_SETSID], [1], [x])])])
 
 ## putenv
 
-AC_CHECK_FUNC([putenv], [AC_DEFINE([HAS_PUTENV])])
+AC_CHECK_FUNC([putenv], [AC_DEFINE([HAS_PUTENV], [1], [x])])
 
 ## setenv and unsetenv
 
 AC_CHECK_FUNC([setenv],
-  [AC_CHECK_FUNC([unsetenv], [AC_DEFINE([HAS_SETENV_UNSETENV])])])
+[AC_CHECK_FUNC([unsetenv], [AC_DEFINE([HAS_SETENV_UNSETENV], [1], [x])])])
 
 ## newlocale() and <locale.h>
 # Note: the detection fails on msvc so we hardcode the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-pc-windows], [AC_DEFINE([HAS_LOCALE_H])],
+[*-pc-windows], [AC_DEFINE([HAS_LOCALE_H], [1], [x])],
   [AC_CHECK_HEADER([locale.h],
     [AC_CHECK_FUNC([newlocale],
       [AC_CHECK_FUNC([freelocale],
-        [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_LOCALE_H])])])])])])
+      [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_LOCALE_H], [1], [x])])])])])])
 
 AC_CHECK_HEADER([xlocale.h],
   [AC_CHECK_FUNC([newlocale],
     [AC_CHECK_FUNC([freelocale],
-      [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_XLOCALE_H])])])])])
+    [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_XLOCALE_H], [1], [x])])])])])
 
 ## strtod_l
 # Note: not detected on MSVC so hardcoding the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-pc-windows], [AC_DEFINE([HAS_STRTOD_L])],
-  [AC_CHECK_FUNC([strtod_l], [AC_DEFINE([HAS_STRTOD_L])])])
+[*-pc-windows], [AC_DEFINE([HAS_STRTOD_L], [1], [x])],
+[AC_CHECK_FUNC([strtod_l], [AC_DEFINE([HAS_STRTOD_L], [1], [x])])])
 
 ## shared library support
 AS_IF([$supports_shared_libraries],
@@ -2078,11 +2078,11 @@ AS_IF([$supports_shared_libraries],
 
 AC_CHECK_HEADER([sys/mman.h],
   [AC_CHECK_FUNC([mmap],
-    [AC_CHECK_FUNC([munmap], [AC_DEFINE([HAS_MMAP])])])])
+  [AC_CHECK_FUNC([munmap], [AC_DEFINE([HAS_MMAP], [1], [x])])])])
 
 ## pwrite
 
-AC_CHECK_FUNC([pwrite], [AC_DEFINE([HAS_PWRITE])])
+AC_CHECK_FUNC([pwrite], [AC_DEFINE([HAS_PWRITE], [1], [x])])
 
 ## -fdebug-prefix-map support by the C compiler
 AS_CASE([$ocaml_cv_cc_vendor,$host],
@@ -2098,7 +2098,7 @@ stat_has_ns_precision=false
 
 AC_CHECK_MEMBER([struct stat.st_atim.tv_nsec],
   [stat_has_ns_precision=true
-  AC_DEFINE([HAS_NANOSECOND_STAT], [1])],
+  AC_DEFINE([HAS_NANOSECOND_STAT], [1], [x])],
   [],
   [
     AC_INCLUDES_DEFAULT
@@ -2109,7 +2109,7 @@ AC_CHECK_MEMBER([struct stat.st_atim.tv_nsec],
 AS_IF([! $stat_has_ns_precision],
   [AC_CHECK_MEMBER([struct stat.st_atimespec.tv_nsec],
     [stat_has_ns_precision=true
-    AC_DEFINE([HAS_NANOSECOND_STAT], [2])],
+    AC_DEFINE([HAS_NANOSECOND_STAT], [2], [x])],
     [],
     [
       AC_INCLUDES_DEFAULT
@@ -2119,7 +2119,7 @@ AS_IF([! $stat_has_ns_precision],
 AS_IF([! $stat_has_ns_precision],
   [AC_CHECK_MEMBER([struct stat.st_atimensec],
     [stat_has_ns_precision=true
-    AC_DEFINE([HAS_NANOSECOND_STAT], [3])],
+    AC_DEFINE([HAS_NANOSECOND_STAT], [3], [x])],
     [],
     [
       AC_INCLUDES_DEFAULT
@@ -2135,8 +2135,8 @@ AS_IF([$stat_has_ns_precision],
 AX_FUNC_WHICH_GETHOSTBYNAME_R
 
 AS_CASE([$ac_cv_func_which_gethostbyname_r],
-  [six], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[6])],
-  [five], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[5])],
+  [six], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[6],[x])],
+  [five], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[5],[x])],
   [three], [AC_MSG_WARN([OCaml does not support this variant])])
 
 # Number of arguments of gethostbyaddr_r
@@ -2144,49 +2144,49 @@ AS_CASE([$ac_cv_func_which_gethostbyname_r],
 AX_FUNC_WHICH_GETHOSTBYADDR_R
 
 AS_CASE([$ac_cv_func_which_gethostbyaddr_r],
-  [eight], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[8])],
-  [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7])])
+  [eight], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[8],[x])],
+  [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7],[x])])
 
 ## mkstemp
 
-AC_CHECK_FUNC([mkstemp], [AC_DEFINE([HAS_MKSTEMP])])
+AC_CHECK_FUNC([mkstemp], [AC_DEFINE([HAS_MKSTEMP], [1], [x])])
 
 ## nice
 
-AC_CHECK_FUNC([nice], [AC_DEFINE([HAS_NICE])])
+AC_CHECK_FUNC([nice], [AC_DEFINE([HAS_NICE], [1], [x])])
 
 ## dup3
 
-AC_CHECK_FUNC([dup3], [AC_DEFINE([HAS_DUP3])])
+AC_CHECK_FUNC([dup3], [AC_DEFINE([HAS_DUP3], [1], [x])])
 
 ## pipe2
 
-AC_CHECK_FUNC([pipe2], [AC_DEFINE([HAS_PIPE2])])
+AC_CHECK_FUNC([pipe2], [AC_DEFINE([HAS_PIPE2], [1], [x])])
 
 ## accept4
 
-AC_CHECK_FUNC([accept4], [AC_DEFINE([HAS_ACCEPT4])])
+AC_CHECK_FUNC([accept4], [AC_DEFINE([HAS_ACCEPT4], [1], [x])])
 
 ## getauxval
 
-AC_CHECK_FUNC([getauxval], [AC_DEFINE([HAS_GETAUXVAL])])
+AC_CHECK_FUNC([getauxval], [AC_DEFINE([HAS_GETAUXVAL], [1], [x])])
 
 ## shmat
 AC_CHECK_HEADER([sys/shm.h],
   [
-    AC_DEFINE([HAS_SYS_SHM_H])
-    AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT])])
+  AC_DEFINE([HAS_SYS_SHM_H], [1], [x])
+  AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT], [1], [x])])
   ])
 
 ## execvpe
 
-AC_CHECK_FUNC([execvpe], [AC_DEFINE([HAS_EXECVPE])])
+AC_CHECK_FUNC([execvpe], [AC_DEFINE([HAS_EXECVPE], [1], [x])])
 
 ## posix_spawn
 
 AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
-    [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN])])])])
+  [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN], [1], [x])])])])
 
 AC_PATH_TOOL([PKG_CONFIG], [pkg-config], [false])
 
@@ -2217,7 +2217,7 @@ AS_IF([test x"$zstd_status" = "xok"],
   [AC_MSG_NOTICE([compressed marshaling supported])
    cclibs="$cclibs $zstd_libs"
    internal_cppflags="$internal_cppflags $zstd_flags"
-   AC_DEFINE([HAS_ZSTD])],
+   AC_DEFINE([HAS_ZSTD], [1], [x])],
   [AS_CASE(["$with_zstd"],
      [no],
        [],
@@ -2262,7 +2262,7 @@ AS_CASE([$host],
     # tests can rely on the assumption that pthread is enabled.
     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
     LIBS="$LIBS $PTHREAD_LIBS"
-    AC_CHECK_FUNC([sigwait], [AC_DEFINE([HAS_SIGWAIT])])],
+    AC_CHECK_FUNC([sigwait], [AC_DEFINE([HAS_SIGWAIT], [1], [x])])],
     [AC_MSG_ERROR(m4_normalize([POSIX threads are required but not supported on
       this platform]))])])
 
@@ -2281,7 +2281,7 @@ AC_LINK_IFELSE(
       CPU_COUNT(&cs);
       pthread_getaffinity_np(pthread_self(), sizeof(cs), &cs);]])],
   [AC_MSG_RESULT([GNU])
-  AC_DEFINE([HAS_GNU_GETAFFINITY_NP])],
+  AC_DEFINE([HAS_GNU_GETAFFINITY_NP], [1], [x])],
   [AC_LINK_IFELSE(
     [AC_LANG_PROGRAM(
       [[#include <pthread.h>
@@ -2293,7 +2293,7 @@ AC_LINK_IFELSE(
         CPU_COUNT(&cs);
         pthread_getaffinity_np(pthread_self(), sizeof(cs), &cs);]])],
     [AC_MSG_RESULT([BSD])
-    AC_DEFINE([HAS_BSD_GETAFFINITY_NP])],
+    AC_DEFINE([HAS_BSD_GETAFFINITY_NP], [1], [x])],
     [AC_MSG_RESULT([pthread_getaffinity_np not found])])])
 
 ## Activate the systhread library
@@ -2535,19 +2535,19 @@ AS_IF([test x"$prefix" = "xNONE"],
 # (all this should be understood and fixed)
 AS_CASE([$host],
   [*-*-mingw32*],
-    [AC_DEFINE([HAS_BROKEN_PRINTF])
-    AC_DEFINE([HAS_STRERROR])
-    AC_DEFINE([HAS_IPV6])
-    AC_DEFINE([HAS_NICE])],
+  [AC_DEFINE([HAS_BROKEN_PRINTF], [1], [x])
+  AC_DEFINE([HAS_STRERROR], [1], [x])
+  AC_DEFINE([HAS_IPV6], [1], [x])
+  AC_DEFINE([HAS_NICE], [1], [x])],
   [*-pc-windows],
-    [AC_DEFINE([HAS_BROKEN_PRINTF])
-    AC_DEFINE([HAS_STRERROR])
-    AC_DEFINE([HAS_IPV6])
-    AC_DEFINE([HAS_NICE])],
+  [AC_DEFINE([HAS_BROKEN_PRINTF], [1], [x])
+  AC_DEFINE([HAS_STRERROR], [1], [x])
+  AC_DEFINE([HAS_IPV6], [1], [x])
+  AC_DEFINE([HAS_NICE], [1], [x])],
   [*-*-solaris*],
     # This is required as otherwise floats are printed
     # as "Infinity" and "Inf" instead of the expected "inf"
-    [AC_DEFINE([HAS_BROKEN_PRINTF])])
+    [AC_DEFINE([HAS_BROKEN_PRINTF], [1], [x])])
 
 # Do not permanently cache the result of flexdll.h
 unset ac_cv_header_flexdll_h

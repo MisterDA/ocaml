@@ -84,7 +84,7 @@ AC_DEFUN([OCAML_SIGNAL_HANDLERS_SEMANTICS], [
   AC_CHECK_FUNC([sigaction], [has_sigaction=true], [has_sigaction=false])
   AC_CHECK_FUNC([sigprocmask], [has_sigprocmask=true], [has_sigprocmask=false])
   AS_IF([$has_sigaction && $has_sigprocmask],
-    [AC_DEFINE([POSIX_SIGNALS])
+    [AC_DEFINE([POSIX_SIGNALS], [1], [Has POSIX signals.])
       AC_MSG_NOTICE([POSIX signal handling found.])],
     [AC_MSG_NOTICE([assuming signals have the System V semantics.])
     ]
@@ -327,8 +327,9 @@ int main (int argc, char *argv[]){
   return 0;
 }
     ]])],
-    [AC_DEFINE([HAS_HUGE_PAGES])
-    AC_DEFINE_UNQUOTED([HUGE_PAGE_SIZE], [(4 * 1024 * 1024)])
+    [AC_DEFINE([HAS_HUGE_PAGES], [1], [Has huge pages.])
+    AC_DEFINE_UNQUOTED([HUGE_PAGE_SIZE], [(4 * 1024 * 1024)],
+      [Size of huge pages.])
     AC_MSG_RESULT([yes])],
     [AC_MSG_RESULT([no])],
     [AC_MSG_RESULT([no assumed])])
@@ -340,7 +341,7 @@ AC_DEFUN([OCAML_CHECK_LIBUNWIND], [
   CPPFLAGS="$CPPFLAGS $libunwind_cppflags"
   LDFLAGS="$LDFLAGS $libunwind_ldflags"
   AC_CHECK_HEADER([libunwind.h],
-    [AC_DEFINE([HAS_LIBUNWIND])
+    [AC_DEFINE([HAS_LIBUNWIND], [1], [Has libunwind.])
     libunwind_available=true],
     [libunwind_available=false])
   LDFLAGS="$SAVED_LDFLAGS"
