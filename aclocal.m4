@@ -108,7 +108,7 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ALIGNED], [
   AC_MSG_CHECKING([whether the C compiler supports __attribute__((aligned(n)))])
   AC_COMPILE_IFELSE(
     [AC_LANG_SOURCE([typedef struct {__attribute__((aligned(8))) int t;} t;])],
-    [AC_DEFINE([SUPPORTS_ALIGNED_ATTRIBUTE])
+    [AC_DEFINE([SUPPORTS_ALIGNED_ATTRIBUTE], [1], [Support aligned attribute.])
     AC_MSG_RESULT([yes])],
     [AC_MSG_RESULT([no])])])
 
@@ -122,7 +122,8 @@ AC_DEFUN([OCAML_CC_SUPPORTS_TREE_VECTORIZE], [
        __attribute__((optimize("tree-vectorize"))) void f(void){}
        int main() { f(); return 0; }
     ])],
-    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE])
+    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1],
+      [Support tree-vectorize attribute.])
     AC_MSG_RESULT([yes])],
     [AC_MSG_RESULT([no])])
   CFLAGS="$saved_CFLAGS"
@@ -252,7 +253,7 @@ camlPervasives__loop_1128:
 
     AS_IF([$aspp_ok && $as_ok],
       [asm_cfi_supported=true
-      AC_DEFINE([ASM_CFI_SUPPORTED])
+      AC_DEFINE([ASM_CFI_SUPPORTED], [1], [Assembler support of CFI directives])
       AC_MSG_RESULT([yes])],
       [AS_IF([test x"$enable_cfi" = "xyes"],
         [AC_MSG_RESULT([requested but not available
@@ -427,6 +428,10 @@ AC_DEFUN([OCAML_HOST_IS_EXECUTABLE], [
   cross_compiling="$old_cross_compiling"
 ])
 
+AH_TEMPLATE([HAS_WORKING_ROUND],
+  [Define HAS_WORKING_ROUND is the round function is correctly implemented. This
+  hatch exists primarily for https://sourceforge.net/p/mingw-w64/bugs/573/])
+
 # This is AC_RUN_IFELSE but taking $host_runnable into account (i.e. if the
 # program can be run, then it is run)
 AC_DEFUN([OCAML_RUN_IFELSE], [
@@ -447,7 +452,7 @@ int main (void) {
 }
     ]])],
     [AC_MSG_RESULT([yes])
-    AC_DEFINE([HAS_WORKING_ROUND])],
+    AC_DEFINE([HAS_WORKING_ROUND], [1])],
     [AC_MSG_RESULT([no])
     AS_CASE([$enable_imprecise_c99_float_ops,$target],
       [no,*], [hard_error=true],
@@ -463,8 +468,13 @@ int main (void) {
     [AS_CASE([$target],
       [x86_64-w64-mingw32*],[AC_MSG_RESULT([cross-compiling; assume not])],
       [AC_MSG_RESULT([cross-compiling; assume yes])
-      AC_DEFINE([HAS_WORKING_ROUND])])])
+      AC_DEFINE([HAS_WORKING_ROUND], [1])])])
 ])
+
+AH_TEMPLATE([HAS_WORKING_FMA],
+  [Define HAS_WORKING_FMA if the fma function is correctly implemented.
+  The newlib library (intentionally) just has return x * y + z.
+  This hatch is also used for https://sourceforge.net/p/mingw-w64/bugs/848/])
 
 AC_DEFUN([OCAML_C99_CHECK_FMA], [
   AC_MSG_CHECKING([whether fma works])
@@ -499,7 +509,7 @@ int main (void) {
 }
     ]])],
     [AC_MSG_RESULT([yes])
-    AC_DEFINE([HAS_WORKING_FMA])],
+    AC_DEFINE([HAS_WORKING_FMA], [1])],
     [AC_MSG_RESULT([no])
     AS_CASE([$enable_imprecise_c99_float_ops,$target],
       [no,*], [hard_error=true],
@@ -520,7 +530,7 @@ int main (void) {
       [x86_64-w64-mingw32*|x86_64-*-cygwin*],
         [AC_MSG_RESULT([cross-compiling; assume not])],
       [AC_MSG_RESULT([cross-compiling; assume yes])
-      AC_DEFINE([HAS_WORKING_FMA])])])
+      AC_DEFINE([HAS_WORKING_FMA], [1])])])
 ])
 
 # Computes a suitable id to insert in quoted strings to ensure that all OCaml

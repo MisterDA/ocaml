@@ -105,11 +105,11 @@ AC_SUBST([OCAML_VERSION_MINOR], [OCAML__VERSION_MINOR])
 AC_SUBST([OCAML_VERSION_PATCHLEVEL], [OCAML__VERSION_PATCHLEVEL])
 AC_SUBST([OCAML_VERSION_EXTRA], [OCAML__VERSION_EXTRA])
 AC_SUBST([OCAML_VERSION_SHORT], [OCAML__VERSION_SHORT])
-AC_DEFINE([MAGIC_NUMBER_PREFIX], ["][MAGIC_NUMBER__PREFIX]["])
-AC_DEFINE([MAGIC_NUMBER_VERSION], ["][MAGIC_NUMBER__VERSION]["])
+AC_SUBST([MAGIC_NUMBER_PREFIX], [MAGIC_NUMBER__PREFIX])
+AC_SUBST([MAGIC_NUMBER_VERSION], [MAGIC_NUMBER__VERSION])
 AC_SUBST([MAGIC_NUMBER_LENGTH], [MAGIC_NUMBER__LENGTH])
-AC_DEFINE([EXEC_MAGIC_LENGTH], [MAGIC_NUMBER__LENGTH])
-AC_DEFINE([EXEC_FORMAT], ["][EXEC__FORMAT]["])
+AC_SUBST([EXEC_MAGIC_LENGTH], [MAGIC_NUMBER__LENGTH])
+AC_SUBST([EXEC_FORMAT], [EXEC__FORMAT])
 AC_SUBST([EXEC_MAGIC_NUMBER], [EXEC__MAGIC_NUMBER])
 AC_SUBST([CMI_MAGIC_NUMBER], [CMI__MAGIC_NUMBER])
 AC_SUBST([CMO_MAGIC_NUMBER], [CMO__MAGIC_NUMBER])
@@ -251,6 +251,22 @@ AC_SUBST([ar_supports_response_files])
 
 ## Generated files
 
+AC_CONFIG_HEADERS([runtime/caml/config.h])
+AH_TOP([
+#ifndef CAML_CONFIG_H
+#define CAML_CONFIG_H
+])
+AH_BOTTOM([
+#define SIZEOF_PTR SIZEOF_LONG_P
+#define SIZEOF_LONGLONG SIZEOF_LONG_LONG
+
+#define NO_NAKED_POINTERS 1
+#define CAML_SAFE_STRING 1
+
+#include <conf_post.h>
+#endif /* CAML_CONFIG_H */
+])
+
 AC_CONFIG_FILES([Makefile.build_config])
 AC_CONFIG_FILES([Makefile.config])
 AC_CONFIG_FILES([stdlib/sys.ml])
@@ -259,24 +275,22 @@ AC_CONFIG_FILES([manual/src/html_processing/src/common.ml])
 AC_CONFIG_FILES([ocamltest/ocamltest_config.ml])
 AC_CONFIG_FILES([utils/config.common.ml])
 AC_CONFIG_FILES([utils/config.generated.ml])
-AC_CONFIG_HEADERS([runtime/caml/exec.h])
-AC_CONFIG_HEADERS([runtime/caml/m.h])
-AC_CONFIG_HEADERS([runtime/caml/s.h])
-AC_CONFIG_HEADERS([runtime/caml/version.h])
+AC_CONFIG_FILES([runtime/caml/exec.h])
+AC_CONFIG_FILES([runtime/caml/version.h])
 AC_CONFIG_FILES([compilerlibs/META])
 AC_CONFIG_FILES([otherlibs/dynlink/META])
 AC_CONFIG_FILES([otherlibs/runtime_events/META])
 AC_CONFIG_FILES([stdlib/META])
 
 # Definitions related to the version of OCaml
-AC_DEFINE([OCAML_VERSION_MAJOR], [OCAML__VERSION_MAJOR])
-AC_DEFINE([OCAML_VERSION_MINOR], [OCAML__VERSION_MINOR])
-AC_DEFINE([OCAML_VERSION_PATCHLEVEL], [OCAML__VERSION_PATCHLEVEL])
+AC_SUBST([OCAML_VERSION_MAJOR], [OCAML__VERSION_MAJOR])
+AC_SUBST([OCAML_VERSION_MINOR], [OCAML__VERSION_MINOR])
+AC_SUBST([OCAML_VERSION_PATCHLEVEL], [OCAML__VERSION_PATCHLEVEL])
 m4_if([OCAML__VERSION_EXTRA],[], [],
-  [AC_DEFINE([OCAML_VERSION_ADDITIONAL], ["][OCAML__VERSION_EXTRA]["])
-  AC_DEFINE([OCAML_VERSION_EXTRA], ["][OCAML__VERSION_EXTRA]["])])
-AC_DEFINE([OCAML_VERSION], [OCAML__VERSION_NUMBER])
-AC_DEFINE([OCAML_VERSION_STRING], ["][OCAML__VERSION]["])
+  [AC_SUBST([OCAML_VERSION_ADDITIONAL], [OCAML__VERSION_EXTRA])
+  AC_SUBST([OCAML_VERSION_EXTRA], [OCAML__VERSION_EXTRA])])
+AC_SUBST([OCAML_VERSION], [OCAML__VERSION_NUMBER])
+AC_SUBST([OCAML_VERSION_STRING], [OCAML__VERSION])
 
 # Works out how many "o"s are needed in quoted strings
 AC_CONFIG_COMMANDS_PRE(OCAML_QUOTED_STRING_ID)
@@ -974,6 +988,12 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
 
 mkexe_cmd_exp="$CC"
 
+AH_TEMPLATE([HAS_ARCH_CODE32],
+  [Define HAS_ARCH_CODE32 if, on a 64-bit machine, code pointers fit
+  in 32 bits, i.e. the code segment resides in the low 4G of the
+  addressing space.
+  HAS_ARCH_CODE32 is ignored on 32-bit machines.])
+
 AS_CASE([$ocaml_cv_cc_vendor,$host],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
@@ -1072,7 +1092,11 @@ AS_IF(
     [bits=32; arch64=false],
   [test "x$ac_cv_sizeof_long_p" = "x8" ],
     [bits=64; arch64=true
-    AC_DEFINE([ARCH_SIXTYFOUR], [1])],
+    AC_DEFINE([ARCH_SIXTYFOUR], [1],
+      [Define ARCH_SIXTYFOUR if the processor has a natural word size of 64 bits.
+      That is, sizeof(char *) = 8.
+      Otherwise, leave ARCH_SIXTYFOUR undefined.
+      This assumes sizeof(char *) = 4.])],
   [AC_MSG_ERROR([Neither 32 nor 64 bits architecture.])]
 )
 
@@ -1087,14 +1111,15 @@ AS_IF(
   [AC_MSG_ERROR([Sorry, we can't find a 64-bit integer type.])]
 )
 
-AC_DEFINE_UNQUOTED([SIZEOF_PTR], [$ac_cv_sizeof_long_p])
-AC_DEFINE_UNQUOTED([SIZEOF_LONGLONG], [$ac_cv_sizeof_long_long])
-
 AC_MSG_NOTICE([Target is a $bits bits architecture])
 
 AC_C_BIGENDIAN(
   [
-    AC_DEFINE([ARCH_BIG_ENDIAN], [1])
+    AC_DEFINE([ARCH_BIG_ENDIAN], [1],
+     [Define ARCH_BIG_ENDIAN if the processor is big endian (the most
+     significant byte of an integer stored in memory comes first).
+     Leave ARCH_BIG_ENDIAN undefined if the processor is little-endian
+     (the least significant byte comes first).])
     [endianness="be"]
   ],
   [endianness="le"],
@@ -1106,11 +1131,20 @@ AC_CHECK_ALIGNOF([double])
 AC_CHECK_ALIGNOF([long])
 AC_CHECK_ALIGNOF([long long])
 
+AH_TEMPLATE([ARCH_ALIGN_INT64],
+  [Define ARCH_ALIGN_INT64 if the processor requires 64-bit integers
+  to be doubleword-aligned. Leave ARCH_ALIGN_INT64 undefined if the
+  processor supports word-aligned 64-bit integers. Leave undefined if
+  64-bit integers are not supported.])
+
 AS_IF([! $arch64],
   [AS_CASE([$target_cpu],
     [i686], [],
     [AS_IF([test "$ac_cv_alignof_double" -gt 4],
-      [AC_DEFINE([ARCH_ALIGN_DOUBLE], [1])])
+      [AC_DEFINE([ARCH_ALIGN_DOUBLE], [1],
+        [Define ARCH_ALIGN_DOUBLE if the processor requires doubles to
+        be doubleword-aligned. Leave ARCH_ALIGN_DOUBLE undefined if
+        the processor supports word-aligned doubles.])])
      AS_IF([test "x$ac_cv_sizeof_long" = "x8" &&
             test "$ac_cv_alignof_long" -gt 4],
       [AC_DEFINE([ARCH_ALIGN_INT64], [1])],
@@ -1136,7 +1170,10 @@ AS_IF([! $cc_supports_atomic],
 
 AS_CASE([$host],
   [*-apple-darwin*|*-mingw32*], [],
-  [AC_DEFINE([HAS_FULL_THREAD_VARIABLES])]
+  [AC_DEFINE([HAS_FULL_THREAD_VARIABLES], [1],
+    [Define HAS_FULL_THREAD_VARIABLES if thread-local storage is fully
+    supported, including across DLLs. This is not the case with macOS
+    and with Windows + MinGW-w64.])]
 )
 
 # Shared library support
@@ -1422,7 +1459,8 @@ AS_IF([$natdynlink],
   [natdynlink_archive="dynlink.cmxa"],
   [natdynlink_archive=""])
 
-AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
+AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"],
+  [Operating system string. Possible values are "Unix", "Win32", "MacOS".])
 
 AC_CHECK_TOOL([DIRECT_LD],[ld])
 AS_IF([test -z "$PARTIALLD"],
@@ -1511,7 +1549,7 @@ AS_CASE([$as_target,$ocaml_cv_cc_vendor],
 
 AS_IF([test "$with_pic"],
   [fpic=true
-  AC_DEFINE([CAML_WITH_FPIC])
+  AC_DEFINE([CAML_WITH_FPIC], [1], [Enable FPIC.])
   internal_cflags="$internal_cflags $sharedlib_cflags"
   default_aspp="$default_aspp $sharedlib_cflags"],
   [fpic=false])
@@ -1539,7 +1577,11 @@ AC_CHECK_FUNCS(m4_normalize([expm1 log1p hypot fma exp2 log2 cbrt acosh asinh
   atanh erf erfc trunc round copysign]), [], [has_c99_float_ops=false])
 
 AS_IF([$has_c99_float_ops],
-  [AC_DEFINE([HAS_C99_FLOAT_OPS])
+  [AC_DEFINE([HAS_C99_FLOAT_OPS], [1],
+    [Define HAS_C99_FLOAT_OPS if <math.h> conforms to ISO C99. In
+    particular, it should provide expm1(), log1p(), hypot(), fma(),
+    exp2(), log2(), cbrt(), acosh(), asinh(), atanh(), erf(), erfc(),
+    trunc(), round(), copysign().])
   # Check whether round works (known bug in mingw-w64)
   OCAML_C99_CHECK_ROUND
   # Check whether fma works (regressed in mingw-w64 8.0.0; present, but broken,
@@ -2028,7 +2070,8 @@ AS_IF([$supports_shared_libraries],
 
 AS_IF([$supports_shared_libraries],
   [AC_MSG_NOTICE([Dynamic loading of shared libraries is supported.])
-  AC_DEFINE([SUPPORT_DYNAMIC_LINKING])],
+  AC_DEFINE([SUPPORT_DYNAMIC_LINKING], [1],
+    [Define if dynamic loading of shared libraries is supported.])],
   [AC_MSG_NOTICE([Dynamic loading of shared libraries is not supported.])])
 
 ## mmap
@@ -2284,7 +2327,7 @@ AS_IF([test x"$enable_frame_pointers" = "xyes"],
     [x86_64-*-linux*,gcc-*|x86_64-*-linux*,clang-*],
       [common_cflags="$common_cflags -g  -fno-omit-frame-pointer"
       frame_pointers=true
-      AC_DEFINE([WITH_FRAME_POINTERS])
+      AC_DEFINE([WITH_FRAME_POINTERS], [1], [Use frame pointers.])
       AC_MSG_NOTICE([using frame pointers])],
     [AC_MSG_ERROR([frame pointers not supported on this platform])]
   )],
@@ -2294,7 +2337,8 @@ AS_IF([test x"$enable_frame_pointers" = "xyes"],
 ## Check for mmap support for huge pages and contiguous heap
 OCAML_MMAP_SUPPORTS_HUGE_PAGES
 
-AC_DEFINE_UNQUOTED([HEADER_RESERVED_BITS], [$reserved_header_bits])
+AC_DEFINE_UNQUOTED([HEADER_RESERVED_BITS], [$reserved_header_bits],
+  [Reserved (between 0 and 31) bits in block headers.])
 
 AS_IF([test x"$enable_installing_bytecode_programs" = "xno"],
   [install_bytecode_programs=false],
@@ -2373,8 +2417,10 @@ AS_IF([test x"$enable_cmm_invariants" = "xyes"],
 
 AS_IF([test x"$enable_flat_float_array" = "xno"],
   [flat_float_array=false],
-  [AC_DEFINE([FLAT_FLOAT_ARRAY])
+  [AC_DEFINE([FLAT_FLOAT_ARRAY], [1], [Enable flat float arrays.])
   flat_float_array=true])
+
+AH_TEMPLATE([USE_MMAP_MAP_STACK], [Enable mmap MAP_STACK.])
 
 OCAML_MMAP_SUPPORTS_MAP_STACK
 AS_IF([test x"$enable_mmap_map_stack" = "xyes"],
@@ -2383,13 +2429,13 @@ AS_IF([test x"$enable_mmap_map_stack" = "xyes"],
        [*-freebsd*],
          [AC_MSG_ERROR([mmap MAP_STACK not supported on FreeBSD])],
        [with_mmap_map_stack=true;
-        AC_DEFINE([USE_MMAP_MAP_STACK])])],
+        AC_DEFINE([USE_MMAP_MAP_STACK], [1])])],
     [AC_MSG_ERROR([mmap MAP_STACK requested but not found on $target])])
   ],
   [AS_CASE([$target],
     [*-openbsd*],
      [with_mmap_map_stack=true;
-      AC_DEFINE([USE_MMAP_MAP_STACK])
+      AC_DEFINE([USE_MMAP_MAP_STACK], [1])
       AC_MSG_NOTICE([using MAP_STACK on OpenBSD due to stack checking])],
     [with_mmap_map_stack=false])
   ])
@@ -2417,7 +2463,7 @@ AS_IF([test x"$enable_function_sections" = "xno"],
             [function_sections=true;
             oc_native_compflags='-function-sections'
             internal_cflags="$internal_cflags -ffunction-sections";
-            AC_DEFINE([FUNCTION_SECTIONS])],
+            AC_DEFINE([FUNCTION_SECTIONS], [1], [Enable function sections.])],
           [function_sections=false;
           AC_MSG_NOTICE([Function sections are not supported by
           $ocaml_cv_cc_vendor.])])])],

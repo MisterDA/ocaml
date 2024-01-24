@@ -232,9 +232,9 @@ META
 /parsing/camlinternalMenhirLib.mli
 
 /runtime/domain_state.inc
+/runtime/caml/config.h
+/runtime/caml/config.h.in
 /runtime/caml/jumptbl.h
-/runtime/caml/m.h
-/runtime/caml/s.h
 /runtime/primitives
 /runtime/primitives*.new
 /runtime/prims.c

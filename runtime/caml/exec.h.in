@@ -46,7 +46,7 @@ struct section_descriptor {
   uint32_t len;                   /* Length of data in bytes */
 };
 
-#undef EXEC_MAGIC_LENGTH
+#define EXEC_MAGIC_LENGTH @EXEC_MAGIC_LENGTH@
 
 /* Structure of the trailer. */
 
@@ -60,11 +60,11 @@ struct exec_trailer {
 
 /* Magic number for this release */
 
-#undef MAGIC_NUMBER_PREFIX
+#define MAGIC_NUMBER_PREFIX "@MAGIC_NUMBER_PREFIX@"
 
-#undef EXEC_FORMAT
+#define EXEC_FORMAT "@EXEC_FORMAT@"
 
-#undef MAGIC_NUMBER_VERSION
+#define MAGIC_NUMBER_VERSION "@MAGIC_NUMBER_VERSION@"
 
 #define EXEC_MAGIC MAGIC_NUMBER_PREFIX EXEC_FORMAT MAGIC_NUMBER_VERSION
 

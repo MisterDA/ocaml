@@ -13,9 +13,6 @@
 /*                                                                        */
 /**************************************************************************/
 
-#ifndef CAML_CONFIG_H
-#define CAML_CONFIG_H
-
 /* CAML_NAME_SPACE was introduced in OCaml 3.08 to declare compatibility with
    the newly caml_-prefixed names of C runtime functions and to disable the
    definition of compatibility macros for the un-prefixed names. The
@@ -24,8 +21,6 @@
 #ifndef CAML_NAME_SPACE
 #define CAML_NAME_SPACE
 #endif
-
-#include "m.h"
 
 /* If supported, tell gcc that we can use 32-bit code addresses for
  * threaded code, unless we are compiled for a shared library (-fPIC option) */
@@ -43,8 +38,6 @@
 #else
 #define Caml_inline static inline
 #endif
-
-#include "s.h"
 
 #ifndef CAML_CONFIG_H_NO_TYPEDEFS
 
@@ -281,5 +274,3 @@ typedef uint64_t uintnat;
 #elif (!defined(NATIVE_CODE))
    #define Cache_line_bsize 64
 #endif
-
-#endif /* CAML_CONFIG_H */
