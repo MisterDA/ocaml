@@ -3692,7 +3692,12 @@ esac
 
 case $host in #(
   *-pc-windows) :
-    CC=cl
+    case $CC in #(
+  cl|cl.exe|clang-cl|clang-cl.exe) :
+     ;; #(
+  *) :
+    CC=cl ;;
+esac
     ccomptype=msvc
     S=asm
     SO=dll
