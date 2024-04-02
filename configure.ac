@@ -311,7 +311,7 @@ If your host is 64 bits, you can try with './configure CC="gcc -m64"' \
 
 AS_CASE([$host],
   [*-pc-windows],
-    [CC=cl
+    [AS_CASE([$CC], [cl|cl.exe|clang-cl|clang-cl.exe], [], [CC=cl])
     ccomptype=msvc
     S=asm
     SO=dll
