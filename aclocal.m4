@@ -549,8 +549,10 @@ AC_DEFUN([OCAML_QUOTED_STRING_ID], [
 
 AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
   AC_MSG_CHECKING([whether the C compiler supports _Atomic types])
-  saved_LIBS="$LIBS"
-  LIBS="$LIBS $1"
+  OCAML_CC_SAVE_VARIABLES
+  AS_IF([test -n "$1"],[CFLAGS="$CFLAGS $1"])
+  AS_IF([test -n "$2"],[LIBS="$LIBS $2"])
+
   AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <stdatomic.h>
@@ -568,5 +570,6 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
    AC_MSG_RESULT([yes])],
   [cc_supports_atomic=false
    AC_MSG_RESULT([no])])
-  LIBS="$saved_LIBS"
+
+  OCAML_CC_RESTORE_VARIABLES
 ])
