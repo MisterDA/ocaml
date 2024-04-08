@@ -49,13 +49,10 @@
 #ifndef CAML_CONFIG_H_NO_TYPEDEFS
 
 #include <stddef.h>
+#include <stdint.h>
 
 #if defined(HAS_LOCALE_H) || defined(HAS_XLOCALE_H)
 #define HAS_LOCALE
-#endif
-
-#ifdef HAS_STDINT_H
-#include <stdint.h>
 #endif
 
 /* Disable the mingw-w64 *printf shims */
@@ -71,7 +68,7 @@
   #define __USE_MINGW_ANSI_STDIO 0
 #endif
 
-#if defined(__MINGW32__) || (defined(_MSC_VER) && _MSC_VER < 1800)
+#if defined(__MINGW32__)
 #define ARCH_SIZET_PRINTF_FORMAT "I"
 #else
 #define ARCH_SIZET_PRINTF_FORMAT "z"
@@ -80,59 +77,28 @@
 /* Types for 32-bit integers, 64-bit integers, and
    native integers (as wide as a pointer type) */
 
-#ifndef ARCH_INT32_TYPE
+#define ARCH_INT32_TYPE int32_t
+#define ARCH_UINT32_TYPE uint32_t
+
 #if SIZEOF_INT == 4
-#define ARCH_INT32_TYPE int
-#define ARCH_UINT32_TYPE unsigned int
 #define ARCH_INT32_PRINTF_FORMAT ""
 #elif SIZEOF_LONG == 4
-#define ARCH_INT32_TYPE long
-#define ARCH_UINT32_TYPE unsigned long
 #define ARCH_INT32_PRINTF_FORMAT "l"
 #elif SIZEOF_SHORT == 4
-#define ARCH_INT32_TYPE short
-#define ARCH_UINT32_TYPE unsigned short
 #define ARCH_INT32_PRINTF_FORMAT ""
-#else
-#error "No 32-bit integer type available"
 #endif
-#endif
+
+#define ARCH_INT64_TYPE int64_t
+#define ARCH_UINT64_TYPE uint64_t
 
 #if defined(__MINGW32__) && !__USE_MINGW_ANSI_STDIO
-  #define ARCH_INT64_TYPE long long
-  #define ARCH_UINT64_TYPE unsigned long long
-  #define ARCH_INT64_PRINTF_FORMAT "I64"
+#define ARCH_INT64_PRINTF_FORMAT "I64"
 #elif defined(_MSC_VER)
-  #define ARCH_INT64_TYPE __int64
-  #define ARCH_UINT64_TYPE unsigned __int64
-  #define ARCH_INT64_PRINTF_FORMAT "I64"
-#else
-  #if SIZEOF_LONG == 8
-    #define ARCH_INT64_TYPE long
-    #define ARCH_UINT64_TYPE unsigned long
-    #define ARCH_INT64_PRINTF_FORMAT "l"
-  #elif SIZEOF_LONGLONG == 8
-    #define ARCH_INT64_TYPE long long
-    #define ARCH_UINT64_TYPE unsigned long long
-    #define ARCH_INT64_PRINTF_FORMAT "ll"
-  #else
-    #error "No 64-bit integer type available"
-  #endif
-#endif
-
-#ifndef HAS_STDINT_H
-/* Not a C99 compiler, typically MSVC.  Define the C99 types we use. */
-typedef ARCH_INT32_TYPE int32_t;
-typedef ARCH_UINT32_TYPE uint32_t;
-typedef ARCH_INT64_TYPE int64_t;
-typedef ARCH_UINT64_TYPE uint64_t;
-#if SIZEOF_SHORT == 2
-typedef short int16_t;
-typedef unsigned short uint16_t;
-#else
-#error "No 16-bit integer type available"
-#endif
-typedef unsigned char uint8_t;
+#define ARCH_INT64_PRINTF_FORMAT "I64"
+#elif SIZEOF_LONGLONG == 8
+#define ARCH_INT64_PRINTF_FORMAT "ll"
+#elif SIZEOF_LONG == 8
+#define ARCH_INT64_PRINTF_FORMAT "l"
 #endif
 
 #if SIZEOF_PTR == SIZEOF_LONG
