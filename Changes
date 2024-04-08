@@ -22,6 +22,10 @@ _______________
 - #12789: Restore caml_unregister_frametable from OCaml 4
   (Frédéric Recoules, review by Gabriel Scherer)
 
+- #?????: Use C99 stdint.h fixed-width integer types to define OCaml
+  integers.
+  (Antonin Décimo, review by ???)
+
 ### Code generation and optimizations:
 
 - #13014: Enable compile-time option -function-sections on all previously

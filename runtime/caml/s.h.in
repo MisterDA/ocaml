@@ -104,7 +104,7 @@
 
 #undef HAS_IPV6
 
-#undef HAS_STDINT_H
+#define HAS_STDINT_H 1
 
 #undef HAS_PTHREAD_NP_H
 
