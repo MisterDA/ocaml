@@ -22,6 +22,7 @@
 #endif /* _WIN32 */
 
 #include <string.h>
+#include <stdbool.h>
 
 #include "caml/alloc.h"
 #include "caml/codefrag.h"
@@ -168,7 +169,23 @@ static void winsock_cleanup(void)
 {
   WSACleanup();
 }
+
+static bool is_relative(const char *path)
+{
+  return (path[0] == 0 || path[0] != '/')
+    && (path[0] == 0 || path[0] != '\\')
+    && (path[0] == 0 || path[1] == 0 || path[1] != ':');
+}
+#else
+static bool is_relative(const char *path)
+{
+  return path[0] == 0 || path[0] != '/';
+}
 #endif
+static bool is_ipv6(const char *address, const char *port)
+{
+  return address[0] == '[' && port[-1] == ']';
+}
 
 void caml_debugger_init(void)
 {
@@ -187,7 +204,6 @@ void caml_debugger_init(void)
   address = a ? caml_stat_strdup_of_os(a) : NULL;
   if (address == NULL) return;
   if (dbg_addr != NULL) caml_stat_free(dbg_addr);
-  dbg_addr = address;
 
   /* #8676: erase the CAML_DEBUG_SOCKET variable so that processes
      created by the program being debugged do not try to connect with
@@ -203,8 +219,8 @@ void caml_debugger_init(void)
   (void)atexit(winsock_cleanup);
 #endif
   /* Parse the address */
-  port = strchr(address, ':');
-  if (port == NULL) {
+  port = strrchr(address, ':');
+  if (port == NULL || (!is_relative(address) && !is_ipv6(address, port))) {
     /* Unix domain */
     struct sockaddr_un *s_unix = (struct sockaddr_un *)&sock_addr;
     sock_domain = PF_UNIX;
@@ -219,16 +235,22 @@ void caml_debugger_init(void)
     strncpy(s_unix->sun_path, address, sizeof(s_unix->sun_path) - 1);
     s_unix->sun_path[sizeof(s_unix->sun_path) - 1] = '\0';
     sock_addr_len = offsetof(struct sockaddr_un, sun_path) + a_len;
+    dbg_addr = address;
   } else {
     /* Internet domain */
     struct addrinfo hints;
     struct addrinfo *host;
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
+    if (is_ipv6(address, port)) {
+      *address++ = 0;
+      port[-1] = 0;
+    }
     *port++ = 0;
+
     int ret = getaddrinfo(address, port, &hints, &host);
     if (ret != 0) {
       char buffer[512];
@@ -254,6 +276,7 @@ void caml_debugger_init(void)
     sock_domain = host->ai_family;
     memcpy(&sock_addr, host->ai_addr, host->ai_addrlen);
     sock_addr_len = host->ai_addrlen;
+    dbg_addr = address;
 
     freeaddrinfo(host);
   }
