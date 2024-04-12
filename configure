@@ -13922,8 +13922,8 @@ esac
 
 # Use -Wold-style-declaration if supported
 as_CACHEVAR=`printf "%s\n" "ax_cv_check_cflags_$warn_error_flag_-Wold-style-declaration" | $as_tr_sh`
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -Wold-style-declaration" >&5
-printf %s "checking whether C compiler accepts -Wold-style-declaration... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler accepts -Wold-style-declaration" >&5
+printf %s "checking whether the C compiler accepts -Wold-style-declaration... " >&6; }
 if eval test \${$as_CACHEVAR+y}
 then :
   printf %s "(cached) " >&6
@@ -15696,8 +15696,8 @@ esac
 # Try to work around the Skylake/Kaby Lake processor bug.
 case "$ocaml_cc_vendor,$host" in #(
   *gcc*,x86_64-*|*gcc*,i686-*) :
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -fno-tree-vrp" >&5
-printf %s "checking whether C compiler accepts -fno-tree-vrp... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler accepts -fno-tree-vrp" >&5
+printf %s "checking whether the C compiler accepts -fno-tree-vrp... " >&6; }
 if test ${ax_cv_check_cflags___fno_tree_vrp+y}
 then :
   printf %s "(cached) " >&6
@@ -16950,8 +16950,8 @@ esac
      ;;
 esac
   as_CACHEVAR=`printf "%s\n" "ax_cv_check_cflags_$warn_error_flag_-fsanitize=thread $tsan_distinguish_volatile_cflags" | $as_tr_sh`
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -fsanitize=thread $tsan_distinguish_volatile_cflags" >&5
-printf %s "checking whether C compiler accepts -fsanitize=thread $tsan_distinguish_volatile_cflags... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler accepts -fsanitize=thread $tsan_distinguish_volatile_cflags" >&5
+printf %s "checking whether the C compiler accepts -fsanitize=thread $tsan_distinguish_volatile_cflags... " >&6; }
 if eval test \${$as_CACHEVAR+y}
 then :
   printf %s "(cached) " >&6
@@ -18116,8 +18116,8 @@ case $ocaml_cc_vendor,$host in #(
   sunc*,sparc-sun-*) :
     cc_has_debug_prefix_map=false ;; #(
   *) :
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -fdebug-prefix-map=old=new" >&5
-printf %s "checking whether C compiler accepts -fdebug-prefix-map=old=new... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler accepts -fdebug-prefix-map=old=new" >&5
+printf %s "checking whether the C compiler accepts -fdebug-prefix-map=old=new... " >&6; }
 if test ${ax_cv_check_cflags___fdebug_prefix_map_old_new+y}
 then :
   printf %s "(cached) " >&6
