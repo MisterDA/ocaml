@@ -110,7 +110,7 @@ AC_DEFUN([OCAML_CC_SUPPORTS_TREE_VECTORIZE], [
   AC_COMPILE_IFELSE(
     [AC_LANG_SOURCE([
        __attribute__((optimize("tree-vectorize"))) void f(void){}
-       int main() { f(); return 0; }
+       int main(void) { f(); return 0; }
     ])],
     [AC_DEFINE([SUPPORTS_TREE_VECTORIZE])
     AC_MSG_RESULT([yes])],
@@ -330,7 +330,7 @@ AC_DEFUN([OCAML_TEST_FLEXLINK], [
     CPPFLAGS="$3 $CPPFLAGS"
     CFLAGS=""
     AC_LINK_IFELSE(
-      [AC_LANG_SOURCE([int main() { return 0; }])],
+      [AC_LANG_SOURCE([int main(void) { return 0; }])],
       [AC_MSG_RESULT([yes])],
       [AC_MSG_RESULT([no])
       AC_MSG_ERROR([$1 does not work])])],

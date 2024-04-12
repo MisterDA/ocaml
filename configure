@@ -14278,7 +14278,7 @@ esac
     CFLAGS=""
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-int main() { return 0; }
+int main(void) { return 0; }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
@@ -15767,7 +15767,7 @@ printf %s "checking whether the C compiler supports __attribute__((optimize(\"tr
 /* end confdefs.h.  */
 
        __attribute__((optimize("tree-vectorize"))) void f(void){}
-       int main() { f(); return 0; }
+       int main(void) { f(); return 0; }
 
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
