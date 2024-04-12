@@ -2448,6 +2448,7 @@ depend: beforedepend
 .PHONY: distclean
 distclean: clean
 	if [ -f flexdll/Makefile ]; then $(MAKE) -C flexdll distclean MSVC_DETECT=0; fi
+	rm -f winpthreads/src/*.o winpthreads/src/*.obj
 	$(MAKE) -C manual distclean
 	rm -f ocamldoc/META
 	rm -f $(addprefix ocamltest/,ocamltest_config.ml ocamltest_unix.ml)
