@@ -865,9 +865,9 @@ AS_CASE([$ocaml_cc_vendor],
     internal_cppflags='-DUNICODE -D_UNICODE'
     internal_cflags='-experimental:c11atomics -std:c11'
     CFLAGS="$CFLAGS -experimental:c11atomics -std:c11"
-    OCAML_CL_HAS_VOLATILE_METADATA
-    AS_IF([test "x$cl_has_volatile_metadata" = "xtrue"],
-          [internal_cflags="$internal_cflags -d2VolatileMetadata-"])
+    AX_CHECK_COMPILE_FLAG([-d2VolatileMetadata-],
+      [internal_cflags="$internal_cflags -d2VolatileMetadata-"], [],
+      [$warn_error_flag])
     internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE="
     internal_cppflags="${internal_cppflags}\$(WINDOWS_UNICODE)"],
   [xlc-*],
@@ -1353,8 +1353,7 @@ AS_CASE([$enable_native_toplevel,$natdynlink],
 # Try to work around the Skylake/Kaby Lake processor bug.
 AS_CASE(["$ocaml_cc_vendor,$host"],
   [*gcc*,x86_64-*|*gcc*,i686-*],
-    [OCAML_CC_HAS_FNO_TREE_VRP
-    AS_IF([$cc_has_fno_tree_vrp],
+    [AX_CHECK_COMPILE_FLAG([-fno-tree-vrp],
       [internal_cflags="$internal_cflags -fno-tree-vrp"])])
 
 OCAML_CC_SUPPORTS_ALIGNED
@@ -2163,7 +2162,8 @@ AS_CASE([$ocaml_cc_vendor,$host],
   [*,*-pc-windows], [cc_has_debug_prefix_map=false],
   [xlc*,powerpc-ibm-aix*], [cc_has_debug_prefix_map=false],
   [sunc*,sparc-sun-*], [cc_has_debug_prefix_map=false],
-  [OCAML_CC_HAS_DEBUG_PREFIX_MAP])
+  [AX_CHECK_COMPILE_FLAG([-fdebug-prefix-map=old=new],
+    [cc_has_debug_prefix_map=true])])
 
 ## Does stat support nanosecond precision
 
