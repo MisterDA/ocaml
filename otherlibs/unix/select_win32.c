@@ -13,6 +13,7 @@
 /*                                                                        */
 /**************************************************************************/
 
+#define CAML_INTERNALS
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
@@ -916,7 +917,7 @@ static value find_handle(LPSELECTRESULT iterResult, value readfds,
       list = exceptfds;
       break;
     case SELECT_MODE_NONE:
-      CAMLassert(0);
+      unreachable();
   };
 
   for(i=0; list != Val_unit && i < iterResult->lpOrigIdx; ++i )
@@ -1281,7 +1282,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
                       except_list = l;
                       break;
                     case SELECT_MODE_NONE:
-                      CAMLassert(0);
+                      unreachable();
                     }
                 }
               /* We try to only process the first error, bypass other errors */
