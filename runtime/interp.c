@@ -1418,7 +1418,7 @@ do_resume: {
 #ifndef THREADED_CODE
     default:
 #ifdef _MSC_VER
-      __assume(0);
+      unreachable();
 #else
       caml_fatal_error("bad opcode (%"
                            ARCH_INTNAT_PRINTF_FORMAT "x)",
