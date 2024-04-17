@@ -286,6 +286,19 @@ CAMLnoret CAMLextern void caml_failed_assert (char *, char_os *, int);
 #define CAMLassert(x) ((void) 0)
 #endif
 
+#ifdef CAML_INTERNALS
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ < 202311L) && \
+      !defined(__cplusplus)
+  #if __has_builtin(__builtin_unreachable)
+    #define unreachable() (__builtin_unreachable())
+  #elif defined(_MSC_VER)
+    #define unreachable() (__assume(0))
+  #else
+    #define unreachable() (abort())
+  #endif
+#endif
+#endif
+
 #ifdef __GNUC__
 #define CAMLlikely(e)   __builtin_expect(!!(e), 1)
 #define CAMLunlikely(e) __builtin_expect(!!(e), 0)
