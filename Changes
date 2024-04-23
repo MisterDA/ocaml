@@ -36,6 +36,10 @@ _______________
 - #11779, #13117: Improve logic for fiber stack alignment.
   (Miod Vallat, report by Damien Doligez, review by Gabriel Scherer)
 
+- #?????: Simplify CAMLalign to always use C23/C++11 alignas or C11
+  _Alignas.
+  (Antonin Décimo, review by ?????)
+
 ### Code generation and optimizations:
 
 - #13014: Enable compile-time option -function-sections on all previously
