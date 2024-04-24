@@ -1,6 +1,7 @@
 [submodule "flexdll"]
     path = flexdll
-    url = https://github.com/ocaml/flexdll.git
+    url = https://github.com/jmid/flexdll.git
+    branch = single-global-lock-par-fix
 [submodule "winpthreads"]
     path = winpthreads
     url = https://github.com/ocaml/winpthreads.git
