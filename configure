@@ -3699,6 +3699,7 @@ case $host in #(
     if test -z "$CC"
 then :
   CC=cl
+        : ${CFLAGS=-std:c11}
 fi
     ccomptype=msvc
     S=asm
@@ -15580,9 +15581,9 @@ case $cc_supports_atomic,$ocaml_cc_vendor in #(
 
 
   opts=""
-  if test -n "-std:c11"
+  if test -n "-experimental:c11atomics"
 then :
-  CFLAGS="$CFLAGS -std:c11"; opts="-std:c11"
+  CFLAGS="$CFLAGS -experimental:c11atomics"; opts="-experimental:c11atomics"
 fi
   if test -n ""
 then :
@@ -15639,7 +15640,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 
      if $cc_supports_atomic
 then :
-  common_cflags="$common_cflags -std:c11"
+  common_cflags="$common_cflags -experimental:c11atomics"
 else $as_nop
 
 
@@ -15717,8 +15718,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 then :
   common_cflags="$common_cflags -std:c11 -experimental:c11atomics"
 fi
-
-fi ;; #(
+fi
+ ;; #(
   *) :
      ;;
 esac

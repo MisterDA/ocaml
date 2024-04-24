@@ -313,7 +313,9 @@ If your host is 64 bits, you can try with './configure CC="gcc -m64"' \
 
 AS_CASE([$host],
   [*-pc-windows],
-    [AS_IF([test -z "$CC"], [CC=cl])
+    [AS_IF([test -z "$CC"],
+       [CC=cl
+        : ${CFLAGS=-std:c11 -Zc:__STDC__}])
     ccomptype=msvc
     S=asm
     SO=dll
@@ -874,7 +876,7 @@ AS_CASE([$ocaml_cc_vendor],
     [common_cflags='-nologo -O2 -Gy- -MD'
     common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
     internal_cflags="$cc_warnings"
-    internal_cppflags='-DUNICODE -D_UNICODE -D_CRT_NONSTDC_NO_WARNINGS'
+    internal_cppflags='-DUNICODE -D_UNICODE -D_CRT_DECLARE_NONSTDC_NAMES'
     AX_CHECK_COMPILE_FLAG([-d2VolatileMetadata-],
       [internal_cflags="$internal_cflags -d2VolatileMetadata-"], [],
       [$warn_error_flag])
@@ -1224,13 +1226,13 @@ AS_IF([! $arch64],
 OCAML_CC_SUPPORTS_ATOMIC([], [$cclibs])
 AS_CASE([$cc_supports_atomic,$ocaml_cc_vendor],
   [false,msvc-*],
-    [OCAML_CC_SUPPORTS_ATOMIC([-std:c11])
+    [OCAML_CC_SUPPORTS_ATOMIC([-experimental:c11atomics])
      AS_IF([$cc_supports_atomic],
-       [common_cflags="$common_cflags -std:c11"],
+       [common_cflags="$common_cflags -experimental:c11atomics"],
        [OCAML_CC_SUPPORTS_ATOMIC([-std:c11 -experimental:c11atomics])
         AS_IF([$cc_supports_atomic],
-          [common_cflags="$common_cflags -std:c11 -experimental:c11atomics"])
-])])
+          [common_cflags="$common_cflags -std:c11 -experimental:c11atomics"])])
+])
 AS_IF([! $cc_supports_atomic],
   [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
 
