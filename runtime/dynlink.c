@@ -197,7 +197,7 @@ void caml_build_primitive_table(char_os * lib_path,
       c_primitive prim = lookup_primitive(q);
       if (prim == NULL)
             caml_fatal_error("unknown C primitive `%s'", q);
-      caml_ext_table_add(&caml_prim_table, (void *) prim);
+      caml_ext_table_add(&caml_prim_table, prim);
       caml_ext_table_add(&caml_prim_name_table, caml_stat_strdup(q));
     }
 }
