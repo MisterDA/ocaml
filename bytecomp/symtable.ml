@@ -179,15 +179,13 @@ let output_primitive_table outchan =
     fprintf outchan "extern value %s(void);\n" prim.(i)
   done;
   fprintf outchan {|
-typedef void * c_primitive;
-
 #if defined __cplusplus
 extern
 #endif
-c_primitive const caml_builtin_cprim[] = {
+void * const caml_builtin_cprim[] = {
 |};
   for i = 0 to Array.length prim - 1 do
-    fprintf outchan "  (c_primitive) %s,\n" prim.(i)
+    fprintf outchan "  (void *) %s,\n" prim.(i)
   done;
   fprintf outchan
 {|  0 };

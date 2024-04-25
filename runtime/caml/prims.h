@@ -20,9 +20,7 @@
 
 #ifdef CAML_INTERNALS
 
-typedef void * c_primitive;
-
-extern c_primitive const caml_builtin_cprim[];
+extern void * const caml_builtin_cprim[];
 extern const char * const caml_names_of_builtin_cprim[];
 
 extern struct ext_table caml_prim_table;
