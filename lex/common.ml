@@ -89,7 +89,7 @@ let copy_chunk ic oc trl loc add_parens =
 
 let output_mem_access oc i = fprintf oc "lexbuf.Lexing.lex_mem.(%d)" i
 
-let output_memory_actions pref oc = function
+let output_memory_actions ~pref oc = function
   | []  -> ()
   | mvs ->
       output_string oc "(* " ;

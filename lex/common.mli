@@ -20,7 +20,7 @@ val copy_chunk :
   in_channel -> out_channel -> line_tracker -> Syntax.location -> bool -> unit
 val output_mem_access : out_channel -> int -> unit
 val output_memory_actions :
-  string -> out_channel -> Lexgen.memory_action list -> unit
+  pref:string -> out_channel -> Lexgen.memory_action list -> unit
 val output_env :
     in_channel -> out_channel -> line_tracker ->
       (Lexgen.ident * Lexgen.ident_info) list -> unit

@@ -100,7 +100,7 @@ let output_entry some_mem_code ic oc has_refill oci e =
       if some_mem_code then
         fprintf oc "lexbuf.Lexing.lex_mem <- Array.make %d (-1);" x)
     e.auto_mem_size
-    (output_memory_actions "  ") init_moves
+    (output_memory_actions ~pref:"  ") init_moves
     e.auto_name
     output_args e.auto_args
     init_num;

@@ -22,7 +22,7 @@ open Common
 type ctx = {
   oc: out_channel;
   has_refill: bool;
-  goto_state: (ctx -> string -> int -> unit);
+  goto_state: (ctx -> pref:string -> int -> unit);
   last_action: int option;
 }
 
@@ -80,7 +80,7 @@ let rec __ocaml_lex_refill_buf lexbuf _buf _len _curr _last =
 
 |}
 
-let output_memory_actions pref oc = function
+let output_memory_actions ~pref oc = function
   | []  -> ()
   | mvs ->
     output_string oc pref;
@@ -114,8 +114,8 @@ let last_action ctx =
   | None -> "_last_action"
   | Some i -> Printf.sprintf "%i (* = last_action *)" i
 
-let output_action ctx pref mems r =
-  output_memory_actions pref ctx.oc mems;
+let output_action ctx ~pref mems r =
+  output_memory_actions ~pref ctx.oc mems;
   match r with
   | Backtrack ->
       pr ctx
@@ -129,7 +129,7 @@ let output_action ctx pref mems r =
       else
         pr ctx "%s%s\n" pref (last_action ctx)
   | Goto n ->
-      ctx.goto_state ctx pref n
+      ctx.goto_state ctx ~pref n
 
 let output_pat ctx i =
   if i >= 256 then
@@ -137,19 +137,19 @@ let output_pat ctx i =
   else
     pr ctx "|'%s'" (Char.escaped (Char.chr i))
 
-let output_clause ctx pref pats mems r =
+let output_clause ctx ~pref pats mems r =
   pr ctx "%s(* " pref;
   List.iter (output_pat ctx) pats;
   pr ctx " *)\n%s" pref;
   output_pats ctx pats;
   pr ctx " ->\n";
-  output_action ctx ("  "^pref) mems r
+  output_action ctx ~pref:("  "^pref) mems r
 
-let output_default_clause ctx pref mems r =
+let output_default_clause ctx ~pref mems r =
   pr ctx "%s| _ ->\n" pref;
-  output_action ctx ("  "^pref) mems r
+  output_action ctx ~pref:("  "^pref) mems r
 
-let output_moves ctx pref moves =
+let output_moves ctx ~pref moves =
   let t = Hashtbl.create 17 in
   let add_move i (m,mems) =
     let mems,r = try Hashtbl.find t m with Not_found -> mems,[] in
@@ -174,12 +174,12 @@ let output_moves ctx pref moves =
   Hashtbl.iter
     (fun m (mems,pats) ->
        if m <> !most_frequent then
-         output_clause ctx pref (List.rev pats) mems m)
+         output_clause ctx ~pref (List.rev pats) mems m)
     t ;
-  output_default_clause ctx pref !most_mems !most_frequent
+  output_default_clause ctx ~pref !most_mems !most_frequent
 
 
-let output_tag_actions pref ctx mvs =
+let output_tag_actions ctx ~pref mvs =
   pr ctx "%s(*" pref;
   List.iter
     (fun i -> match i with
@@ -197,9 +197,9 @@ let output_tag_actions pref ctx mvs =
           pref output_mem_access t)
     mvs
 
-let output_trans_body pref ctx = function
+let output_trans_body ctx ~pref = function
   | Perform (n,mvs) ->
-      output_tag_actions pref ctx mvs ;
+      output_tag_actions ~pref ctx mvs ;
       pr ctx
 {|
 %slexbuf.Lexing.lex_curr_pos <- _curr;
@@ -210,7 +210,7 @@ let output_trans_body pref ctx = function
       let ctx =
         match trans with
         | Remember (n,mvs) ->
-            output_tag_actions pref ctx mvs ;
+            output_tag_actions ctx ~pref mvs ;
             pr ctx "%slet _last = _curr in\n" pref;
             begin match ctx.last_action with
             | Some i when i = n ->
@@ -228,7 +228,7 @@ let output_trans_body pref ctx = function
         pr ctx
           "%slet state lexbuf _last_action _buf _len _curr _last k = function\n"
           pref;
-        output_moves ctx pref move;
+        output_moves ctx ~pref move;
         pr ctx
 {|
 %sin
@@ -252,7 +252,7 @@ let output_trans_body pref ctx = function
 %sin
 %sbegin match next_char with
 |} pref pref pref pref pref pref pref pref;
-        output_moves ctx (pref ^ "  ") move;
+        output_moves ctx ~pref:(pref ^ "  ") move;
         pr ctx "%send\n" pref
       end
 
@@ -267,7 +267,7 @@ let output_automata ctx auto inline =
         (if !first then "let rec" else "\nand")
         i
         (if ctx.has_refill then "k " else "");
-      output_trans_body "  " ctx auto.(i);
+      output_trans_body ctx ~pref:"  " auto.(i);
       first := false;
     end
   done;
@@ -276,7 +276,7 @@ let output_automata ctx auto inline =
 
 (* Output the entries *)
 
-let output_init ctx pref e init_moves =
+let output_init ctx ~pref e init_moves =
   if e.auto_mem_size > 0 then
     pr ctx "%slexbuf.Lexing.lex_mem <- Array.make %d (-1);\n"
       pref e.auto_mem_size;
@@ -289,9 +289,9 @@ let output_init ctx pref e init_moves =
 %slet _last_action = -1 in
 %slexbuf.Lexing.lex_start_pos <- _curr;
 |} pref pref pref pref pref pref;
-  output_memory_actions pref ctx.oc init_moves
+  output_memory_actions ctx.oc ~pref init_moves
 
-let output_rules ic ctx pref tr e =
+let output_rules ic ctx ~pref tr e =
   pr ctx
 {|
 %sbegin
@@ -320,16 +320,16 @@ let output_entry ic ctx tr e =
 
   if ctx.has_refill then begin
     pr ctx "  let k lexbuf __ocaml_lex_result =\n";
-    output_rules ic ctx "    " tr e;
+    output_rules ic ctx ~pref:"    " tr e;
     pr ctx "  in\n";
-    output_init ctx "  " e init_moves;
-    ctx.goto_state ctx "  " init_num
+    output_init ctx ~pref:"  " e init_moves;
+    ctx.goto_state ctx ~pref:"  " init_num
   end else begin
     pr ctx "  let __ocaml_lex_result =\n";
-    output_init ctx "    " e init_moves;
-    ctx.goto_state ctx "    " init_num;
+    output_init ctx ~pref:"    " e init_moves;
+    ctx.goto_state ctx ~pref:"    " init_num;
     pr ctx "  in\n";
-    output_rules ic ctx "  " tr e
+    output_rules ic ctx ~pref:"  " tr e
   end;
   pr ctx "\n\n"
 
@@ -361,9 +361,9 @@ let choose_inlining entry_points transitions =
     )
     transitions
 
-let goto_state inline transitions ctx pref n =
+let goto_state inline transitions ctx ~pref n =
   if inline.(n) then
-    output_trans_body pref ctx transitions.(n)
+    output_trans_body ctx ~pref transitions.(n)
   else
     pr ctx "%s__ocaml_lex_state%d lexbuf %s _buf _len _curr _last%s\n"
       pref n
