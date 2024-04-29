@@ -948,7 +948,8 @@ void caml_init_domains(uintnat minor_heap_wsz) {
 }
 
 void caml_init_domain_self(int domain_id) {
-  CAMLassert (domain_id >= 0 && domain_id < Max_domains);
+  CAMLassert(0 <= domain_id);
+  CAMLassert(domain_id < Max_domains);
   domain_self = &all_domains[domain_id];
   caml_state = domain_self->state;
 }

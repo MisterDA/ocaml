@@ -1370,8 +1370,8 @@ static void verify_swept (struct caml_heap_state* local) {
   CAMLassert(local->next_to_sweep == NUM_SIZECLASSES);
   for (i = 0; i < NUM_SIZECLASSES; i++) {
     pool* p;
-    CAMLassert(local->unswept_avail_pools[i] == NULL &&
-               local->unswept_full_pools[i] == NULL);
+    CAMLassert(local->unswept_avail_pools[i] == NULL);
+    CAMLassert(local->unswept_full_pools[i] == NULL);
     for (p = local->avail_pools[i]; p; p = p->next)
       verify_pool(p, i, &pool_stats);
     for (p = local->full_pools[i]; p; p = p->next) {
