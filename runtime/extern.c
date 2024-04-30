@@ -725,7 +725,7 @@ static void extern_code_pointer(struct caml_extern_state* s, char * codeptr)
     digest = (const char *) caml_digest_of_code_fragment(cf);
     if (digest == NULL)
       extern_invalid_argument(s, "output_value: private function");
-    CAMLassert(cf == caml_find_code_fragment_by_digest((unsigned char*)digest));
+    CAMLcheck(cf == caml_find_code_fragment_by_digest((unsigned char*)digest));
     writecode32(s, CODE_CODEPOINTER, codeptr - cf->code_start);
     writeblock(s, digest, 16);
   } else {
@@ -756,7 +756,7 @@ Caml_inline mlsize_t extern_closure_up_to_env(struct caml_extern_state* s,
       extern_code_pointer(s, (char *) Field(v, i++));
     }
   } while (i < startenv);
-  CAMLassert(i == startenv);
+  CAMLcheck(i == startenv);
   return startenv;
 }
 

@@ -226,12 +226,12 @@ Caml_inline void readblock(struct caml_intern_state* s,
 static void intern_init(struct caml_intern_state* s, const void * src,
                         void * input)
 {
-  CAMLassert (s);
+  CAMLcheck (s);
   /* This is asserted at the beginning of demarshaling primitives.
      If it fails, it probably means that an exception was raised
      without calling intern_cleanup() during the previous demarshaling. */
-  CAMLassert(s->intern_input == NULL);
-  CAMLassert(s->intern_obj_table == NULL);
+  CAMLcheck(s->intern_input == NULL);
+  CAMLcheck(s->intern_obj_table == NULL);
   s->intern_src = src;
   s->intern_input = input;
 }
@@ -391,7 +391,7 @@ static void intern_alloc_storage(struct caml_intern_state* s, mlsize_t whsize,
   value v;
 
   if (whsize == 0) {
-    CAMLassert (s->intern_obj_table == NULL);
+    CAMLcheck (s->intern_obj_table == NULL);
     return;
   }
   wosize = Wosize_whsize(whsize);
@@ -402,7 +402,7 @@ static void intern_alloc_storage(struct caml_intern_state* s, mlsize_t whsize,
     Alloc_small(v, wosize, String_tag, Alloc_small_enter_GC_no_track);
     s->intern_dest = (header_t *) Hp_val(v);
   } else {
-    CAMLassert (s->intern_dest == NULL);
+    CAMLcheck (s->intern_dest == NULL);
   }
   s->obj_counter = 0;
   if (num_objects > 0) {
@@ -413,7 +413,7 @@ static void intern_alloc_storage(struct caml_intern_state* s, mlsize_t whsize,
       caml_raise_out_of_memory();
     }
   } else {
-    CAMLassert(s->intern_obj_table == NULL);
+    CAMLcheck(s->intern_obj_table == NULL);
   }
 
   return;
@@ -425,7 +425,7 @@ static value intern_alloc_obj(struct caml_intern_state* s, caml_domain_state* d,
   void* p;
 
   if (s->intern_dest) {
-    CAMLassert ((value*)s->intern_dest >= d->young_start &&
+    CAMLcheck ((value*)s->intern_dest >= d->young_start &&
                 (value*)s->intern_dest < d->young_end);
     p = s->intern_dest;
     *s->intern_dest = Make_header (wosize, tag, 0);
@@ -510,7 +510,7 @@ static void intern_rec(struct caml_intern_state* s,
           s->intern_obj_table[s->obj_counter++] = v;
         /* For objects, we need to freshen the oid */
         if (tag == Object_tag) {
-          CAMLassert(size >= 2);
+          CAMLcheck(size >= 2);
           /* Request to read rest of the elements of the block */
           ReadItems(s, &Field(v, 2), size - 2);
           /* Request freshing OID */
@@ -565,8 +565,8 @@ static void intern_rec(struct caml_intern_state* s,
         ofs = read8u(s);
       read_shared:
         if (!s->compressed) ofs = s->obj_counter - ofs;
-        CAMLassert (ofs < s->obj_counter);
-        CAMLassert (s->intern_obj_table != NULL);
+        CAMLcheck (ofs < s->obj_counter);
+        CAMLcheck (s->intern_obj_table != NULL);
         v = s->intern_obj_table[ofs];
         break;
       case CODE_SHARED16:
@@ -887,7 +887,7 @@ value caml_input_val(struct channel *chan)
     hlen = 20; break;
   }
   /* Read the remainder of the header */
-  CAMLassert (hlen > 5);
+  CAMLcheck (hlen > 5);
   if (caml_really_getblock(chan, header + 5, hlen - 5) < hlen - 5)
     caml_failwith("input_value: truncated object");
   /* Parse the full header */
