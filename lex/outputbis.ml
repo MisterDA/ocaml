@@ -49,26 +49,23 @@ let output_auto_defs ctx =
   if ctx.has_refill then
     pr ctx
 {|
-let rec __ocaml_lex_refill_buf lexbuf _buf _len _curr _last
-                                           _last_action state k =
+let rec __ocaml_lex_refill_buf lexbuf buf len curr last last_action state k =
   if lexbuf.Lexing.lex_eof_reached then
-    state lexbuf _last_action _buf _len _curr _last k 256
+    state lexbuf last_action buf len curr last k 256
   else begin
-    lexbuf.Lexing.lex_curr_pos <- _curr;
-    lexbuf.Lexing.lex_last_pos <- _last;
+    lexbuf.Lexing.lex_curr_pos <- curr;
+    lexbuf.Lexing.lex_last_pos <- last;
     __ocaml_lex_refill
       (fun lexbuf ->
-        let _curr = lexbuf.Lexing.lex_curr_pos in
-        let _last = lexbuf.Lexing.lex_last_pos in
-        let _len = lexbuf.Lexing.lex_buffer_len in
-        let _buf = lexbuf.Lexing.lex_buffer in
-        if _curr < _len then
-          state lexbuf _last_action _buf _len (_curr + 1) _last k
-            (Char.code (Bytes.unsafe_get _buf _curr))
+        let curr = lexbuf.Lexing.lex_curr_pos in
+        let last = lexbuf.Lexing.lex_last_pos in
+        let len = lexbuf.Lexing.lex_buffer_len in
+        let buf = lexbuf.Lexing.lex_buffer in
+        if curr < len then
+          state lexbuf last_action buf len (curr + 1) last k
+            (Char.code (Bytes.unsafe_get buf curr))
         else
-          __ocaml_lex_refill_buf lexbuf _buf _len _curr _last
-                                             _last_action
-            state k
+          __ocaml_lex_refill_buf lexbuf buf len curr last last_action state k
       )
       lexbuf
   end
@@ -77,22 +74,21 @@ let rec __ocaml_lex_refill_buf lexbuf _buf _len _curr _last
   else
     pr ctx
 {|
-let rec __ocaml_lex_refill_buf lexbuf _buf _len _curr _last =
+let rec __ocaml_lex_refill_buf lexbuf buf len curr last =
   if lexbuf.Lexing.lex_eof_reached then
-    256, _buf, _len, _curr, _last
+    256, buf, len, curr, last
   else begin
-    lexbuf.Lexing.lex_curr_pos <- _curr;
-    lexbuf.Lexing.lex_last_pos <- _last;
+    lexbuf.Lexing.lex_curr_pos <- curr;
+    lexbuf.Lexing.lex_last_pos <- last;
     lexbuf.Lexing.refill_buff lexbuf;
-    let _curr = lexbuf.Lexing.lex_curr_pos in
-    let _last = lexbuf.Lexing.lex_last_pos in
-    let _len = lexbuf.Lexing.lex_buffer_len in
-    let _buf = lexbuf.Lexing.lex_buffer in
-    if _curr < _len then
-      Char.code (Bytes.unsafe_get _buf _curr), _buf, _len,
-                            (_curr + 1), _last
+    let curr = lexbuf.Lexing.lex_curr_pos in
+    let last = lexbuf.Lexing.lex_last_pos in
+    let len = lexbuf.Lexing.lex_buffer_len in
+    let buf = lexbuf.Lexing.lex_buffer in
+    if curr < len then
+      Char.code (Bytes.unsafe_get buf curr), buf, len, (curr + 1), last
     else
-      __ocaml_lex_refill_buf lexbuf _buf _len _curr _last
+      __ocaml_lex_refill_buf lexbuf buf len curr last
   end
 
 |}
@@ -128,8 +124,8 @@ let output_pats ctx = function
 
 let last_action ctx =
   match ctx.last_action with
-  | None -> "_last_action"
-  | Some i -> Printf.sprintf "%i (* = last_action *)" i
+  | None -> "last_action"
+  | Some i -> Printf.sprintf "%i (* = _last_action *)" i
 
 let output_action ctx ~pref mems r =
   output_memory_actions ctx.oc ~pref mems;
@@ -137,9 +133,9 @@ let output_action ctx ~pref mems r =
   | Backtrack ->
       pr' ~pref ctx
 {|
-let _curr = _last in
-lexbuf.Lexing.lex_curr_pos <- _curr;
-lexbuf.Lexing.lex_last_pos <- _last;
+let curr = last in
+lexbuf.Lexing.lex_curr_pos <- curr;
+lexbuf.Lexing.lex_last_pos <- last;
 |};
       if ctx.has_refill then
         pr' ~pref ctx "k lexbuf %s\n" (last_action ctx)
@@ -219,8 +215,8 @@ let output_trans_body ctx ~pref = function
       output_tag_actions ctx ~pref mvs ;
       pr' ~pref ctx
 {|
-lexbuf.Lexing.lex_curr_pos <- _curr;
-lexbuf.Lexing.lex_last_pos <- _last;
+lexbuf.Lexing.lex_curr_pos <- curr;
+lexbuf.Lexing.lex_last_pos <- last;
 %s%d
 |} (if ctx.has_refill then "k lexbuf " else "") n
   | Shift (trans, move) ->
@@ -228,7 +224,7 @@ lexbuf.Lexing.lex_last_pos <- _last;
         match trans with
         | Remember (n,mvs) ->
             output_tag_actions ctx ~pref mvs ;
-            pr' ~pref ctx "let _last = _curr in\n";
+            pr' ~pref ctx "let last = curr in\n";
             begin match ctx.last_action with
             | Some i when i = n ->
                 pr' ~pref ctx "(* let _last_action = %d in*)\n" n;
@@ -243,28 +239,26 @@ lexbuf.Lexing.lex_last_pos <- _last;
       if ctx.has_refill then begin
         (* TODO: bind this 'state' function at toplevel instead *)
         pr' ~pref ctx
-          "let state lexbuf _last_action _buf _len _curr _last k = function\n";
+          "let state lexbuf last_action buf len curr last k = function\n";
         output_moves ctx ~pref move;
         pr' ~pref ctx
 {|
 in
-if _curr >= _len then
-  __ocaml_lex_refill_buf lexbuf _buf _len _curr _last
-                                                _last_action state k
+if curr >= len then
+  __ocaml_lex_refill_buf lexbuf buf len curr last last_action state k
 else
-  state lexbuf _last_action _buf _len (_curr + 1) _last k
-    (Char.code (Bytes.unsafe_get _buf _curr))
+  state lexbuf last_action buf len (curr + 1) last k
+    (Char.code (Bytes.unsafe_get buf curr))
 |}
       end
       else begin
         pr' ~pref ctx
 {|
-let next_char, _buf, _len, _curr, _last =
-  if _curr >= _len then
-    __ocaml_lex_refill_buf lexbuf _buf _len _curr _last
+let next_char, buf, len, curr, last =
+  if curr >= len then
+    __ocaml_lex_refill_buf lexbuf buf len curr last
   else
-    Char.code (Bytes.unsafe_get _buf _curr),
-    _buf, _len, (_curr + 1), _last
+    Char.code (Bytes.unsafe_get buf curr), buf, len, (curr + 1), last
 in
 begin match next_char with
 |};
@@ -279,7 +273,7 @@ let output_automata ctx auto inline =
   for i = 0 to n-1 do
     if not inline.(i) then begin
       pr ctx
-        "%s __ocaml_lex_state%d lexbuf _last_action _buf _len _curr _last %s=\n"
+        "%s __ocaml_lex_state%d lexbuf last_action buf len curr last %s=\n"
         (if !first then "let rec" else "\nand")
         i
         (if ctx.has_refill then "k " else "");
@@ -298,12 +292,12 @@ let output_init ctx ~pref e init_moves =
       pref e.auto_mem_size;
   pr' ~pref ctx
 {|
-let _curr = lexbuf.Lexing.lex_curr_pos in
-let _last = _curr in
-let _len = lexbuf.Lexing.lex_buffer_len in
-let _buf = lexbuf.Lexing.lex_buffer in
-let _last_action = -1 in
-lexbuf.Lexing.lex_start_pos <- _curr;
+let curr = lexbuf.Lexing.lex_curr_pos in
+let last = curr in
+let len = lexbuf.Lexing.lex_buffer_len in
+let buf = lexbuf.Lexing.lex_buffer in
+let last_action = -1 in
+lexbuf.Lexing.lex_start_pos <- curr;
 |};
   output_memory_actions ctx.oc ~pref init_moves
 
@@ -311,12 +305,12 @@ let output_rules ic ctx ~pref tr e =
   pr' ~pref ctx
 {|
 begin
-  let _curr_p = lexbuf.Lexing.lex_curr_p in
-  if _curr_p != Lexing.dummy_pos then begin
-    lexbuf.Lexing.lex_start_p <- _curr_p;
+  let curr_p = lexbuf.Lexing.lex_curr_p in
+  if curr_p != Lexing.dummy_pos then begin
+    lexbuf.Lexing.lex_start_p <- curr_p;
     lexbuf.Lexing.lex_curr_p <-
-      {_curr_p with Lexing.pos_cnum =
-       lexbuf.Lexing.lex_abs_pos+lexbuf.Lexing.lex_curr_pos}
+      {curr_p with Lexing.pos_cnum =
+       lexbuf.Lexing.lex_abs_pos + lexbuf.Lexing.lex_curr_pos}
   end
 end;
 match __ocaml_lex_result with
@@ -381,7 +375,7 @@ let goto_state inline transitions ctx ~pref n =
   if inline.(n) then
     output_trans_body ctx ~pref transitions.(n)
   else
-    pr' ~pref ctx "__ocaml_lex_state%d lexbuf %s _buf _len _curr _last%s\n"
+    pr' ~pref ctx "__ocaml_lex_state%d lexbuf %s buf len curr last%s\n"
       n
       (last_action ctx)
       (if ctx.has_refill then " k" else "")
