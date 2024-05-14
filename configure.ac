@@ -1222,13 +1222,9 @@ AS_IF([! $arch64],
 OCAML_CC_SUPPORTS_ATOMIC([], [$cclibs])
 AS_CASE([$cc_supports_atomic,$ocaml_cc_vendor],
   [false,msvc-*],
-    [OCAML_CC_SUPPORTS_ATOMIC([-std:c11])
+    [OCAML_CC_SUPPORTS_ATOMIC([-experimental:c11atomics])
      AS_IF([$cc_supports_atomic],
-       [common_cflags="$common_cflags -std:c11"],
-       [OCAML_CC_SUPPORTS_ATOMIC([-std:c11 -experimental:c11atomics])
-        AS_IF([$cc_supports_atomic],
-          [common_cflags="$common_cflags -std:c11 -experimental:c11atomics"])
-])])
+       [common_cflags="$common_cflags -experimental:c11atomics"])])
 AS_IF([! $cc_supports_atomic],
   [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
 
