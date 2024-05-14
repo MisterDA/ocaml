@@ -16837,17 +16837,20 @@ done ;; #(
 
     #include <unistd.h>
     #include <time.h>
-    int main(void)
-    {
-      #if !(defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)   \
-         && _POSIX_MONOTONIC_CLOCK != (-1))
-        #error "no monotonic clock source"
-      #endif
-        return 0;
-     }
+    #if !(defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)   \
+       && _POSIX_MONOTONIC_CLOCK != (-1))
+      #error "no monotonic clock source"
+    #endif
 
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
 _ACEOF
-if ac_fn_c_try_compile "$LINENO"
+if ac_fn_c_try_cpp "$LINENO"
 then :
 
       has_monotonic_clock=true
@@ -16857,7 +16860,7 @@ then :
 else $as_nop
   has_monotonic_clock=false
 fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+rm -f conftest.err conftest.i conftest.$ac_ext
 
  ;;
 esac
