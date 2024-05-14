@@ -46,6 +46,16 @@
 
 #include "s.h"
 
+/* Compatibility with former macros */
+#define HAS_STDINT_H 1
+#if defined(HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC)
+#  define HAS_NANOSECOND_STAT 1
+#elif defined(HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC)
+#  define HAS_NANOSECOND_STAT 2
+#elif defined(HAVE_STRUCT_STAT_ST_ATIMENSEC)
+#  define HAS_NANOSECOND_STAT 3
+#endif
+
 #ifndef CAML_CONFIG_H_NO_TYPEDEFS
 
 #include <stddef.h>
@@ -55,7 +65,6 @@
 #endif
 
 #include <stdint.h>
-#define HAS_STDINT_H
 
 /* Disable the mingw-w64 *printf shims */
 #if defined(CAML_INTERNALS) && defined(__MINGW32__)
