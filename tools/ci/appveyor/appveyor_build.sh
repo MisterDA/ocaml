@@ -97,8 +97,11 @@ function set_configuration {
     if ! ./configure --cache-file="$CACHE_FILE" $dep $build $man $host \
                      --prefix="$2" --enable-ocamltest ; then
         rm -f -- "$CACHE_FILE"
-        ./configure --cache-file="$CACHE_FILE" $dep $build $man $host \
-                    --prefix="$2" --enable-ocamltest
+        if ! ./configure --cache-file="$CACHE_FILE" $dep $build $man $host \
+                         --prefix="$2" --enable-ocamltest ; then
+            cat config.log
+            exit 1
+        fi
     fi
 
 #    FILE=$(pwd | cygpath -f - -m)/Makefile.config
