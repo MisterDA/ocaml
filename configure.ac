@@ -676,6 +676,16 @@ AS_CASE([$ocaml_cc_vendor],
   [CPP="$CC -E -P"
   ocamltest_CPP="$CPP"])
 
+# Check that we're using C11 or later.
+# Autoconf C11 and MSVC detection will be fixed in 2.73.
+AS_CASE([$ocaml_cc_vendor],
+  [msvc-*],
+    [AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L
+#error "No C11 support"
+#endif
+    ]])], [], [CFLAGS="$CFLAGS -std:c11"])])
+
 # Absolute path to the toplevel source directory
 
 # A sentinel character (X) is added at the end of the directory name
