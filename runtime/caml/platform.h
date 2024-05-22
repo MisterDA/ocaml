@@ -150,7 +150,7 @@ void caml_plat_futex_free(caml_plat_futex*);
    fallback, even if a futex implementation is available. */
 #ifndef CAML_PLAT_FUTEX_FALLBACK
 #  if defined(_WIN32)                                   \
-  || (defined(__linux__) && defined(HAS_LINUX_FUTEX_H)) \
+  || (defined(__linux__) && defined(HAVE_LINUX_FUTEX_H)) \
   || defined(__FreeBSD__) || defined(__OpenBSD__)
 /* TODO We have implementations for these platforms, but they are
    currently untested, so use the fallback instead.
