@@ -1151,14 +1151,13 @@ AC_SEARCH_LIBS([cos], [m],
 
 # Checks for header files
 
-AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H], [1])])
+AC_CHECK_HEADERS_ONCE([pthread_np.h sys/mman.h])
+
 AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT], [1])], [],
   [#include <sys/types.h>])
 
 AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H], [1])], [],
   [#include <sys/types.h>])
-
-AC_CHECK_HEADER([sys/mman.h], [AC_DEFINE([HAS_SYS_MMAN_H], [1])])
 
 AS_CASE([$host],
   [*-*-linux*],
@@ -2387,7 +2386,7 @@ AC_LINK_IFELSE(
   [AC_LANG_PROGRAM(
     [[#define _GNU_SOURCE
       #include <sched.h>
-      #ifdef HAS_PTHREAD_NP_H
+      #ifdef HAVE_PTHREAD_NP_H
       #include <pthread_np.h>
       #endif
       #include <pthread.h>]],

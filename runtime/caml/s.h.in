@@ -78,7 +78,7 @@
 
 #undef HAS_ISSETUGID
 
-#undef HAS_SYS_MMAN_H
+#undef HAVE_SYS_MMAN_H
 
 #undef HAS_LINUX_FUTEX_H
 
@@ -106,7 +106,7 @@
 
 #undef HAS_IPV6
 
-#undef HAS_PTHREAD_NP_H
+#undef HAVE_PTHREAD_NP_H
 
 #undef HAVE_UNISTD_H
 

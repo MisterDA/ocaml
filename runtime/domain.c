@@ -30,7 +30,7 @@
 #include <assert.h>
 #ifdef HAS_GNU_GETAFFINITY_NP
 #include <sched.h>
-#ifdef HAS_PTHREAD_NP_H
+#ifdef HAVE_PTHREAD_NP_H
 #include <pthread_np.h>
 #endif
 #endif
