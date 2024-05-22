@@ -37,7 +37,7 @@ CAMLprim value caml_unix_accept(value cloexec, value sock)
 
   addr_len = sizeof(addr);
   caml_enter_blocking_section();
-#if defined(HAS_ACCEPT4) && defined(SOCK_CLOEXEC)
+#if defined(HAVE_ACCEPT4) && defined(SOCK_CLOEXEC)
   retcode = accept4(Int_val(sock), &addr.s_gen, &addr_len,
                     clo ? SOCK_CLOEXEC : 0);
 #else
@@ -45,7 +45,7 @@ CAMLprim value caml_unix_accept(value cloexec, value sock)
 #endif
   caml_leave_blocking_section();
   if (retcode == -1) caml_uerror("accept", Nothing);
-#if !(defined(HAS_ACCEPT4) && defined(SOCK_CLOEXEC))
+#if !(defined(HAVE_ACCEPT4) && defined(SOCK_CLOEXEC))
   if (clo) caml_unix_set_cloexec(retcode, "accept", Nothing);
 #endif
   a = caml_unix_alloc_sockaddr(&addr, addr_len, retcode);

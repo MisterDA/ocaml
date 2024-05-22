@@ -37,7 +37,7 @@ CAMLprim value caml_unix_execvp(value path, value args)
                                     /* from smart compilers */
 }
 
-#ifndef HAS_EXECVPE
+#ifndef HAVE_EXECVPE
 int caml_unix_execvpe_emulation(const char * name,
                            char * const argv[],
                            char * const envp[]);
@@ -53,7 +53,7 @@ CAMLprim value caml_unix_execvpe(value path, value args, value env)
   argv = caml_unix_cstringvect(args, "execvpe");
   envp = caml_unix_cstringvect(env, "execvpe");
   wpath = caml_stat_strdup_to_os(String_val(path));
-#ifdef HAS_EXECVPE
+#ifdef HAVE_EXECVPE
   (void) execvpe_os((const char_os *)wpath, EXECV_CAST argv, EXECV_CAST envp);
   err = errno;
 #else
@@ -67,7 +67,7 @@ CAMLprim value caml_unix_execvpe(value path, value args, value env)
                                     /* from smart compilers */
 }
 
-#ifndef HAS_EXECVPE
+#ifndef HAVE_EXECVPE
 
 static int caml_unix_execve_script(const char * path,
                               char * const argv[],

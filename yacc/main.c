@@ -42,7 +42,7 @@ char_os temp_form[] = T("yacc.XXXXXXX");
 #ifdef _WIN32
 wchar_t dirsep = L'\\';
 /* mingw provides an implementation of mkstemp, but it's ANSI only */
-#undef HAS_MKSTEMP
+#undef HAVE_MKSTEMP
 #else
 char dirsep = '/';
 #endif
@@ -62,7 +62,7 @@ char_os *output_file_name;
 char_os *text_file_name;
 char_os *verbose_file_name;
 
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
 int action_fd = -1, entry_fd = -1, text_fd = -1;
 #endif
 
@@ -115,7 +115,7 @@ void done(int k)
             k = 1;
     }
 
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
     if (action_fd != -1)
        unlink(action_file_name);
     if (entry_fd != -1)
@@ -327,7 +327,7 @@ void create_file_names(void)
     entry_file_name[len + 5] = L'e';
     text_file_name[len + 5] = L't';
 
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
     action_fd = mkstemp(action_file_name);
     if (action_fd == -1)
         open_error(action_file_name);
@@ -385,7 +385,7 @@ void open_files(void)
             open_error(input_file_name);
     }
 
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
     action_file = fdopen(action_fd, "w");
 #else
     action_file = fopen_os(action_file_name, T("w"));
@@ -393,7 +393,7 @@ void open_files(void)
     if (action_file == 0)
         open_error(action_file_name);
 
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
     entry_file = fdopen(entry_fd, "w");
 #else
     entry_file = fopen_os(entry_file_name, T("w"));
@@ -401,7 +401,7 @@ void open_files(void)
     if (entry_file == 0)
         open_error(entry_file_name);
 
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
     text_file = fdopen(text_fd, "w");
 #else
     text_file = fopen_os(text_file_name, T("w"));

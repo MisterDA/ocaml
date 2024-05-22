@@ -86,7 +86,7 @@ CAMLprim value caml_unix_lockf(value fd, value cmd, value span)
 
 #else
 
-#ifdef HAS_LOCKF
+#ifdef HAVE_LOCKF
 #ifndef _WIN32
 #include <unistd.h>
 #else

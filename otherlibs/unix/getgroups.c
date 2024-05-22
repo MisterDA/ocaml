@@ -18,7 +18,7 @@
 #include <caml/fail.h>
 #include <caml/memory.h>
 
-#ifdef HAS_GETGROUPS
+#ifdef HAVE_GETGROUPS
 
 #include <sys/types.h>
 #ifndef _WIN32

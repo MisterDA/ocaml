@@ -33,7 +33,7 @@ CAMLprim value caml_unix_sleep(value duration_sec)
 {
   double sec = Double_val(duration_sec);
   if (sec < 0.0) return Val_unit;
-#if defined(HAS_NANOSLEEP)
+#if defined(HAVE_NANOSLEEP)
   {
     struct timespec t = caml_timespec_of_sec(sec);
     int ret;

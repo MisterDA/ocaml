@@ -139,7 +139,7 @@ CAMLprim value caml_unix_spawn(value executable, /* string */
     if (envp == NULL) {
       execvp(path, argv);
     } else {
-#ifdef HAS_EXECVPE
+#ifdef HAVE_EXECVPE
       execvpe(path, argv, envp);
 #else
       /* No other thread is running in the child process, so we can change

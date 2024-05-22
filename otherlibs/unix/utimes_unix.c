@@ -22,7 +22,7 @@
 #include <caml/osdeps.h>
 #include "caml/unixsupport.h"
 
-#if defined(HAS_UTIMES)
+#if defined(HAVE_UTIMES)
 
 #include <sys/types.h>
 #include <sys/time.h>

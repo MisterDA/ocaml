@@ -30,9 +30,9 @@ WINBASEAPI HRESULT WINAPI
 SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
 #  endif
 
-#elif defined(HAS_PRCTL)
+#elif defined(HAVE_PRCTL)
 #  include <sys/prctl.h>
-#elif defined(HAS_PTHREAD_SETNAME_NP) || defined(HAS_PTHREAD_SET_NAME_NP)
+#elif defined(HAVE_PTHREAD_SETNAME_NP) || defined(HAVE_PTHREAD_SET_NAME_NP)
 #  include <pthread.h>
 
 #  if defined(HAS_PTHREAD_NP_H)
@@ -991,15 +991,15 @@ CAMLprim value caml_set_current_thread_name(value name)
   caml_stat_free(thread_name);
 #  endif
 
-#  if defined(HAS_PTHREAD_SETNAME_NP)
+#  if defined(HAVE_PTHREAD_SETNAME_NP)
   // We are using both methods.
   // See: https://github.com/ocaml/ocaml/pull/13504#discussion_r1786358928
   pthread_setname_np(pthread_self(), String_val(name));
 #  endif
 
-#elif defined(HAS_PRCTL)
+#elif defined(HAVE_PRCTL)
   prctl(PR_SET_NAME, String_val(name));
-#elif defined(HAS_PTHREAD_SETNAME_NP)
+#elif defined(HAVE_PTHREAD_SETNAME_NP)
 #  if defined(__APPLE__)
   pthread_setname_np(String_val(name));
 #  elif defined(__NetBSD__)
@@ -1007,7 +1007,7 @@ CAMLprim value caml_set_current_thread_name(value name)
 #  else
   pthread_setname_np(pthread_self(), String_val(name));
 #  endif
-#elif defined(HAS_PTHREAD_SET_NAME_NP)
+#elif defined(HAVE_PTHREAD_SET_NAME_NP)
   pthread_set_name_np(pthread_self(), String_val(name));
 #else
   if (caml_runtime_warnings_active()) {
