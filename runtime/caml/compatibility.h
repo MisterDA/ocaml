@@ -33,6 +33,14 @@
 #define HAS_UNISTD 1
 #endif
 
+#ifdef HAVE_PTHREAD_NP_H
+#define HAS_PTHREAD_NP_H 1
+#endif
+
+#ifdef HAVE_SYS_MMAN_H
+#define HAS_SYS_MMAN_H 1
+#endif
+
 #ifdef HAVE_WORKING_FMA
 #define HAS_WORKING_FMA 1
 #endif
