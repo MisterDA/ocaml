@@ -53,6 +53,10 @@
 #define HAS_SYS_SELECT_H 1
 #endif
 
+#ifdef HAVE_SYS_SHM_H
+#define HAS_SYS_SHM_H 1
+#endif
+
 #ifdef HAVE_ACCEPT4
 #define HAS_ACCEPT4 1
 #endif
@@ -83,6 +87,10 @@
 
 #ifdef HAVE_GETRUSAGE
 #define HAS_GETRUSAGE 1
+#endif
+
+#ifdef HAVE_GETHOSTNAME
+#define HAS_GETHOSTNAME 1
 #endif
 
 #ifdef HAVE_GETTIMEOFDAY
@@ -157,8 +165,16 @@
 #define HAS_SETGROUPS 1
 #endif
 
+#ifdef HAVE_SETSID
+#define HAS_SETSID 1
+#endif
+
 #ifdef HAVE_SETITIMER
 #define HAS_SETITIMER 1
+#endif
+
+#ifdef HAVE_SHMAT
+#define HAS_SHMAT 1
 #endif
 
 #ifdef HAVE_SYSTEM
@@ -167,6 +183,10 @@
 
 #ifdef HAVE_TIMES
 #define HAS_TIMES 1
+#endif
+
+#ifdef HAVE_UNAME
+#define HAS_UNAME 1
 #endif
 
 #ifdef HAVE_UTIMES
