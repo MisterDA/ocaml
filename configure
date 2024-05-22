@@ -817,6 +817,7 @@ rpath
 sharedlib_cflags
 asm_cfi_supported
 AS
+endianness
 ASPP
 ocamltest_opt_target
 ocamltest_target
@@ -3517,16 +3518,10 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 
 
 
-<<<<<<< HEAD
 
 
-<<<<<<< HEAD
 
 
-=======
-=======
->>>>>>> 4c10c6dc9a (configure: say 'the C compiler' instead of printing full path)
->>>>>>> a1829f427a (configure: say 'the C compiler' instead of printing full path)
 ## Generated files
 
 ac_config_files="$ac_config_files Makefile.build_config"
@@ -14944,12 +14939,6 @@ fi
 done ;;
 esac
 
-ac_fn_c_check_header_compile "$LINENO" "math.h" "ac_cv_header_math_h" "$ac_includes_default"
-if test "x$ac_cv_header_math_h" = xyes
-then :
-
-fi
-
 ac_fn_c_check_header_compile "$LINENO" "pthread_np.h" "ac_cv_header_pthread_np_h" "$ac_includes_default"
 if test "x$ac_cv_header_pthread_np_h" = xyes
 then :
@@ -15434,10 +15423,13 @@ fi
 printf "%s\n" "$ac_cv_c_bigendian" >&6; }
  case $ac_cv_c_bigendian in #(
    yes)
-     printf "%s\n" "#define WORDS_BIGENDIAN 1" >>confdefs.h
-;; #(
+
+    printf "%s\n" "#define ARCH_BIG_ENDIAN 1" >>confdefs.h
+
+    endianness="be"
+  ;; #(
    no)
-      ;; #(
+     endianness="le" ;; #(
    universal)
      as_fn_error $? "unable to handle universal endianness" "$LINENO" 5
 
