@@ -17936,13 +17936,13 @@ fi
 # (should be debugged later)
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
-    printf "%s\n" "#define HAS_GETHOSTNAME 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_GETHOSTNAME 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "gethostname" "ac_cv_func_gethostname"
 if test "x$ac_cv_func_gethostname" = xyes
 then :
-  printf "%s\n" "#define HAS_GETHOSTNAME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_GETHOSTNAME 1" >>confdefs.h
 
 fi
  ;;
@@ -17956,7 +17956,7 @@ then :
   ac_fn_c_check_func "$LINENO" "uname" "ac_cv_func_uname"
 if test "x$ac_cv_func_uname" = xyes
 then :
-  printf "%s\n" "#define HAS_UNAME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_UNAME 1" >>confdefs.h
 
 fi
 
@@ -17972,7 +17972,7 @@ case $host in #(
     ac_fn_c_check_func "$LINENO" "setsid" "ac_cv_func_setsid"
 if test "x$ac_cv_func_setsid" = xyes
 then :
-  printf "%s\n" "#define HAS_SETSID 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SETSID 1" >>confdefs.h
 
 fi
  ;;
@@ -18667,22 +18667,22 @@ case $ac_cv_func_which_gethostbyaddr_r in #(
 esac
 
 ## shmat
-ac_fn_c_check_header_compile "$LINENO" "sys/shm.h" "ac_cv_header_sys_shm_h" "$ac_includes_default"
+       for ac_header in sys/shm.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "sys/shm.h" "ac_cv_header_sys_shm_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_shm_h" = xyes
 then :
-
-    printf "%s\n" "#define HAS_SYS_SHM_H 1" >>confdefs.h
-
-    ac_fn_c_check_func "$LINENO" "shmat" "ac_cv_func_shmat"
+  printf "%s\n" "#define HAVE_SYS_SHM_H 1" >>confdefs.h
+ ac_fn_c_check_func "$LINENO" "shmat" "ac_cv_func_shmat"
 if test "x$ac_cv_func_shmat" = xyes
 then :
-  printf "%s\n" "#define HAS_SHMAT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SHMAT 1" >>confdefs.h
 
 fi
 
-
 fi
 
+done
 
 ## posix_spawn
 

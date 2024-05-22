@@ -2020,19 +2020,19 @@ AC_CHECK_HEADER([termios.h],
 # Note: detection fails on Windows so hardcoding the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAS_GETHOSTNAME], [1])],
-  [AC_CHECK_FUNC([gethostname], [AC_DEFINE([HAS_GETHOSTNAME], [1])])])
+  [*-*-mingw32*|*-pc-windows], [AC_DEFINE([HAVE_GETHOSTNAME], [1])],
+  [AC_CHECK_FUNCS([gethostname])])
 
 ## uname
 
 AC_CHECK_HEADER([sys/utsname.h],
-  [AC_CHECK_FUNC([uname], [AC_DEFINE([HAS_UNAME], [1])])])
+  [AC_CHECK_FUNCS([uname])])
 
 ## setsid
 
 AS_CASE([$host],
   [*-cygwin|*-*-mingw32*|*-pc-windows], [],
-  [AC_CHECK_FUNC([setsid], [AC_DEFINE([HAS_SETSID], [1])])])
+  [AC_CHECK_FUNCS([setsid])])
 
 ## setenv and unsetenv
 
@@ -2124,11 +2124,7 @@ AS_CASE([$ac_cv_func_which_gethostbyaddr_r],
   [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7])])
 
 ## shmat
-AC_CHECK_HEADER([sys/shm.h],
-  [
-    AC_DEFINE([HAS_SYS_SHM_H], [1])
-    AC_CHECK_FUNC([shmat], [AC_DEFINE([HAS_SHMAT], [1])])
-  ])
+AC_CHECK_HEADERS([sys/shm.h], [AC_CHECK_FUNCS([shmat])])
 
 ## posix_spawn
 

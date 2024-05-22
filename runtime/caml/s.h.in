@@ -200,13 +200,13 @@
 
 /* Define HAVE_SETITIMER if you have setitimer(). */
 
-#undef HAS_GETHOSTNAME
+#undef HAVE_GETHOSTNAME
 
-/* Define HAS_GETHOSTNAME if you have gethostname(). */
+/* Define HAVE_GETHOSTNAME if you have gethostname(). */
 
-#undef HAS_UNAME
+#undef HAVE_UNAME
 
-/* Define HAS_UNAME if you have uname(). */
+/* Define HAVE_UNAME if you have uname(). */
 
 #undef HAVE_GETTIMEOFDAY
 
@@ -216,9 +216,9 @@
 
 /* Define HAVE_MKTIME if you have mktime(). */
 
-#undef HAS_SETSID
+#undef HAVE_SETSID
 
-/* Define HAS_SETSID if you have setsid(). */
+/* Define HAVE_SETSID if you have setsid(). */
 
 #undef HAVE_PUTENV
 
@@ -287,9 +287,9 @@
 
 #undef HAVE_GETAUXVAL
 
-#undef HAS_SYS_SHM_H
+#undef HAVE_SYS_SHM_H
 
-#undef HAS_SHMAT
+#undef HAVE_SHMAT
 
 #undef HAVE_EXECVPE
 
