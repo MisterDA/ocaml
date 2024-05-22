@@ -73,14 +73,14 @@ CAMLexport void caml_debugger_cleanup_fork(void)
 #undef ATOM
 /* Code duplication with otherlibs/unix/socketaddr.h is inevitable
  * because pulling winsock2.h creates many naming conflicts. */
-#ifdef HAS_AFUNIX_H
+#ifdef HAVE_AFUNIX_H
 #include <afunix.h>
 #else
 struct sockaddr_un {
   ADDRESS_FAMILY sun_family;
   char sun_path[108];
 };
-#endif /* HAS_AFUNIX_H */
+#endif /* HAVE_AFUNIX_H */
 #include <process.h>
 #endif /* _WIN32 */
 

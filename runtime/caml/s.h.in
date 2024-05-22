@@ -80,7 +80,7 @@
 
 #undef HAVE_SYS_MMAN_H
 
-#undef HAS_LINUX_FUTEX_H
+#undef HAVE_LINUX_FUTEX_H
 
 /* 2. For the Unix library. */
 
@@ -98,9 +98,9 @@
 /* Define HAS_SOCKLEN_T if the type socklen_t is defined in
    /usr/include/sys/socket.h. */
 
-#undef HAS_AFUNIX_H
+#undef HAVE_AFUNIX_H
 
-/* Define HAS_AFUNIX_H if you have <afunix.h>. */
+/* Define HAVE_AFUNIX_H if you have <afunix.h>. */
 
 #undef HAS_INET_ATON
 
@@ -158,9 +158,9 @@
 
 /* Define HAS_SELECT if you have select(). */
 
-#undef HAS_SYS_SELECT_H
+#undef HAVE_SYS_SELECT_H
 
-/* Define HAS_SYS_SELECT_H if /usr/include/sys/select.h exists
+/* Define HAVE_SYS_SELECT_H if /usr/include/sys/select.h exists
    and should be included before using select(). */
 
 #undef HAS_NANOSLEEP

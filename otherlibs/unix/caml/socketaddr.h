@@ -23,7 +23,7 @@
 /* Code duplication with runtime/debugger.c is inevitable, because
  * pulling winsock2.h creates many naming conflicts. */
 #include <winsock2.h>
-#ifdef HAS_AFUNIX_H
+#ifdef HAVE_AFUNIX_H
 #include <afunix.h>
 #else
 #define UNIX_PATH_MAX 108

@@ -14916,16 +14916,14 @@ ac_fn_c_check_header_compile "$LINENO" "dirent.h" "ac_cv_header_dirent_h" "#incl
 "
 if test "x$ac_cv_header_dirent_h" = xyes
 then :
-  printf "%s\n" "#define HAS_DIRENT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_DIRENT_H 1" >>confdefs.h
 
 fi
-
-
 ac_fn_c_check_header_compile "$LINENO" "sys/select.h" "ac_cv_header_sys_select_h" "#include <sys/types.h>
 "
 if test "x$ac_cv_header_sys_select_h" = xyes
 then :
-  printf "%s\n" "#define HAS_SYS_SELECT_H 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SYS_SELECT_H 1" >>confdefs.h
 
 fi
 
@@ -14935,7 +14933,7 @@ case $host in #(
     ac_fn_c_check_header_compile "$LINENO" "linux/futex.h" "ac_cv_header_linux_futex_h" "$ac_includes_default"
 if test "x$ac_cv_header_linux_futex_h" = xyes
 then :
-  printf "%s\n" "#define HAS_LINUX_FUTEX_H 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_LINUX_FUTEX_H 1" >>confdefs.h
 
 fi
  ;; #(
@@ -17727,18 +17725,14 @@ fi
 
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
-           for ac_header in afunix.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "afunix.h" "ac_cv_header_afunix_h" "#include <winsock2.h>
+    ac_fn_c_check_header_compile "$LINENO" "afunix.h" "ac_cv_header_afunix_h" "#include <winsock2.h>
 "
 if test "x$ac_cv_header_afunix_h" = xyes
 then :
   printf "%s\n" "#define HAVE_AFUNIX_H 1" >>confdefs.h
- printf "%s\n" "#define HAS_AFUNIX_H 1" >>confdefs.h
 
 fi
-
-done ;; #(
+ ;; #(
   *) :
      ;;
 esac

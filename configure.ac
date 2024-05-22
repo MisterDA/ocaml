@@ -1153,15 +1153,10 @@ AC_SEARCH_LIBS([cos], [m],
 
 AC_CHECK_HEADERS_ONCE([pthread_np.h sys/mman.h])
 
-AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT], [1])], [],
-  [#include <sys/types.h>])
-
-AC_CHECK_HEADER([sys/select.h], [AC_DEFINE([HAS_SYS_SELECT_H], [1])], [],
-  [#include <sys/types.h>])
+AC_CHECK_HEADERS([dirent.h sys/select.h], [], [], [#include <sys/types.h>])
 
 AS_CASE([$host],
-  [*-*-linux*],
-    [AC_CHECK_HEADER([linux/futex.h], [AC_DEFINE([HAS_LINUX_FUTEX_H])])])
+  [*-*-linux*], [AC_CHECK_HEADERS([linux/futex.h])])
 
 # Checks for types
 
@@ -1978,8 +1973,7 @@ AC_CHECK_FUNC([inet_aton], [AC_DEFINE([HAS_INET_ATON], [1])])
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
-    [AC_CHECK_HEADERS([afunix.h], [AC_DEFINE([HAS_AFUNIX_H], [1])], [],
-      [#include <winsock2.h>])])
+    [AC_CHECK_HEADERS([afunix.h], [], [], [#include <winsock2.h>])])
 
 ## IPv6 support
 

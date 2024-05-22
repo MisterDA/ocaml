@@ -28,12 +28,24 @@
 #  define HAS_NANOSECOND_STAT 3
 #endif
 
+#ifdef HAVE_AFUNIX_H
+#define HAS_AFUNIX_H 1
+#endif
+
+#ifdef HAVE_DIRENT_H
+#define HAS_DIRENT_H 1
+#endif
+
 #ifdef HAVE_PTHREAD_NP_H
 #define HAS_PTHREAD_NP_H 1
 #endif
 
 #ifdef HAVE_SYS_MMAN_H
 #define HAS_SYS_MMAN_H 1
+#endif
+
+#ifdef HAVE_SYS_SELECT_H
+#define HAS_SYS_SELECT_H 1
 #endif
 
 #ifdef HAVE_UNISTD_H
