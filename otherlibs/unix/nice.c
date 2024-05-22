@@ -24,7 +24,7 @@ CAMLprim value caml_unix_nice(value incr)
 {
   int ret;
   errno = 0;
-#ifdef HAS_NICE
+#ifdef HAVE_NICE
   ret = nice(Int_val(incr));
 #else
   ret = 0;

@@ -28,7 +28,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include "caml/config.h"
-#ifdef HAS_GETTIMEOFDAY
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
 #include <sys/stat.h>
@@ -404,11 +404,11 @@ char * caml_executable_name(void)
 
 char *caml_secure_getenv (char const *var)
 {
-#ifdef HAS_SECURE_GETENV
+#ifdef HAVE_SECURE_GETENV
   return secure_getenv (var);
-#elif defined (HAS___SECURE_GETENV)
+#elif defined (HAVE___SECURE_GETENV)
   return __secure_getenv (var);
-#elif defined(HAS_ISSETUGID)
+#elif defined(HAVE_ISSETUGID)
   if (!issetugid ())
     return getenv(var);
   else
@@ -431,7 +431,7 @@ uint64_t caml_time_counter(void)
   return
     (uint64_t)t.tv_sec  * (uint64_t)1000000000 +
     (uint64_t)t.tv_nsec;
-#elif defined(HAS_GETTIMEOFDAY)
+#elif defined(HAVE_GETTIMEOFDAY)
   struct timeval t;
   gettimeofday(&t, 0);
   return

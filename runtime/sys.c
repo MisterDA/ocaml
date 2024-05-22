@@ -36,17 +36,17 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAS_TIMES
+#ifdef HAVE_TIMES
 #include <sys/times.h>
 #endif
-#ifdef HAS_GETRUSAGE
+#ifdef HAVE_GETRUSAGE
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
-#ifdef HAS_GETTIMEOFDAY
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
-#if defined(HAS_GETENTROPY) && defined(__APPLE__)
+#if defined(HAVE_GETENTROPY) && defined(__APPLE__)
 #include <sys/random.h>
 #endif
 #include "caml/alloc.h"
@@ -398,11 +398,11 @@ CAMLprim value caml_sys_getcwd(value unit)
 {
   char_os buff[4096];
   char_os * ret;
-#ifdef HAS_GETCWD
+#ifdef HAVE_GETCWD
   ret = getcwd_os(buff, sizeof(buff)/sizeof(*buff));
 #else
   caml_invalid_argument("Sys.getcwd not implemented");
-#endif /* HAS_GETCWD */
+#endif /* HAVE_GETCWD */
   if (ret == 0) caml_sys_error(NO_ARG);
   return caml_copy_string_of_os(buff);
 }
@@ -505,7 +505,7 @@ void caml_sys_init(char_os * exe_name, char_os **argv)
 #endif
 #endif
 
-#ifdef HAS_SYSTEM
+#ifdef HAVE_SYSTEM
 CAMLprim value caml_sys_system_command(value command)
 {
   CAMLparam1 (command);
@@ -537,7 +537,7 @@ CAMLprim value caml_sys_system_command(value command)
 
 double caml_sys_time_include_children_unboxed(value include_children)
 {
-#ifdef HAS_GETRUSAGE
+#ifdef HAVE_GETRUSAGE
   struct rusage ru;
   double acc = 0.;
 
@@ -553,7 +553,7 @@ double caml_sys_time_include_children_unboxed(value include_children)
 
   return acc;
 #else
-  #ifdef HAS_TIMES
+  #ifdef HAVE_TIMES
     #ifndef CLK_TCK
       #ifdef HZ
         #define CLK_TCK HZ
@@ -602,7 +602,7 @@ int caml_unix_random_seed(intnat data[16])
   int nread = 0;
 
   /* Try kernel entropy first */
-#ifdef HAS_GETENTROPY
+#ifdef HAVE_GETENTROPY
   if (getentropy(buffer, 12) != -1) {
     nread = 12;
   } else
@@ -621,7 +621,7 @@ int caml_unix_random_seed(intnat data[16])
   /* Otherwise, complement whatever we got (probably nothing)
      with some not-very-random data. */
   {
-#ifdef HAS_GETTIMEOFDAY
+#ifdef HAVE_GETTIMEOFDAY
     struct timeval tv;
     gettimeofday(&tv, NULL);
     if (n < 16) data[n++] = tv.tv_usec;

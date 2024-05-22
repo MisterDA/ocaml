@@ -52,4 +52,132 @@
 #define HAS_UNISTD 1
 #endif
 
+#ifdef HAVE_ACCEPT4
+#define HAS_ACCEPT4 1
+#endif
+
+#ifdef HAVE_DUP3
+#define HAS_DUP3 1
+#endif
+
+#ifdef HAVE_EXECVPE
+#define HAS_EXECVPE 1
+#endif
+
+#ifdef HAVE_GETAUXVAL
+#define HAS_GETAUXVAL 1
+#endif
+
+#ifdef HAVE_GETCWD
+#define HAS_GETCWD 1
+#endif
+
+#ifdef HAVE_GETENTROPY
+#define HAS_GETENTROPY 1
+#endif
+
+#ifdef HAVE_GETGROUPS
+#define HAS_GETGROUPS 1
+#endif
+
+#ifdef HAVE_GETRUSAGE
+#define HAS_GETRUSAGE 1
+#endif
+
+#ifdef HAVE_GETTIMEOFDAY
+#define HAS_GETTIMEOFDAY 1
+#endif
+
+#ifdef HAVE_INET_ATON
+#define HAS_INET_ATON 1
+#endif
+
+#ifdef HAVE_INITGROUPS
+#define HAS_INITGROUPS 1
+#endif
+
+#ifdef HAVE_ISSETUGID
+#define HAS_ISSETUGID 1
+#endif
+
+#ifdef HAVE_LOCKF
+#define HAS_LOCKF 1
+#endif
+
+#ifdef HAVE_MKFIFO
+#define HAS_MKFIFO 1
+#endif
+
+#ifdef HAVE_MKSTEMP
+#define HAS_MKSTEMP 1
+#endif
+
+#ifdef HAVE_MKTIME
+#define HAS_MKTIME 1
+#endif
+
+#ifdef HAVE_NANOSLEEP
+#define HAS_NANOSLEEP 1
+#endif
+
+#ifdef HAVE_NICE
+#define HAS_NICE 1
+#endif
+
+#ifdef HAVE_PIPE2
+#define HAS_PIPE2 1
+#endif
+
+#ifdef HAVE_PUTENV
+#define HAS_PUTENV 1
+#endif
+
+#ifdef HAVE_PWRITE
+#define HAS_PWRITE 1
+#endif
+
+#ifdef HAVE_REALPATH
+#define HAS_REALPATH 1
+#endif
+
+#ifdef HAVE_REWINDDIR
+#define HAS_REWINDDIR 1
+#endif
+
+#ifdef HAVE_SECURE_GETENV
+#define HAS_SECURE_GETENV 1
+#endif
+
+#ifdef HAVE___SECURE_GETENV
+#define HAS___SECURE_GETENV 1
+#endif
+
+#ifdef HAVE_SETGROUPS
+#define HAS_SETGROUPS 1
+#endif
+
+#ifdef HAVE_SETITIMER
+#define HAS_SETITIMER 1
+#endif
+
+#ifdef HAVE_SYSTEM
+#define HAS_SYSTEM 1
+#endif
+
+#ifdef HAVE_TIMES
+#define HAS_TIMES 1
+#endif
+
+#ifdef HAVE_UTIMES
+#define HAS_UTIMES 1
+#endif
+
+#ifdef HAVE_WAITPID
+#define HAS_WAITPID 1
+#endif
+
+#ifdef HAVE_WAIT4
+#define HAS_WAIT4 1
+#endif
+
 #endif  /* CAML_COMPATIBILITY_H */

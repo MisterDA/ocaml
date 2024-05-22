@@ -19,7 +19,7 @@
 #include <caml/fail.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_REALPATH
+#ifdef HAVE_REALPATH
 
 CAMLprim value caml_unix_realpath (value p)
 {

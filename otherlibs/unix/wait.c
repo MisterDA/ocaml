@@ -77,9 +77,9 @@ CAMLprim value caml_unix_wait(value unit)
   return alloc_process_status(pid, status);
 }
 
-#if defined(HAS_WAITPID) || defined(HAS_WAIT4)
+#if defined(HAVE_WAITPID) || defined(HAVE_WAIT4)
 
-#ifndef HAS_WAITPID
+#ifndef HAVE_WAITPID
 #define waitpid(pid,status,opts) wait4(pid,status,opts,NULL)
 #endif
 

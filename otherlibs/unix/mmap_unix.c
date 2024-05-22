@@ -57,7 +57,7 @@ static int caml_grow_file(int fd, file_offset size)
   /* First use pwrite for growing - it is a conservative method, as it
      can never happen that we shrink by accident
    */
-#ifdef HAS_PWRITE
+#ifdef HAVE_PWRITE
   c = 0;
   p = pwrite(fd, &c, 1, size - 1);
 #else

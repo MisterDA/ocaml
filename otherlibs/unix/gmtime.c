@@ -57,7 +57,7 @@ CAMLprim value caml_unix_localtime(value t)
   return alloc_tm(tm);
 }
 
-#ifdef HAS_MKTIME
+#ifdef HAVE_MKTIME
 
 CAMLprim value caml_unix_mktime(value t)
 {

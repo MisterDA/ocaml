@@ -74,7 +74,7 @@ CAMLprim value caml_unix_inet_addr_of_string(value s)
     caml_failwith("inet_addr_of_string");
  }
 #endif
-#elif defined(HAS_INET_ATON)
+#elif defined(HAVE_INET_ATON)
  {
   struct in_addr address;
   if (inet_aton(String_val(s), &address) == 0)
