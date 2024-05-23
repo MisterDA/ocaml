@@ -28,7 +28,7 @@
 extern const int caml_unix_socket_domain_table[]; /* from socket.c */
 extern const int caml_unix_socket_type_table[]; /* from socket.c */
 
-#ifdef HAS_SOCKETPAIR
+#ifdef HAVE_SOCKETPAIR
 
 #error "Windows has defined sockepair! win32unix should be updated."
 
@@ -198,6 +198,6 @@ CAMLprim value caml_unix_socketpair(value cloexec, value vdomain, value vtype,
   CAMLreturn(result);
 }
 
-#endif  /* HAS_SOCKETPAIR */
+#endif  /* HAVE_SOCKETPAIR */
 
 #endif  /* HAS_SOCKETS */

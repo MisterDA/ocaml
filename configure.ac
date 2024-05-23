@@ -2000,11 +2000,11 @@ AS_CASE([$target],
   [*-w64-mingw32*],
     [cclibs="$cclibs -lws2_32"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
+    AC_CHECK_FUNCS([socketpair])],
   [*-pc-windows],
     [cclibs="$cclibs ws2_32.lib"
     OCAML_CL_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
+    AC_CHECK_FUNCS([socketpair])],
   [*-*-haiku],
     [cclibs="$cclibs -lnetwork"
     AC_SEARCH_LIBS([socket], [network])],
@@ -2134,8 +2134,8 @@ AC_CHECK_HEADER([xlocale.h],
 # Note: not detected on MSVC so hardcoding the result
 # (should be debugged later)
 AS_CASE([$target],
-  [*-pc-windows], [AC_DEFINE([HAS_STRTOD_L], [1])],
-  [AC_CHECK_FUNC([strtod_l], [AC_DEFINE([HAS_STRTOD_L], [1])])])
+  [*-pc-windows], [AC_DEFINE([HAVE_STRTOD_L], [1])],
+  [AC_CHECK_FUNCS([strtod_l])])
 
 ## shared library support
 AS_IF([$supports_shared_libraries],
