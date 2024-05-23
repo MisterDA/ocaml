@@ -1918,11 +1918,11 @@ AS_CASE([$host],
   [*-*-mingw32*],
     [cclibs="$cclibs -lws2_32"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
+    AC_CHECK_FUNCS([socketpair])],
   [*-pc-windows],
     [cclibs="$cclibs ws2_32.lib"
     AC_SEARCH_LIBS([socket], [ws2_32])
-    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
+    AC_CHECK_FUNCS([socketpair])],
   [*-*-haiku],
     [cclibs="$cclibs -lnetwork"
     AC_SEARCH_LIBS([socket], [network])],
@@ -2058,8 +2058,8 @@ AC_CHECK_HEADER([xlocale.h],
 # Note: not detected on MSVC so hardcoding the result
 # (should be debugged later)
 AS_CASE([$host],
-  [*-pc-windows], [AC_DEFINE([HAS_STRTOD_L], [1])],
-  [AC_CHECK_FUNC([strtod_l], [AC_DEFINE([HAS_STRTOD_L], [1])])])
+  [*-pc-windows], [AC_DEFINE([HAVE_STRTOD_L], [1])],
+  [AC_CHECK_FUNCS([strtod_l])])
 
 ## shared library support
 AS_IF([$supports_shared_libraries],
@@ -2247,7 +2247,7 @@ AS_CASE([$host],
     # tests can rely on the assumption that pthread is enabled.
     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
     LIBS="$LIBS $PTHREAD_LIBS"
-    AC_CHECK_FUNC([sigwait], [AC_DEFINE([HAS_SIGWAIT], [1])])],
+    AC_CHECK_FUNCS([sigwait])],
     [AC_MSG_ERROR(m4_normalize([POSIX threads are required but not supported on
       this platform]))])])
 

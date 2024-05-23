@@ -176,6 +176,18 @@
 #define HAS_SHMAT 1
 #endif
 
+#ifdef HAVE_SIGWAIT
+#define HAS_SIGWAIT 1
+#endif
+
+#ifdef HAVE_SOCKETPAIR
+#define HAS_SOCKETPAIR 1
+#endif
+
+#ifdef HAVE_STRTOD_L
+#define HAS_STRTOD_L 1
+#endif
+
 #ifdef HAVE_SYSTEM
 #define HAS_SYSTEM 1
 #endif

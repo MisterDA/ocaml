@@ -402,13 +402,13 @@ CAMLprim value caml_float_of_string(value vs)
     if (sign < 0) d = -d;
   } else {
     /* Convert using strtod */
-#if defined(HAS_STRTOD_L) && defined(HAS_LOCALE)
+#if defined(HAVE_STRTOD_L) && defined(HAS_LOCALE)
     d = strtod_l((const char *) buf, &end, caml_locale);
 #else
     USE_LOCALE;
     d = strtod((const char *) buf, &end);
     RESTORE_LOCALE;
-#endif /* HAS_STRTOD_L */
+#endif /* HAVE_STRTOD_L */
     if (end != dst) goto error;
   }
   if (buf != parse_buffer) caml_stat_free(buf);

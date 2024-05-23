@@ -88,9 +88,9 @@
 
 /* Define HAS_SOCKETS if you have BSD sockets. */
 
-#undef HAS_SOCKETPAIR
+#undef HAVE_SOCKETPAIR
 
-/* Define HAS_SOCKETPAIR if you have the socketpair function. Only
+/* Define HAVE_SOCKETPAIR if you have the socketpair function. Only
    relevant on Windows. */
 
 #undef HAS_SOCKLEN_T
@@ -238,9 +238,9 @@
 /* Define HAS_XLOCALE_H if you have the include file <xlocale.h> and the
    uselocale() function. */
 
-#undef HAS_STRTOD_L
+#undef HAVE_STRTOD_L
 
-/* Define HAS_STRTOD_L if you have strtod_l */
+/* Define HAVE_STRTOD_L if you have strtod_l */
 
 #undef HAS_MMAP
 
@@ -295,7 +295,7 @@
 
 #undef HAS_POSIX_SPAWN
 
-#undef HAS_SIGWAIT
+#undef HAVE_SIGWAIT
 
 #undef HAS_HUGE_PAGES
 
