@@ -54,7 +54,7 @@ union sock_addr_union {
 #endif
 };
 
-#ifdef HAS_SOCKLEN_T
+#ifdef HAVE_SOCKLEN_T
 typedef socklen_t socklen_param_type;
 #else
 typedef int socklen_param_type;
