@@ -1944,10 +1944,8 @@ AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS], [1])])
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
-    [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T], [1])], [],
-      [#include <ws2tcpip.h>])],
-  [AC_CHECK_TYPE([socklen_t], [AC_DEFINE([HAS_SOCKLEN_T], [1])], [],
-    [#include <sys/socket.h>])])
+    [AC_CHECK_TYPES([socklen_t], [], [], [#include <ws2tcpip.h>])],
+  [AC_CHECK_TYPES([socklen_t], [], [], [#include <sys/socket.h>])])
 
 ## Unix domain sockets support on Windows
 

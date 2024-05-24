@@ -212,4 +212,8 @@
 #define HAS_WAIT4 1
 #endif
 
+#ifdef HAVE_SOCKLEN_T
+#define HAS_SOCKLEN_T 1
+#endif
+
 #endif  /* CAML_COMPATIBILITY_H */
