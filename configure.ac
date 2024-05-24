@@ -1193,9 +1193,6 @@ AS_IF(
   [AC_MSG_ERROR([Sorry, we can't find a 64-bit integer type.])]
 )
 
-AC_DEFINE_UNQUOTED([SIZEOF_PTR], [$ac_cv_sizeof_long_p])
-AC_DEFINE_UNQUOTED([SIZEOF_LONGLONG], [$ac_cv_sizeof_long_long])
-
 AC_MSG_NOTICE([Target is a $bits bits architecture])
 
 AC_C_BIGENDIAN(

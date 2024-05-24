@@ -15185,11 +15185,6 @@ then :
 
 fi
 
-printf "%s\n" "#define SIZEOF_PTR $ac_cv_sizeof_long_p" >>confdefs.h
-
-printf "%s\n" "#define SIZEOF_LONGLONG $ac_cv_sizeof_long_long" >>confdefs.h
-
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Target is a $bits bits architecture" >&5
 printf "%s\n" "$as_me: Target is a $bits bits architecture" >&6;}
 

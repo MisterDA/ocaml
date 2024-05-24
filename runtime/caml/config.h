@@ -115,7 +115,7 @@
     #define ARCH_INT64_TYPE long
     #define ARCH_UINT64_TYPE unsigned long
     #define ARCH_INT64_PRINTF_FORMAT "l"
-  #elif SIZEOF_LONGLONG == 8
+  #elif SIZEOF_LONG_LONG == 8
     #define ARCH_INT64_TYPE long long
     #define ARCH_UINT64_TYPE unsigned long long
     #define ARCH_INT64_PRINTF_FORMAT "ll"
@@ -124,17 +124,17 @@
   #endif
 #endif
 
-#if SIZEOF_PTR == SIZEOF_LONG
+#if SIZEOF_LONG_P == SIZEOF_LONG
 /* Standard models: ILP32 or I32LP64 */
 typedef long intnat;
 typedef unsigned long uintnat;
 #define ARCH_INTNAT_PRINTF_FORMAT "l"
-#elif SIZEOF_PTR == SIZEOF_INT
+#elif SIZEOF_LONG_P == SIZEOF_INT
 /* Hypothetical IP32L64 model */
 typedef int intnat;
 typedef unsigned int uintnat;
 #define ARCH_INTNAT_PRINTF_FORMAT ""
-#elif SIZEOF_PTR == 8
+#elif SIZEOF_LONG_P == 8
 /* Win64 model: IL32P64 */
 typedef int64_t intnat;
 typedef uint64_t uintnat;
