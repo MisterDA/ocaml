@@ -45,13 +45,13 @@
 
 #undef SIZEOF_INT
 #undef SIZEOF_LONG
-#undef SIZEOF_PTR
+#undef SIZEOF_LONG_P
 #undef SIZEOF_SHORT
-#undef SIZEOF_LONGLONG
+#undef SIZEOF_LONG_LONG
 
-/* Define SIZEOF_INT, SIZEOF_LONG, SIZEOF_PTR, SIZEOF_SHORT and
-   SIZEOF_LONGLONG to the sizes in bytes of the C types "int", "long",
-   "char *", "short" and "long long" respectively. */
+/* Define SIZEOF_INT, SIZEOF_LONG, SIZEOF_LONG_P, SIZEOF_SHORT and
+   SIZEOF_LONG_LONG to the sizes in bytes of the C types "int", "long",
+   "long *", "short" and "long long" respectively. */
 
 #undef ARCH_ALIGN_INT64
 

@@ -213,6 +213,14 @@
 #define HAS_SOCKLEN_T 1
 #endif
 
+#ifdef SIZEOF_LONG_P
+#define SIZEOF_PTR SIZEOF_LONG_P
+#endif
+
+#ifdef SIZEOF_LONG_LONG
+#define SIZEOF_LONGLONG SIZEOF_LONG_LONG
+#endif
+
 #ifdef HAVE_WORKING_FMA
 #define HAS_WORKING_FMA 1
 #endif
