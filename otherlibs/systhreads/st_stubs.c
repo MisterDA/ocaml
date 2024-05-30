@@ -58,12 +58,19 @@
 /* Max computation time before rescheduling, in milliseconds */
 #define Thread_timeout 50
 
+typedef struct st_masterlock st_masterlock;
+static void st_bt_lock_acquire(st_masterlock *m);
+static void st_bt_lock_release(st_masterlock *m);
+static uintnat st_masterlock_waiters(st_masterlock * m);
+
 /* OS-specific code */
 #ifdef _WIN32
 #include "st_win32.h"
 #else
 #include "st_posix.h"
 #endif
+
+#include "st_stubs.h"
 
 /* The ML value describing a thread (heap-allocated) */
 
