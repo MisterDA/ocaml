@@ -130,8 +130,6 @@ static void st_masterlock_acquire(st_masterlock *m)
   m->busy = true;
   st_bt_lock_acquire(m);
   pthread_mutex_unlock(&m->lock);
-
-  return;
 }
 
 static void st_masterlock_release(st_masterlock * m)
@@ -141,8 +139,6 @@ static void st_masterlock_release(st_masterlock * m)
   st_bt_lock_release(m);
   pthread_cond_signal(&m->is_free);
   pthread_mutex_unlock(&m->lock);
-
-  return;
 }
 
 /* Scheduling hints */
@@ -192,8 +188,6 @@ Caml_inline void st_thread_yield(st_masterlock * m)
   caml_acquire_domain_lock();
 
   pthread_mutex_unlock(&m->lock);
-
-  return;
 }
 
 /* Triggered events */
