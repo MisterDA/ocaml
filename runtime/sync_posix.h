@@ -25,8 +25,6 @@
 
 #include "caml/sync.h"
 
-typedef int sync_retcode;
-
 /* Mutexes */
 
 Caml_inline int sync_mutex_create(sync_mutex * res)

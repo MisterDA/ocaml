@@ -96,7 +96,7 @@ CAMLprim value caml_ml_mutex_new(value unit)
 CAMLprim value caml_ml_mutex_lock(value wrapper)
 {
   CAMLparam1(wrapper);
-  sync_retcode retcode;
+  int retcode;
   sync_mutex mut = Mutex_val(wrapper);
 
   /* PR#4351: first try to acquire mutex without releasing the master lock */
@@ -112,7 +112,7 @@ CAMLprim value caml_ml_mutex_lock(value wrapper)
 
 CAMLprim value caml_ml_mutex_unlock(value wrapper)
 {
-  sync_retcode retcode;
+  int retcode;
   sync_mutex mut = Mutex_val(wrapper);
   /* PR#4351: no need to release and reacquire master lock */
   retcode = sync_mutex_unlock(mut);
@@ -123,7 +123,7 @@ CAMLprim value caml_ml_mutex_unlock(value wrapper)
 CAMLprim value caml_ml_mutex_try_lock(value wrapper)
 {
   sync_mutex mut = Mutex_val(wrapper);
-  sync_retcode retcode;
+  int retcode;
   retcode = sync_mutex_trylock(mut);
   if (retcode == MUTEX_ALREADY_LOCKED) return Val_false;
   caml_check_error(retcode, "Mutex.try_lock");
@@ -177,7 +177,7 @@ CAMLprim value caml_ml_condition_wait(value wcond, value wmut)
   CAMLparam2(wcond, wmut);
   sync_condvar cond = Condition_val(wcond);
   sync_mutex mut = Mutex_val(wmut);
-  sync_retcode retcode;
+  int retcode;
 
   CAML_EV_BEGIN(EV_DOMAIN_CONDITION_WAIT);
   caml_enter_blocking_section();
