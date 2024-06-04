@@ -677,10 +677,10 @@ static void update_major_slice_work(intnat howmuch,
   */
   heap_size = caml_heap_size(dom_st->shared_heap);
   heap_words = (double)Wsize_bsize(heap_size);
-  heap_sweep_words = heap_words;
+  heap_sweep_words = (uintnat)heap_words;
 
   total_cycle_work =
-    heap_sweep_words + (heap_words * 100 / (100 + caml_percent_free));
+    heap_sweep_words + (uintnat)(heap_words * 100 / (100 + caml_percent_free));
 
   if (heap_words > 0) {
     double alloc_ratio =
