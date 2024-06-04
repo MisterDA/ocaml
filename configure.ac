@@ -1057,7 +1057,7 @@ AS_CASE([$ocaml_cc_vendor,$host],
     mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_cmd="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_ldflags_prefix='-link '
-    mkexe_via_cc_ldflags_prefix='/link '
+    mkexe_via_cc_ldflags_prefix='/nologo /link '
     oc_exe_ldflags='/ENTRY:wmainCRTStartup'
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag=''],
