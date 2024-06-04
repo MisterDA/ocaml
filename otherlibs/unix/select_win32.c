@@ -61,8 +61,6 @@ static void handle_set_init (LPSELECTHANDLESET hds, LPHANDLE lpHdl, DWORD max)
 
 static void handle_set_add (LPSELECTHANDLESET hds, HANDLE hdl)
 {
-  LPSELECTHANDLESET res;
-
   if (hds->nLast < hds->nMax)
   {
     hds->lpHdl[hds->nLast] = hdl;
@@ -189,7 +187,6 @@ static LPSELECTDATA select_data_new (LPSELECTDATA lpSelectData,
 {
   /* Allocate the data structure */
   LPSELECTDATA res;
-  DWORD        i;
 
   res = (LPSELECTDATA)caml_stat_alloc(sizeof(SELECTDATA));
 
@@ -216,8 +213,6 @@ static LPSELECTDATA select_data_new (LPSELECTDATA lpSelectData,
 /* Free select data */
 static void select_data_free (LPSELECTDATA lpSelectData)
 {
-  DWORD i;
-
   DEBUG_PRINT("Freeing data of %x", lpSelectData);
 
   /* Free APC related data, if they exists */
@@ -1003,9 +998,6 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   /* Is there static select data */
   BOOL  hasStaticData = FALSE;
 
-  /* Wait return */
-  DWORD waitRet;
-
   /* Set of handle */
   SELECTHANDLESET hds;
   DWORD           hdsMax;
@@ -1073,7 +1065,6 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       iterSelectData = NULL;
       iterResult     = NULL;
       hasStaticData  = 0;
-      waitRet        = 0;
       readfds_len    = caml_list_length(readfds);
       writefds_len   = caml_list_length(writefds);
       exceptfds_len  = caml_list_length(exceptfds);
