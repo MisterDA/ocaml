@@ -696,7 +696,7 @@ static void update_major_slice_work(intnat howmuch,
     double dependent_ratio =
       total_cycle_work
       * (100 + caml_percent_free)
-      / dom_st-> dependent_size / caml_percent_free;
+        / (double)dom_st->dependent_size / (double)caml_percent_free;
     dependent_work = (intnat) (my_dependent_count * dependent_ratio);
   }else{
     dependent_work = 0;
@@ -1393,8 +1393,8 @@ static void cycle_major_heap_from_stw_single(
          space_overhead@N =
          100.0 * (heap_words@N - live_words@N) / live_words@N
       */
-      double live_words_last_cycle =
-        caml_stat_space_overhead.not_garbage_words_last_cycle - swept_words;
+      double live_words_last_cycle = (double)
+        (caml_stat_space_overhead.not_garbage_words_last_cycle - swept_words);
       double space_overhead =
         100.0 * (double)(caml_stat_space_overhead.heap_words_last_cycle
                          - live_words_last_cycle) / live_words_last_cycle;
