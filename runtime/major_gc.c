@@ -315,7 +315,7 @@ static void ephe_todo_list_emptied (void)
 
   /* Since the todo list is empty, this domain does not need to participate in
    * further ephemeron cycles. */
-  atomic_fetch_add(&ephe_cycle_info.num_domains_todo, -1);
+  atomic_fetch_sub(&ephe_cycle_info.num_domains_todo, 1);
   CAMLassert(atomic_load_acquire(&ephe_cycle_info.num_domains_done) <=
              atomic_load_acquire(&ephe_cycle_info.num_domains_todo));
 
@@ -423,7 +423,7 @@ void caml_orphan_ephemerons (caml_domain_state* domain_state)
 
   if (ephe_info->must_sweep_ephe) {
     ephe_info->must_sweep_ephe = 0;
-    atomic_fetch_add_verify_ge0(&num_domains_to_ephe_sweep, -1);
+    atomic_fetch_sub_verify_ge0(&num_domains_to_ephe_sweep, 1);
   }
   CAMLassert (ephe_info->must_sweep_ephe == 0);
   CAMLassert (ephe_info->live == 0);
@@ -455,18 +455,18 @@ void caml_orphan_finalisers (caml_domain_state* domain_state)
 
     /* Create a dummy final info */
     f = domain_state->final_info = caml_alloc_final_info();
-    atomic_fetch_add_verify_ge0(&num_domains_orphaning_finalisers, -1);
+    atomic_fetch_sub_verify_ge0(&num_domains_orphaning_finalisers, 1);
   }
 
   /* [caml_orphan_finalisers] is called in a while loop in [domain_terminate].
      We take care to decrement the [num_domains_to_final_update*] counters only
      if we have not already decremented it for the current cycle. */
   if(!f->updated_first) {
-    atomic_fetch_add_verify_ge0(&num_domains_to_final_update_first, -1);
+    atomic_fetch_sub_verify_ge0(&num_domains_to_final_update_first, 1);
     f->updated_first = 1;
   }
   if(!f->updated_last) {
-    atomic_fetch_add_verify_ge0(&num_domains_to_final_update_last, -1);
+    atomic_fetch_sub_verify_ge0(&num_domains_to_final_update_last, 1);
     f->updated_last = 1;
   }
 }
@@ -1175,7 +1175,7 @@ static intnat mark(intnat budget) {
       } else {
         ephe_next_cycle ();
         domain_state->marking_done = 1;
-        atomic_fetch_add_verify_ge0(&num_domains_to_mark, -1);
+        atomic_fetch_sub_verify_ge0(&num_domains_to_mark, 1);
       }
     }
   }
@@ -1548,7 +1548,7 @@ static void stw_cycle_all_domains(
       !caml_addrmap_iter_ok(&domain->mark_stack->compressed_stack,
                             domain->mark_stack->compressed_stack_iter)
       ) {
-    atomic_fetch_add_verify_ge0(&num_domains_to_mark, -1);
+    atomic_fetch_sub_verify_ge0(&num_domains_to_mark, 1);
     domain->marking_done = 1;
   }
 
@@ -1726,7 +1726,7 @@ static void major_collection_slice(intnat howmuch,
       commit_major_slice_work (work_done);
       if (work_done == 0) {
         domain_state->sweeping_done = 1;
-        atomic_fetch_add_verify_ge0(&num_domains_to_sweep, -1);
+        atomic_fetch_sub_verify_ge0(&num_domains_to_sweep, 1);
       }
     }
 
@@ -1755,7 +1755,7 @@ mark_again:
         get_major_slice_work(mode) > 0 &&
         caml_final_update_first(domain_state)) {
       /* This domain has updated finalise first values */
-      atomic_fetch_add_verify_ge0(&num_domains_to_final_update_first, -1);
+      atomic_fetch_sub_verify_ge0(&num_domains_to_final_update_first, 1);
       if (!domain_state->marking_done &&
           get_major_slice_work(mode) > 0)
         goto mark_again;
@@ -1765,7 +1765,7 @@ mark_again:
         get_major_slice_work(mode) > 0 &&
         caml_final_update_last(domain_state)) {
       /* This domain has updated finalise last values */
-      atomic_fetch_add_verify_ge0(&num_domains_to_final_update_last, -1);
+      atomic_fetch_sub_verify_ge0(&num_domains_to_final_update_last, 1);
       /* Nothing has been marked while updating last */
     }
 
@@ -1835,7 +1835,7 @@ mark_again:
         /* If the todo list is empty, then the ephemeron has no sweeping work
          * to do. */
         if (domain_state->ephe_info->todo == 0) {
-          atomic_fetch_add_verify_ge0(&num_domains_to_ephe_sweep, -1);
+          atomic_fetch_sub_verify_ge0(&num_domains_to_ephe_sweep, 1);
         }
       }
 
@@ -1853,7 +1853,7 @@ mark_again:
 
         CAML_EV_END(EV_MAJOR_EPHE_SWEEP);
         if (domain_state->ephe_info->todo == 0) {
-          atomic_fetch_add_verify_ge0(&num_domains_to_ephe_sweep, -1);
+          atomic_fetch_sub_verify_ge0(&num_domains_to_ephe_sweep, 1);
         }
       }
     }
@@ -2030,7 +2030,7 @@ void caml_finish_sweeping (void)
       /* just finished sweeping */
       CAMLassert(Caml_state->sweeping_done == 0);
       Caml_state->sweeping_done = 1;
-      atomic_fetch_add_verify_ge0(&num_domains_to_sweep, -1);
+      atomic_fetch_sub_verify_ge0(&num_domains_to_sweep, 1);
       break;
     }
     caml_handle_incoming_interrupts();
