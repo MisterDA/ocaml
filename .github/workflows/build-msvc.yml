@@ -98,7 +98,7 @@ jobs:
           exit 1 ;
           fi ;
           fi ;
-          make -j ;
+          if ! make -j ; then make -j -n | head ; exit 1 ; fi ;
           runtime/ocamlrun ocamlc -config ;
         # Don't add indentation or comments, it breaks Bash on
         # Windows when the yaml text block scalar is processed as a

@@ -49,9 +49,15 @@ EOF
 
 Build () {
   if [ "$(uname)" = 'Darwin' ]; then
-    script -q build.log $MAKE_WARN
+    if ! script -q build.log $MAKE_WARN ; then
+      script -q build.log $MAKE_WARN -n | head
+      return 1
+    fi
   else
-    script --return --command "$MAKE_WARN" build.log
+    if ! script --return --command "$MAKE_WARN" build.log ; then
+      script --return --command "$MAKE_WARN -n" build.log | head
+      return 1
+    fi
   fi
   failed=0
   if grep -Fq ' warning: undefined variable ' build.log; then
@@ -171,9 +177,15 @@ BasicCompiler () {
   fi
 
   # Need a runtime
-  make -j coldstart
+  if ! make -j coldstart ; then
+    make -j -n coldstart | head
+    return 1
+  fi
   # And generated files (ocamllex compiles ocamlyacc)
-  make -j ocamllex
+  if ! make -j ocamllex ; then
+    make -j -n ocamllex | head
+    return 1
+  fi
 
   ReportBuildStatus 0
 }
