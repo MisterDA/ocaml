@@ -144,8 +144,7 @@ endif
 %.n.$(D): OC_CPPFLAGS += $(OC_NATIVE_CPPFLAGS)
 
 define GEN_RULE
-$(DEPDIR)/%.$(1).$(D): %.c | $(DEPDIR)
-	$$(V_CCDEPS)$$(DEP_CC) $$(OC_CPPFLAGS) $$(CPPFLAGS) $$< -MT '$$*.$(1).$(O)' -MF $$@
+$(eval $(call DEP_RULE,$(DEPDIR)/%.$(1).$(D),%.c,$(DEPDIR),'$$*.$(1).$(O)'))
 endef
 
 $(foreach object_type, b n, $(eval $(call GEN_RULE,$(object_type))))
