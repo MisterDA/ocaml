@@ -16,6 +16,8 @@
 /*                                                                        */
 /**************************************************************************/
 
+#error "I'M SORRY DAVE I CAN'T LET YOU DO THAT"
+
 #define CAML_INTERNALS
 
 #define _GNU_SOURCE  /* For sched.h CPU_ZERO(3) and CPU_COUNT(3) */
