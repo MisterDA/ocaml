@@ -13587,6 +13587,9 @@ fi
 case $ocaml_cc_vendor in #(
   sunc-*) :
     DEP_CC="false" ;; #(
+  msvc-*-clang-*) :
+    DEP_CC="$CC"
+     DEPFLAGS="-Zs $(addprefix -Xclang ,-dependency-file $(4) -MT $$@)" ;; #(
   msvc-*) :
     if test -n "$ac_tool_prefix"; then
   for ac_prog in $DEP_CC gcc cc x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc
