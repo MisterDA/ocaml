@@ -632,6 +632,9 @@ OCAML_HOST_IS_EXECUTABLE
 
 AS_CASE([$ocaml_cc_vendor],
   [sunc-*], [DEP_CC="false"],
+  [msvc-*-clang-*],
+    [DEP_CC="$CC"
+     DEPFLAGS='-Zs $(addprefix -Xclang ,-dependency-file $(4) -MT $$@)'],
   [msvc-*],
     [AC_CHECK_TOOLS(
       [DEP_CC],
