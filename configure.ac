@@ -631,25 +631,19 @@ OCAML_CC_VENDOR
 OCAML_HOST_IS_EXECUTABLE
 
 AS_CASE([$ocaml_cc_vendor],
-  [sunc-*], [DEP_CC="false"],
   [msvc-*-clang-*],
-    [DEP_CC="$CC"
-     DEPFLAGS="-Zs $(addprefix -Xclang ,-dependency-file $(4) -MT $$@)"],
+    [DEPFLAGS="-Zs $(addprefix -Xclang ,-dependency-file $(4) -MT $$@)"],
   [msvc-*],
-    [AC_CHECK_TOOLS(
-      [DEP_CC],
-      [$DEP_CC gcc cc x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc],
-      [false])],
-  [DEP_CC="$CC"
-   DEPFLAGS='-MM -MT $(4) -MF $$@'])
+    [DEPFLAGS="-nologo -Zs /showIncludes /c $(2) | $(SAK) show-includes $(4) $$@"],
+  [DEPFLAGS='-MM -MT $(4) -MF $$@'])
 
-AS_CASE([$enable_dependency_generation],
-  [yes],
+AS_CASE([$enable_dependency_generation,$ocaml_cc_vendor],
+  [yes,sunc-*],
     [AS_IF([test "$DEP_CC" = "false"],
       [AC_MSG_ERROR(m4_normalize([This compiler cannot generate dependency
        information. Install gcc (or another CC-like compiler)]))],
       [compute_deps=true])],
-  [no], [compute_deps=false],
+  [no,*], [compute_deps=false],
   [AS_IF([test -e .git],
     [AS_IF([test "$DEP_CC" = "false"],
       [compute_deps=false],

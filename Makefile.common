@@ -43,7 +43,6 @@ V ?= 0
 ifeq "$(V)" "0"
 
 V_CC         = @$(info $   CC $@)
-V_CCDEPS     = @$(info $   CCDEPS $@)
 V_OCAMLC     = @$(info $   OCAMLC $@)
 V_OCAMLOPT   = @$(info $   OCAMLOPT $@)
 V_GEN        = @$(info $   GEN $@)
@@ -63,7 +62,6 @@ V_ODOC       = @$(info $   ODOC $@)
 else
 
 V_CC         =
-V_CCDEPS     =
 V_OCAMLC     =
 V_OCAMLOPT   =
 V_GEN        =
@@ -159,7 +157,7 @@ endif
 # The rule to compile C dependency information
 define DEP_RULE
   $(1): $(2) | $(3)
-	$$(V_CCDEPS)$$(DEP_CC) $(OC_CPPFLAGS) $(CPPFLAGS) $(DEPFLAGS) $$<
+	$$(V_CC)$$(CC) $(OC_CPPFLAGS) $(CPPFLAGS) $(DEPFLAGS) $$<
 endef
 
 # The rule to compile C files

@@ -36,12 +36,14 @@
 
 #ifdef _WIN32
 #define fputs_os fputws
+#define fprintf_os fwprintf
 #define perror_os _wperror
 #define fgets_os fgetws
 #define strncmp_os wcsncmp
 #define strchr_os wcschr
 #else
 #define fputs_os fputs
+#define fprintf_os fprintf
 #define perror_os perror
 #define fgets_os fgets
 #define strncmp_os strncmp
@@ -66,10 +68,10 @@ static void usage(void)
     "Usage: sak command\n"
     "Commands:\n"
     " * encode-C-literal path - encodes path as a C string literal\n"
-    " * show-includes <cfile> <target>"
+    " * show-includes <target> <output> <cfile>"
       " - transforms MSVC /showInclude for Make inclusion\n"
     "   cl /nologo /Zs /showIncludes /c myfile.c | "
-         "sak show-includes myfile.c myfile.obj > myfile.d\n"
+         "sak show-includes myfile.obj myfile.d myfile.c\n"
   );
 }
 
@@ -119,10 +121,18 @@ static bool filename_is_relative(const char_os *file)
     && (len < 2 || file[1] != T(':'));
 }
 
-static void show_includes(const char_os *cfile, const char_os *target)
+static void show_includes(const char_os *target, const char_os *output,
+                          const char_os *cfile)
 {
   char_os note[] = T("Note: including file: ");
   char_os buf[sizeof(note) / sizeof(char_os) + 127 + 32767];
+  int rc;
+
+  FILE *out = fopen(output, "wb");
+  if (out == NULL) {
+    perror_os(T("fopen"));
+    exit(EXIT_FAILURE);
+  }
 
   char_os *cwd;
   if ((cwd = getcwd_os(NULL, 0)) == NULL) {
@@ -131,9 +141,7 @@ static void show_includes(const char_os *cfile, const char_os *target)
   }
   size_t cwd_len = strlen_os(cwd);
 
-  fputs_os(target, stdout);
-  fputs_os(T(": "), stdout);
-  fputs_os(cfile, stdout);
+  fprintf_os(out, T("%s: %s"), target, cfile);
   size_t columns = strlen_os(target) + 2 + strlen_os(cfile);
 
   /* skip the first line (file name) */
@@ -145,7 +153,7 @@ static void show_includes(const char_os *cfile, const char_os *target)
   }
 
   if (columns >= 78) {
-    fputs_os(T(" \\\n"), stdout);
+    fputs_os(T(" \\\n"), out);
     columns = 0;
   }
 
@@ -196,23 +204,28 @@ static void show_includes(const char_os *cfile, const char_os *target)
 
     len -= cursor - buf;
     if (columns + len >= 78) {
-      fputs_os(T(" \\\n"), stdout);
+      fputs_os(T(" \\\n"), out);
       columns = 0;
     }
     columns += len + 1;
-    fputs_os(T(" "), stdout);
-    fputs_os(cursor, stdout);
+    fprintf_os(out, T(" %s"), cursor);
   }
-  fputs_os(T("\n"), stdout);
+  fputs_os(T("\n"), out);
+
   free(cwd);
+  rc = fclose(out);
+  if (rc == EOF) {
+    perror_os(T("fclose"));
+    exit(EXIT_FAILURE);
+  }
 }
 
 int main_os(int argc, char_os **argv)
 {
   if (argc == 3 && strcmp_os(argv[1], T("encode-C-literal")) == 0) {
     encode_C_literal(argv[2]);
-  } else if (argc == 4 && strcmp_os(argv[1], T("show-includes")) == 0) {
-    show_includes(argv[2], argv[3]);
+  } else if (argc == 5 && strcmp_os(argv[1], T("show-includes")) == 0) {
+      show_includes(argv[2], argv[3], argv[4]);
   } else {
     usage();
     return 1;
