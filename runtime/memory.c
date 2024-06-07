@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <assert.h>
 #include "caml/config.h"
 #include "caml/custom.h"
 #include "caml/misc.h"
@@ -501,6 +502,9 @@ struct pool_block {
   CAMLalign(max_align_t) char data[]; /* not allocated, used for
                                        * alignment purposes */
 };
+
+static_assert(offsetof(struct pool_block, data) % 8 == 0, "data is not aligned to an 8-bytes boundary");
+static_assert(offsetof(struct pool_block, data) % 16 == 0, "data is not aligned to a 16-bytes boundary");
 
 #define SIZEOF_POOL_BLOCK sizeof(struct pool_block)
 
