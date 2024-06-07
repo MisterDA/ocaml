@@ -75,6 +75,10 @@ _______________
   (Antonin Décimo, review by Nicolás Ojeda Bär, Xavier Leroy, and
    Gabriel Scherer)
 
+- #?????: Use sub-millisecond precision for spin-waits and sleeping on
+  Windows. Use sub-microsecond precision for spin-waits on Unix.
+  (Antonin Décimo, Samuel Hym, review by ???)
+
 ### Code generation and optimizations:
 
 - #13014: Enable compile-time option -function-sections on all previously
