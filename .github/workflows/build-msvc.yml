@@ -12,6 +12,9 @@ on:
       - 'trunk'
   pull_request:
 
+env:
+  MAKEFLAGS: V=1
+
 jobs:
   build:
     permissions: {}
