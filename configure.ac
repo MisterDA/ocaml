@@ -1496,8 +1496,10 @@ AS_CASE([$arch],
   [arch_specific_SOURCES=''])
 
 native_cflags=''
-native_cppflags="-DNATIVE_CODE\
+native_cppflags='-DNATIVE_CODE'
+common_cppflags="$common_cppflags\
  -DTARGET_${arch} -DMODEL_${model} -DSYS_${system}"
+
 AS_CASE([$ccomptype],
   [msvc],
     [runtime_asm_objects=${arch}nt.${OBJEXT}],
