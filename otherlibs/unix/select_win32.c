@@ -23,6 +23,9 @@
 #include "windbug.h"
 #include "winlist.h"
 
+/* from win32.c */
+extern void caml_win32_nanosleep(__int64 sec, __int64 nsec);
+
 /* This constant define the maximum number of objects that
  * can be handle by a SELECTDATA.
  * It takes the following parameters into account:
@@ -998,7 +1001,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   DWORD err;
 
   /* Time to wait */
-  DWORD milliseconds;
+  DWORD timeout_ms;
 
   /* Is there static select data */
   BOOL  hasStaticData = FALSE;
@@ -1021,7 +1024,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   CAMLlocal1 (fd);
 
   fd_set read, write, except;
-  double tm;
+  double tm, tmfrac, tmint;
   struct timeval tv;
   struct timeval * tvp;
 
@@ -1034,8 +1037,9 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       && exceptfds == Val_emptylist) {
     DEBUG_PRINT("nothing to do");
     if ( tm > 0.0 ) {
+      tmfrac = modf(tm, &tmint);
       caml_enter_blocking_section();
-      Sleep( (int)(tm * 1000));
+      caml_win32_nanosleep(tmint, tmfrac * 1e9);
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1047,8 +1051,9 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       if (tm < 0.0) {
         tvp = (struct timeval *) NULL;
       } else {
-        tv.tv_sec = (int) tm;
-        tv.tv_usec = (int) (1e6 * (tm - (int) tm));
+        tmfrac = modf(tm, &tmint);
+        tv.tvsec = tmint;
+        tv.tv_usec = 1e6 * tmfrac;
         tvp = &tv;
       }
       caml_enter_blocking_section();
@@ -1083,12 +1088,12 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
 
       if (tm >= 0.0)
         {
-          milliseconds = 1000 * tm;
-          DEBUG_PRINT("Will wait %d ms", milliseconds);
+          timeout_ms = 1000 * tm;
+          DEBUG_PRINT("Will wait %d ms", timeout_ms);
         }
       else
         {
-          milliseconds = INFINITE;
+          timeout_ms = INFINITE;
         }
 
 
@@ -1200,7 +1205,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
             {
               DEBUG_PRINT("Waiting for one select worker to be done");
               switch (WaitForMultipleObjects(nEventsCount, lpEventsDone, FALSE,
-                                             milliseconds))
+                                             timeout_ms))
                 {
                 case WAIT_FAILED:
                   err = GetLastError();
@@ -1244,7 +1249,8 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       /* Nothing to monitor but some time to wait. */
       else if (!hasStaticData)
         {
-          Sleep(milliseconds);
+          tmfrac = modf(tm, &tmint);
+          caml_win32_nanosleep(tmint, tmfrac * 1e9);
         }
       caml_leave_blocking_section();
 

@@ -449,6 +449,11 @@ void caml_mem_unmap(void* mem, uintnat size)
 #define Slow_sleep_ns    1000000 //  1 ms
 #define Max_sleep_ns  1000000000 //  1 s
 
+#ifdef _WIN32
+/* from win32.c */
+extern void caml_win32_nanosleep(__int64 sec, __int64 nsec);
+#endif
+
 unsigned caml_plat_spin_back_off(unsigned sleep_ns,
                                  const struct caml_plat_srcloc* loc)
 {
@@ -460,7 +465,12 @@ unsigned caml_plat_spin_back_off(unsigned sleep_ns,
                 loc->function, loc->file, loc->line);
   }
 #ifdef _WIN32
-  Sleep(sleep_ns/1000000);
+  caml_win32_nanosleep(sleep_ns / 1000000000, sleep_ns % 1000000000);
+#elif defined (HAS_NANOSLEEP)
+  const struct timespec ts = {
+    .tv_sec = sleep_ns / 1000000000,
+    .tv_nsec = sleep_ns % 1000000000 };
+  nanosleep(&ts, NULL);
 #else
   usleep(sleep_ns/1000);
 #endif
