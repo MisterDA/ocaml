@@ -88,7 +88,7 @@ void lalr(void)
 
 void set_state_table(void)
 {
-    state_table = NEW2(nstates, core *);
+    state_table = xmalloc(nstates * sizeof(core *));
     for (core *sp = first_state; sp; sp = sp->next)
         state_table[sp->number] = sp;
 }
@@ -97,7 +97,7 @@ void set_state_table(void)
 
 void set_accessing_symbol(void)
 {
-    accessing_symbol = NEW2(nstates, short);
+    accessing_symbol = xmalloc(nstates * sizeof(short));
     for (core *sp = first_state; sp; sp = sp->next)
         accessing_symbol[sp->number] = sp->accessing_symbol;
 }
@@ -106,7 +106,7 @@ void set_accessing_symbol(void)
 
 void set_shift_table(void)
 {
-    shift_table = NEW2(nstates, shifts *);
+    shift_table = xmalloc(nstates * sizeof(shifts *));
     for (shifts *sp = first_shift; sp; sp = sp->next)
         shift_table[sp->number] = sp;
 }
@@ -115,7 +115,7 @@ void set_shift_table(void)
 
 void set_reduction_table(void)
 {
-    reduction_table = NEW2(nstates, reductions *);
+    reduction_table = xmalloc(nstates * sizeof(reductions *));
     for (reductions *rp = first_reduction; rp; rp = rp->next)
         reduction_table[rp->number] = rp;
 }
@@ -154,7 +154,7 @@ void initialize_LA(void)
   int k;
   reductions *rp;
 
-  lookaheads = NEW2(nstates + 1, short);
+  lookaheads = xmalloc((nstates + 1) * sizeof(short));
 
   k = 0;
   for (int i = 0; i < nstates; i++)
@@ -166,9 +166,9 @@ void initialize_LA(void)
     }
   lookaheads[nstates] = k;
 
-  LA = NEW2(k * tokensetsize, unsigned);
-  LAruleno = NEW2(k, short);
-  lookback = NEW2(k, shorts *);
+  LA = xmalloc(k * tokensetsize * sizeof(unsigned));
+  LAruleno = xmalloc(k * sizeof(short));
+  lookback = xmalloc(k * sizeof(shorts *));
 
   k = 0;
   for (int i = 0; i < nstates; i++)
@@ -194,8 +194,8 @@ void set_goto_map(void)
   int state2;
   int state1;
 
-  goto_map = NEW2(nvars + 1, short) - ntokens;
-  temp_map = NEW2(nvars + 1, short) - ntokens;
+  goto_map = ((short *) xmalloc((nvars + 1) * sizeof(short))) - ntokens;
+  temp_map = ((short *) xmalloc((nvars + 1) * sizeof(short))) - ntokens;
 
   ngotos = 0;
   for (shifts *sp = first_shift; sp; sp = sp->next)
@@ -227,8 +227,8 @@ void set_goto_map(void)
   goto_map[nsyms] = ngotos;
   temp_map[nsyms] = ngotos;
 
-  from_state = NEW2(ngotos, short);
-  to_state = NEW2(ngotos, short);
+  from_state = xmalloc(ngotos * sizeof(short));
+  to_state = xmalloc(ngotos * sizeof(short));
 
   for (shifts *sp = first_shift; sp; sp = sp->next)
     {
@@ -246,7 +246,7 @@ void set_goto_map(void)
         }
     }
 
-  FREE(temp_map + ntokens);
+  free(temp_map + ntokens);
 }
 
 
@@ -293,10 +293,10 @@ void initialize_F(void)
   int nwords;
 
   nwords = ngotos * tokensetsize;
-  F = NEW2(nwords, unsigned);
+  F = xmalloc(nwords * sizeof(unsigned));
 
-  reads = NEW2(ngotos, short *);
-  edge = NEW2(ngotos + 1, short);
+  reads = xmalloc(ngotos * sizeof(short *));
+  edge = xmalloc((ngotos + 1) * sizeof(short));
   nedges = 0;
 
   rowp = F;
@@ -326,7 +326,7 @@ void initialize_F(void)
 
           if (nedges)
             {
-              reads[i] = rp = NEW2(nedges + 1, short);
+              reads[i] = rp = xmalloc((nedges + 1) * sizeof(short));
 
               for (j = 0; j < nedges; j++)
                 rp[j] = edge[j];
@@ -345,11 +345,11 @@ void initialize_F(void)
   for (int i = 0; i < ngotos; i++)
     {
       if (reads[i])
-        FREE(reads[i]);
+        free(reads[i]);
     }
 
-  FREE(reads);
-  FREE(edge);
+  free(reads);
+  free(edge);
 }
 
 
@@ -370,9 +370,9 @@ void build_relations(void)
   short *states;
   short **new_includes;
 
-  includes = NEW2(ngotos, short *);
-  edge = NEW2(ngotos + 1, short);
-  states = NEW2(maxrhs + 1, short);
+  includes = xmalloc(ngotos * sizeof(short *));
+  edge = xmalloc((ngotos + 1) * sizeof(short));
+  states = xmalloc((maxrhs + 1) * sizeof(short));
 
   for (int i = 0; i < ngotos; i++)
     {
@@ -419,7 +419,7 @@ void build_relations(void)
 
       if (nedges)
         {
-          includes[i] = shortp = NEW2(nedges + 1, short);
+          includes[i] = shortp = xmalloc((nedges + 1) * sizeof(short));
           for (int j = 0; j < nedges; j++)
             shortp[j] = edge[j];
           shortp[nedges] = -1;
@@ -430,14 +430,14 @@ void build_relations(void)
 
   for (int i = 0; i < ngotos; i++)
     if (includes[i])
-      FREE(includes[i]);
+      free(includes[i]);
 
-  FREE(includes);
+  free(includes);
 
   includes = new_includes;
 
-  FREE(edge);
-  FREE(states);
+  free(edge);
+  free(states);
 }
 
 
@@ -459,7 +459,7 @@ void add_lookback_edge(int stateno, int ruleno, int gotono)
     }
     assert(found);
 
-    sp = NEW(shorts);
+    sp = xmalloc(sizeof(shorts));
     sp->next = lookback[i];
     sp->value = gotono;
     lookback[i] = sp;
@@ -475,7 +475,7 @@ transpose(short int **R, int n)
   short *nedges;
   short *sp;
 
-  nedges = NEW2(n, short);
+  nedges = xmalloc(n * sizeof(short));
 
   for (int i = 0; i < n; i++)
     {
@@ -487,22 +487,22 @@ transpose(short int **R, int n)
         }
     }
 
-  new_R = NEW2(n, short *);
-  temp_R = NEW2(n, short *);
+  new_R = xmalloc(n * sizeof(short *));
+  temp_R = xmalloc(n * sizeof(short *));
 
   for (int i = 0; i < n; i++)
     {
       int k = nedges[i];
       if (k > 0)
         {
-          sp = NEW2(k + 1, short);
+          sp = xmalloc((k + 1) * sizeof(short));
           new_R[i] = sp;
           temp_R[i] = sp;
           sp[k] = -1;
         }
     }
 
-  FREE(nedges);
+  free(nedges);
 
   for (int i = 0; i < n; i++)
     {
@@ -514,7 +514,7 @@ transpose(short int **R, int n)
         }
     }
 
-  FREE(temp_R);
+  free(temp_R);
 
   return (new_R);
 }
@@ -552,19 +552,19 @@ void compute_lookaheads(void)
     for (shorts *sp = lookback[i], *next; sp; sp = next)
       {
         next = sp->next;
-        FREE(sp);
+        free(sp);
       }
 
-  FREE(lookback);
-  FREE(F);
+  free(lookback);
+  free(F);
 }
 
 
 void digraph(short int **relation)
 {
   infinity = ngotos + 2;
-  INDEX = NEW2(ngotos + 1, short);
-  VERTICES = NEW2(ngotos + 1, short);
+  INDEX = xmalloc((ngotos + 1) * sizeof(short));
+  VERTICES = xmalloc((ngotos + 1) * sizeof(short));
   top = 0;
 
   R = relation;
@@ -578,8 +578,8 @@ void digraph(short int **relation)
         traverse(i);
     }
 
-  FREE(INDEX);
-  FREE(VERTICES);
+  free(INDEX);
+  free(VERTICES);
 }
 
 

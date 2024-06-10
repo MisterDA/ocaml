@@ -63,7 +63,7 @@ static void allocate_itemsets(void)
     short *symbol_count;
 
     count = 0;
-    symbol_count = NEW2(nsyms, short);
+    symbol_count = xmalloc(nsyms * sizeof(short));
 
     item_end = ritem + nitems;
     for (short *itemp = ritem; itemp < item_end; itemp++)
@@ -76,8 +76,8 @@ static void allocate_itemsets(void)
         }
     }
 
-    kernel_base = NEW2(nsyms, short *);
-    kernel_items = NEW2(count, short);
+    kernel_base = xmalloc(nsyms * sizeof(short *));
+    kernel_items = xmalloc(count * sizeof(short));
 
     count = 0;
     max = 0;
@@ -90,16 +90,16 @@ static void allocate_itemsets(void)
     }
 
     shift_symbol = symbol_count;
-    kernel_end = NEW2(nsyms, short *);
+    kernel_end = xmalloc(nsyms * sizeof(short *));
 }
 
 
 static void allocate_storage(void)
 {
     allocate_itemsets();
-    shiftset = NEW2(nsyms, short);
-    redset = NEW2(nrules + 1, short);
-    state_set = NEW2(nitems, core *);
+    shiftset = xmalloc(nsyms * sizeof(short));
+    redset = xmalloc((nrules + 1) * sizeof(short));
+    state_set = xmalloc(nitems * sizeof(core *));
 }
 
 
@@ -133,13 +133,13 @@ static void append_states(void)
 
 static void free_storage(void)
 {
-    FREE(shift_symbol);
-    FREE(redset);
-    FREE(shiftset);
-    FREE(kernel_base);
-    FREE(kernel_end);
-    FREE(kernel_items);
-    FREE(state_set);
+    free(shift_symbol);
+    free(redset);
+    free(shiftset);
+    free(kernel_base);
+    free(kernel_end);
+    free(kernel_items);
+    free(state_set);
 }
 
 
@@ -147,8 +147,8 @@ static void free_storage(void)
 static void generate_states(void)
 {
     allocate_storage();
-    itemset = NEW2(nitems, short);
-    ruleset = NEW2(WORDSIZE(nrules), unsigned);
+    itemset = xmalloc(nitems * sizeof(short));
+    ruleset = xmalloc(WORDSIZE(nrules) * sizeof(unsigned));
     set_first_derives();
     initialize_states();
 
@@ -245,7 +245,7 @@ void initialize_states(void)
     for (i = 0; start_derives[i] >= 0; ++i)
         continue;
 
-    p = (core *) MALLOC(sizeof(core) + i*sizeof(short));
+    p = malloc(sizeof(core) + i*sizeof(short));
     if (p == 0) no_space();
 
     p->next = 0;
@@ -317,7 +317,7 @@ new_state(int symbol)
     iend = kernel_end[symbol];
     n = iend - isp1;
 
-    p = (core *) allocate((unsigned) (sizeof(core) + (n - 1) * sizeof(short)));
+    p = xmalloc(sizeof(core) + (n - 1) * sizeof(short));
     p->accessing_symbol = symbol;
     p->number = nstates;
     p->nitems = n;
@@ -412,8 +412,7 @@ void save_shifts(void)
     short *sp2;
     short *send;
 
-    p = (shifts *) allocate((unsigned) (sizeof(shifts) +
-                        (nshifts - 1) * sizeof(short)));
+    p = xmalloc(sizeof(shifts) + (nshifts - 1) * sizeof(short));
 
     p->number = this_state->number;
     p->nshifts = nshifts;
@@ -460,8 +459,7 @@ void save_reductions(void)
 
     if (count)
     {
-        p = (reductions *) allocate((unsigned) (sizeof(reductions) +
-                                        (count - 1) * sizeof(short)));
+        p = xmalloc(sizeof(reductions) + (count - 1) * sizeof(short));
 
         p->number = this_state->number;
         p->nreds = count;
@@ -492,8 +490,8 @@ static void set_derives(void)
     int i, k;
     short *rules;
 
-    derives = NEW2(nsyms, short *);
-    rules = NEW2(nvars + nrules, short);
+    derives = xmalloc(nsyms * sizeof(short *));
+    rules = xmalloc((nvars + nrules) * sizeof(short));
 
     k = 0;
     for (int lhs = start_symbol; lhs < nsyms; lhs++)
@@ -542,7 +540,7 @@ static void set_nullable(void)
 {
     int done;
 
-    nullable = MALLOC(nsyms);
+    nullable = malloc(nsyms);
     if (nullable == 0) no_space();
 
     for (int i = 0; i < nsyms; ++i)

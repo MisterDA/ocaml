@@ -188,21 +188,21 @@ void output_actions(void)
 {
     nvectors = 2*nstates + nvars;
 
-    froms = NEW2(nvectors, short *);
-    tos = NEW2(nvectors, short *);
-    tally = NEW2(nvectors, short);
-    width = NEW2(nvectors, short);
+    froms = xmalloc(nvectors * sizeof(short *));
+    tos = xmalloc(nvectors * sizeof(short *));
+    tally = xmalloc(nvectors * sizeof(short));
+    width = xmalloc(nvectors * sizeof(short));
 
     token_actions();
-    FREE(lookaheads);
-    FREE(LA);
-    FREE(LAruleno);
-    FREE(accessing_symbol);
+    free(lookaheads);
+    free(LA);
+    free(LAruleno);
+    free(accessing_symbol);
 
     goto_actions();
-    FREE(goto_map + ntokens);
-    FREE(from_state);
-    FREE(to_state);
+    free(goto_map + ntokens);
+    free(from_state);
+    free(to_state);
 
     sort_actions();
     pack_table();
@@ -219,7 +219,7 @@ void token_actions(void)
     short *actionrow, *r, *s;
     action *p;
 
-    actionrow = NEW2(2*ntokens, short);
+    actionrow = xmalloc(2*ntokens * sizeof(short));
     for (int i = 0; i < nstates; ++i)
     {
         if (parser[i])
@@ -252,8 +252,8 @@ void token_actions(void)
             width[nstates+i] = 0;
             if (shiftcount > 0)
             {
-                froms[i] = r = NEW2(shiftcount, short);
-                tos[i] = s = NEW2(shiftcount, short);
+                froms[i] = r = xmalloc(shiftcount * sizeof(short));
+                tos[i] = s = xmalloc(shiftcount * sizeof(short));
                 min = MAXSHORT;
                 max = 0;
                 for (int j = 0; j < ntokens; ++j)
@@ -272,8 +272,8 @@ void token_actions(void)
             }
             if (reducecount > 0)
             {
-                froms[nstates+i] = r = NEW2(reducecount, short);
-                tos[nstates+i] = s = NEW2(reducecount, short);
+                froms[nstates+i] = r = xmalloc(reducecount * sizeof(short));
+                tos[nstates+i] = s = xmalloc(reducecount * sizeof(short));
                 min = MAXSHORT;
                 max = 0;
                 for (int j = 0; j < ntokens; ++j)
@@ -292,14 +292,14 @@ void token_actions(void)
             }
         }
     }
-    FREE(actionrow);
+    free(actionrow);
 }
 
 void goto_actions(void)
 {
     int j, k;
 
-    state_count = NEW2(nstates, short);
+    state_count = xmalloc(nstates * sizeof(short));
 
     k = default_goto(start_symbol + 1);
     fprintf(output_file, "let yydgoto = \"");
@@ -326,7 +326,7 @@ void goto_actions(void)
 
     if (!rflag) outline += 2;
     fprintf(output_file, "\"\n\n");
-    FREE(state_count);
+    free(state_count);
 }
 
 int
@@ -387,8 +387,8 @@ void save_column(int symbol, int default_state)
 
     symno = symbol_value[symbol] + 2*nstates;
 
-    froms[symno] = sp1 = sp = NEW2(count, short);
-    tos[symno] = sp2 = NEW2(count, short);
+    froms[symno] = sp1 = sp = xmalloc(count * sizeof(short));
+    tos[symno] = sp2 = xmalloc(count * sizeof(short));
 
     for (int i = m; i < n; i++)
     {
@@ -410,7 +410,7 @@ void sort_actions(void)
   int t;
   int w;
 
-  order = NEW2(nvectors, short);
+  order = xmalloc(nvectors * sizeof(short));
   nentries = 0;
 
   for (int i = 0; i < nvectors; i++)
@@ -442,12 +442,12 @@ void pack_table(void)
     int place;
     int state;
 
-    base = NEW2(nvectors, short);
-    pos = NEW2(nentries, short);
+    base = xmalloc(nvectors * sizeof(short));
+    pos = xmalloc(nentries * sizeof(short));
 
     maxtable = 1000;
-    table = NEW2(maxtable, short);
-    check = NEW2(maxtable, short);
+    table = xmalloc(maxtable * sizeof(short));
+    check = xmalloc(maxtable * sizeof(short));
 
     lowzero = 0;
     high = 0;
@@ -471,14 +471,14 @@ void pack_table(void)
     for (int i = 0; i < nvectors; i++)
     {
         if (froms[i])
-            FREE(froms[i]);
+            free(froms[i]);
         if (tos[i])
-            FREE(tos[i]);
+            free(tos[i]);
     }
 
-    FREE(froms);
-    FREE(tos);
-    FREE(pos);
+    free(froms);
+    free(tos);
+    free(pos);
 }
 
 
@@ -572,9 +572,9 @@ pack_vector(int vector)
 
                 newmax = maxtable;
                 do { newmax += 200; } while (newmax <= loc);
-                table = (short *) REALLOC(table, newmax*sizeof(short));
+                table = realloc(table, newmax*sizeof(short));
                 if (table == 0) no_space();
-                check = (short *) REALLOC(check, newmax*sizeof(short));
+                check = realloc(check, newmax*sizeof(short));
                 if (check == 0) no_space();
                 for (int l = maxtable; l < newmax; ++l)
                 {
@@ -678,7 +678,7 @@ void output_base(void)
 
     if (!rflag) outline += 2;
     fprintf(output_file, "\"\n\n");
-    FREE(base);
+    free(base);
 }
 
 
@@ -709,7 +709,7 @@ void output_table(void)
 
     if (!rflag) outline += 2;
     fprintf(output_file, "\"\n\n");
-    FREE(table);
+    free(table);
 }
 
 
@@ -738,7 +738,7 @@ void output_check(void)
 
     if (!rflag) outline += 2;
     fprintf(output_file, "\"\n\n");
-    FREE(check);
+    free(check);
 }
 
 
@@ -932,22 +932,22 @@ void output_entries(void)
 
 void free_itemsets(void)
 {
-    FREE(state_table);
+    free(state_table);
     for (core *cp = first_state, *next; cp; cp = next)
     {
         next = cp->next;
-        FREE(cp);
+        free(cp);
     }
 }
 
 
 void free_shifts(void)
 {
-    FREE(shift_table);
+    free(shift_table);
     for (shifts *sp = first_shift, *next; sp; sp = next)
     {
         next = sp->next;
-        FREE(sp);
+        free(sp);
     }
 }
 
@@ -955,10 +955,10 @@ void free_shifts(void)
 
 void free_reductions(void)
 {
-    FREE(reduction_table);
+    free(reduction_table);
     for (reductions *rp = first_reduction, *next; rp; rp = next)
     {
         next = rp->next;
-        FREE(rp);
+        free(rp);
     }
 }

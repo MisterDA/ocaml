@@ -255,7 +255,7 @@ no_more_options:;
     if (file_prefix == 0) {
       int len;
       len = strlen_os(argv[i]);
-      file_prefix = MALLOC((len + 1) * sizeof(char_os));
+      file_prefix = malloc((len + 1) * sizeof(char_os));
       if (file_prefix == 0) no_space();
       strcpy_os(file_prefix, argv[i]);
       while (len > 0) {
@@ -269,18 +269,17 @@ no_more_options:;
 }
 
 
-char *
-allocate(unsigned int n)
+void *
+xmalloc(size_t size)
 {
-    char *p;
+    void *p = NULL;
 
-    p = NULL;
-    if (n)
+    if (size != 0)
     {
-        p = CALLOC(1, n);
+        p = calloc(1, size);
         if (!p) no_space();
     }
-    return (p);
+    return p;
 }
 
 
@@ -301,11 +300,11 @@ void create_file_names(void)
     if (len && tmpdir[len-1] != dirsep)
         ++i;
 
-    action_file_name = MALLOC(i * sizeof(char_os));
+    action_file_name = malloc(i * sizeof(char_os));
     if (action_file_name == 0) no_space();
-    entry_file_name = MALLOC(i * sizeof(char_os));
+    entry_file_name = malloc(i * sizeof(char_os));
     if (entry_file_name == 0) no_space();
-    text_file_name = MALLOC(i * sizeof(char_os));
+    text_file_name = malloc(i * sizeof(char_os));
     if (text_file_name == 0) no_space();
 
     strcpy_os(action_file_name, tmpdir);
@@ -346,7 +345,7 @@ void create_file_names(void)
 
     len = strlen_os(file_prefix);
 
-    output_file_name = MALLOC((len + 7) * sizeof(char_os));
+    output_file_name = malloc((len + 7) * sizeof(char_os));
     if (output_file_name == 0)
         no_space();
     strcpy_os(output_file_name, file_prefix);
@@ -358,14 +357,14 @@ void create_file_names(void)
 
     if (vflag)
     {
-        verbose_file_name = MALLOC((len + 8) * sizeof(char_os));
+        verbose_file_name = malloc((len + 8) * sizeof(char_os));
         if (verbose_file_name == 0)
             no_space();
         strcpy_os(verbose_file_name, file_prefix);
         strcpy_os(verbose_file_name + len, VERBOSE_SUFFIX);
     }
 
-    interface_file_name = MALLOC((len + 8) * sizeof(char_os));
+    interface_file_name = malloc((len + 8) * sizeof(char_os));
     if (interface_file_name == 0)
         no_space();
     strcpy_os(interface_file_name, file_prefix);

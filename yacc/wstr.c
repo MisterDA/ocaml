@@ -52,7 +52,7 @@ char* caml_stat_strdup_of_utf16(const wchar_t *s)
 
   retcode = caml_win32_wide_char_to_multi_byte(s, -1, NULL, 0);
   if (retcode >= 0) {
-    out = (char *)malloc(retcode);
+    out = malloc(retcode);
     caml_win32_wide_char_to_multi_byte(s, -1, out, retcode);
   }
 

@@ -38,7 +38,7 @@ static void set_EFF(void)
     int rowsize;
 
     rowsize = WORDSIZE(nvars);
-    EFF = NEW2(nvars * rowsize, unsigned);
+    EFF = xmalloc(nvars * rowsize * sizeof(unsigned));
 
     row = EFF;
     for (int i = start_symbol; i < nsyms; i++)
@@ -78,7 +78,8 @@ void set_first_derives(void)
 
   rulesetsize = WORDSIZE(nrules);
   varsetsize = WORDSIZE(nvars);
-  first_derives = NEW2(nvars * rulesetsize, unsigned) - ntokens * rulesetsize;
+  first_derives = ((unsigned *) xmalloc(nvars * rulesetsize * sizeof(unsigned)))
+      - ntokens * rulesetsize;
 
   set_EFF();
 
@@ -115,7 +116,7 @@ void set_first_derives(void)
   print_first_derives();
 #endif
 
-  FREE(EFF);
+  free(EFF);
 }
 
 
@@ -194,9 +195,9 @@ void closure(short int *nucleus, int n)
 
 void finalize_closure(void)
 {
-  FREE(itemset);
-  FREE(ruleset);
-  FREE(first_derives + ntokens * WORDSIZE(nrules));
+  free(itemset);
+  free(ruleset);
+  free(first_derives + ntokens * WORDSIZE(nrules));
 }
 
 

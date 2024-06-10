@@ -36,12 +36,12 @@ void verbose(void)
 {
     if (!vflag) return;
 
-    null_rules = (short *) MALLOC(nrules*sizeof(short));
+    null_rules = malloc(nrules*sizeof(short));
     if (null_rules == 0) no_space();
     fprintf(verbose_file, "\f\n");
     for (int i = 0; i < nstates; i++)
         print_state(i);
-    FREE(null_rules);
+    free(null_rules);
 
     if (nunused)
         log_unused();

@@ -120,17 +120,6 @@
 #define ISTOKEN(s)        ((s) < start_symbol)
 #define ISVAR(s)        ((s) >= start_symbol)
 
-
-/*  storage allocation macros  */
-
-#define CALLOC(k,n)      (calloc((unsigned)(k),(unsigned)(n)))
-#define FREE(x)          (free((char*)(x)))
-#define MALLOC(n)        (malloc((unsigned)(n)))
-#define NEW(t)           ((t*)allocate(sizeof(t)))
-#define NEW2(n,t)        ((t*)allocate((unsigned)((n)*sizeof(t))))
-#define REALLOC(p,n)     (realloc((char*)(p),(unsigned)(n)))
-
-
 /*  the structure of a symbol table entry  */
 
 typedef struct bucket bucket;
@@ -315,7 +304,7 @@ extern short final_state;
 
 /* global functions */
 
-extern char *allocate(unsigned int n);
+extern void *xmalloc(size_t size);
 extern bucket *lookup(char *name);
 extern bucket *make_bucket(char *name);
 extern action *parse_actions(int stateno);

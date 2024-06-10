@@ -38,7 +38,7 @@ void defreds (void);
 
 void make_parser(void)
 {
-    parser = NEW2(nstates, action *);
+    parser = xmalloc(nstates * sizeof(action *));
     for (int i = 0; i < nstates; i++)
         parser[i] = parse_actions(i);
 
@@ -80,7 +80,7 @@ get_shifts(int stateno)
             symbol = accessing_symbol[k];
             if (ISTOKEN(symbol))
             {
-                temp = NEW(action);
+                temp = xmalloc(sizeof(action));
                 temp->next = actions;
                 temp->symbol = symbol;
                 temp->number = k;
@@ -140,7 +140,7 @@ add_reduce(action *actions, int ruleno, int symbol)
         next = next->next;
     }
 
-    temp = NEW(action);
+    temp = xmalloc(sizeof(action));
     temp->next = next;
     temp->symbol = symbol;
     temp->number = ruleno;
@@ -176,7 +176,7 @@ void find_final_state(void)
 
 void unused_rules(void)
 {
-    rules_used = (short *) MALLOC(nrules*sizeof(short));
+    rules_used = malloc(nrules*sizeof(short));
     if (rules_used == 0) no_space();
 
     for (int i = 0; i < nrules; ++i)
@@ -211,8 +211,8 @@ void remove_conflicts(void)
 
     SRtotal = 0;
     RRtotal = 0;
-    SRconflicts = NEW2(nstates, short);
-    RRconflicts = NEW2(nstates, short);
+    SRconflicts = xmalloc(nstates * sizeof(short));
+    RRconflicts = xmalloc(nstates * sizeof(short));
     pref = NULL;
     for (int i = 0; i < nstates; i++)
     {
@@ -327,7 +327,7 @@ sole_reduction(int stateno)
 
 void defreds(void)
 {
-    defred = NEW2(nstates, short);
+    defred = xmalloc(nstates * sizeof(short));
     for (int i = 0; i < nstates; i++)
         defred[i] = sole_reduction(i);
 }
@@ -339,7 +339,7 @@ void free_action_row(action *p)
   while (p)
     {
       q = p->next;
-      FREE(p);
+      free(p);
       p = q;
     }
 }
@@ -349,5 +349,5 @@ void free_parser(void)
   for (int i = 0; i < nstates; i++)
     free_action_row(parser[i]);
 
-  FREE(parser);
+  free(parser);
 }
