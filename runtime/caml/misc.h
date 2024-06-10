@@ -220,6 +220,33 @@ CAMLdeprecated_typedef(addr, char *);
 #endif
 #endif /* CAML_INTERNALS */
 
+#if __has_attribute(malloc) && __has_attribute(warn_unused_result) &&   \
+  __has_attribute(alloc_size) && __has_attribute(alloc_align) &&        \
+  __has_attribute(returns_nonnull)
+  #define CAMLreturns_nonnull() __attribute__ ((returns_nonnull))
+  #define CAMLrealloc(...) __attribute__ ((warn_unused_result,alloc_size(2)))
+  #if defined(__GNUC__) && !defined(__llvm__)
+    #define CAMLalloc(deallocator,ptr_index,...)                            \
+      __attribute__ ((malloc,malloc(deallocator,ptr_index),warn_unused_result))
+  #else
+    #define CAMLalloc(deallocator,ptr_index,...)    \
+      __attribute__ ((malloc,warn_unused_result))
+  #endif
+  #define CAMLmalloc(deallocator,ptr_index,...)                           \
+    CAMLalloc(deallocator,ptr_index) __attribute__ ((alloc_size(1)))
+  #define CAMLcalloc(deallocator,ptr_index,...)                           \
+    CAMLalloc(deallocator,ptr_index) __attribute__ ((alloc_size(1,2)))
+  #define CAMLaligned_alloc(deallocator,ptr_index,...)                    \
+    CAMLmalloc(deallocator,ptr_index) __attribute__ ((alloc_align(2)))
+#else
+  #define CAMLreturns_nonnull()
+  #define CAMLrealloc(...)
+  #define CAMLalloc(...)
+  #define CAMLmalloc(...)
+  #define CAMLcalloc(...)
+  #define CAMLaligned_alloc(...)
+#endif
+
 /* GC timing hooks. These can be assigned by the user. These hooks
    must not allocate, change any heap value, nor call OCaml code. They
    can obtain the domain id with Caml_state->id. These functions must
