@@ -996,7 +996,7 @@ void caml_probe_win32_version(void)
   BYTE* versionInfo;
   fileName[size] = 0;
   size = GetFileVersionInfoSize(fileName, &dwHandle);
-  versionInfo = (BYTE*)malloc(size * sizeof(BYTE));
+  versionInfo = malloc(size * sizeof(BYTE));
   if (GetFileVersionInfo(fileName, 0, size, versionInfo)) {
     UINT len = 0;
     VS_FIXEDFILEINFO* vsfi = NULL;
