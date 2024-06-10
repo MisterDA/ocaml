@@ -21,6 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef NATIVE_CODE
+#define NATIVE_CODE 1
+#endif
+
 #include "caml/alloc.h"
 #include "caml/backtrace.h"
 #include "caml/backtrace_prim.h"

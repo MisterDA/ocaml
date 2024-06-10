@@ -16,6 +16,7 @@ permissions: {}
 # cases in the runtime system.
 env:
   PARALLEL_TESTS: parallel callback gc-roots weak-ephe-final
+  MAKEFLAGS: V=1
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#concurrency
 # Concurrent workflows are grouped by the PR or branch that triggered them

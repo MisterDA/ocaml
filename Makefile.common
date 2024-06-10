@@ -156,6 +156,12 @@ ifeq "$(FUNCTION_SECTIONS)" "true"
 OPTCOMPFLAGS += -function-sections
 endif
 
+# The rule to compile C dependency information
+define DEP_RULE
+  $(1): $(2) | $(3)
+	$$(V_CCDEPS)$$(DEP_CC) $(OC_CPPFLAGS) $(CPPFLAGS) $(DEPFLAGS) $$<
+endef
+
 # The rule to compile C files
 
 # This rule is similar to GNU make's implicit rule, except that it is more
