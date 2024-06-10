@@ -109,12 +109,12 @@ int main(int argc, char **argv)
 
     srand(argc >= 3 ? atoi(argv[2]) : time((time_t *) 0));
     n = atoi(argv[1]);
-    a = (long *) malloc(n * sizeof(long));
+    a = malloc(n * sizeof(long));
     for (long i = 0 ; i < n; i++) a[i] = rand() & 0xFFF;
 #ifdef DEBUG
     for (long i = 0; i < n; i++) printf("%ld ", a[i]); printf("\n");
 #endif
-    b = (long *) malloc(n * sizeof(long));
+    b = malloc(n * sizeof(long));
     for (long i = 0; i < n; i++) b[i] = a[i];
     call_gen_code(FUN, 0, n-1, a);
 #ifdef DEBUG
