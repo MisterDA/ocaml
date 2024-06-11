@@ -87,6 +87,10 @@ _______________
   (Antonin Décimo, review by Nick Barnes, Xavier Leroy, Gabriel Scherer,
    and Miod Vallat)
 
+- #?????: Enable software prefetching on x86 and x86_64 when building
+  with MSVC or clang-cl.
+  (Antonin Décimo, review by ????)
+
 ### Code generation and optimizations:
 
 - #13014: Enable compile-time option -function-sections on all previously
