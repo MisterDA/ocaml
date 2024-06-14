@@ -98,7 +98,7 @@ AC_DEFUN([OCAML_CC_SUPPORTS_TREE_VECTORIZE], [
   AC_MSG_CHECKING(
  [whether the C compiler supports __attribute__((optimize("tree-vectorize")))])
   saved_CFLAGS="$CFLAGS"
-  CFLAGS="-Werror $CFLAGS"
+  CFLAGS="$warn_error_flag $CFLAGS"
   AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM(
       [[__attribute__((optimize("tree-vectorize"))) void f(void) {}]],
