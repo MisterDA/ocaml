@@ -176,13 +176,13 @@ CAMLprim value caml_format_float(value fmt, value arg)
   value res;
   double d = Double_val(arg);
 
-#ifdef HAS_BROKEN_PRINTF
+#ifdef HAVE_BROKEN_PRINTF
   if (isfinite(d)) {
 #endif
     USE_LOCALE;
     res = caml_alloc_sprintf(String_val(fmt), d);
     RESTORE_LOCALE;
-#ifdef HAS_BROKEN_PRINTF
+#ifdef HAVE_BROKEN_PRINTF
   } else {
     if (isnan(d)) {
       res = caml_copy_string("nan");

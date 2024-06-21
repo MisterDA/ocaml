@@ -36,11 +36,11 @@
 
 /* If supported, tell gcc that we can use 32-bit code addresses for
  * threaded code, unless we are compiled for a shared library (-fPIC option) */
-#ifdef HAS_ARCH_CODE32
+#ifdef HAVE_ARCH_CODE32
 #ifndef __PIC__
 #  define ARCH_CODE32
 #endif /* __PIC__ */
-#endif /* HAS_ARCH_CODE32 */
+#endif /* HAVE_ARCH_CODE32 */
 
 /* No longer used in the codebase, but kept because it was exported */
 #define INT64_LITERAL(s) s ## LL

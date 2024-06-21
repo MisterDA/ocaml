@@ -19,7 +19,7 @@
 #include <caml/fail.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include <errno.h>
 #include <sys/time.h>

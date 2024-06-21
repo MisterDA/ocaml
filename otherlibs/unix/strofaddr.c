@@ -18,14 +18,14 @@
 #include <caml/fail.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include "caml/socketaddr.h"
 
 CAMLprim value caml_unix_string_of_inet_addr(value a)
 {
   char * res;
-#ifdef HAS_IPV6
+#ifdef HAVE_IPV6
 #ifdef _WIN32
   char buffer[64];
   union sock_addr_union sa;

@@ -23,7 +23,7 @@
 #include "caml/unixsupport.h"
 #include "cst2constr.h"
 
-#if defined(HAS_SOCKETS) && defined(HAS_IPV6)
+#if defined(HAVE_SOCKETS) && defined(HAVE_IPV6)
 
 #include "caml/socketaddr.h"
 #ifndef _WIN32

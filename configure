@@ -14611,14 +14611,13 @@ esac
 
 mkexe_cmd_exp="$CC"
 
+have_arch_code32=false
 case $ocaml_cc_vendor,$host in #(
   *,x86_64-*-darwin*) :
     oc_ldflags='-Wl,-no_compact_unwind';
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   *,aarch64-*-darwin*|arm64-*-darwin*) :
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   *,*-*-cygwin*) :
     common_cppflags="$common_cppflags -U_WIN32"
     if $supports_shared_libraries
@@ -14658,17 +14657,22 @@ esac
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag='' ;; #(
   *,x86_64-*-linux*) :
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   xlc-*,powerpc-ibm-aix*) :
     oc_ldflags='-brtl -bexpfull'
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   gcc-*,powerpc-*-linux*) :
     oc_ldflags="-mbss-plt" ;; #(
   *) :
      ;;
 esac
+
+if ${have_arch_code32}
+then :
+
+printf "%s\n" "#define HAVE_ARCH_CODE32 1" >>confdefs.h
+
+fi
 
 # Winpthreads emulation library for the MSVC port
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for winpthreads sources" >&5
@@ -15528,23 +15532,29 @@ then :
   *) :
     if test "$ac_cv_alignof_double" -gt 4
 then :
-  printf "%s\n" "#define ARCH_ALIGN_DOUBLE 1" >>confdefs.h
+
+printf "%s\n" "#define ARCH_ALIGN_DOUBLE 1" >>confdefs.h
 
 fi
+     arch_align_int64=false
      if test "x$ac_cv_sizeof_long" = "x8" &&
             test "$ac_cv_alignof_long" -gt 4
 then :
-  printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
-
+  arch_align_int64=true
 else $as_nop
   if test "x$ac_cv_sizeof_long_long" = "x8" &&
-              test "$ac_cv_alignof_long_long" -gt 4
+               test "$ac_cv_alignof_long_long" -gt 4
 then :
-  printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
+  arch_align_int64=true
+fi
+fi
+     if $arch_align_int64
+then :
+
+printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
 
 fi
-fi
-     ;;
+ ;;
 esac
 fi
 
@@ -17700,7 +17710,8 @@ esac
 
 if $sockets
 then :
-  printf "%s\n" "#define HAS_SOCKETS 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_SOCKETS 1" >>confdefs.h
 
 fi
 
@@ -17749,7 +17760,7 @@ esac
 
 ## IPv6 support
 
-ipv6=true
+have_ipv6=true
 
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
@@ -17759,7 +17770,7 @@ if test "x$ac_cv_type_struct_sockaddr_in6" = xyes
 then :
 
 else $as_nop
-  ipv6=false
+  have_ipv6=false
 fi
  ;; #(
   *) :
@@ -17774,13 +17785,13 @@ if test "x$ac_cv_type_struct_sockaddr_in6" = xyes
 then :
 
 else $as_nop
-  ipv6=false
+  have_ipv6=false
 fi
 
  ;;
 esac
 
-if $ipv6
+if $have_ipv6
 then :
 
   for ac_func in getaddrinfo getnameinfo inet_pton inet_ntop
@@ -17794,15 +17805,10 @@ then :
 _ACEOF
 
 else $as_nop
-  ipv6=false
+  $have_ipv6=false
 fi
 
 done
-fi
-if $ipv6
-then :
-  printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
-
 fi
 
 ## utime
@@ -20683,32 +20689,45 @@ esac
 fi
 fi
 
-# Define a few macros that were defined in config/m-nt.h
-# but whose value is not guessed properly by configure
-# (all this should be understood and fixed)
+# Define a few macros that were defined in config/m-nt.h but which values are
+# not guessed properly by configure (all this should be understood and fixed)
+have_nice=false
+have_broken_printf=false
 case $host in #(
   *-*-mingw32*) :
-    printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
- ;; #(
+    have_broken_printf=true
+     have_ipv6=true
+     have_nice=true ;; #(
   *-pc-windows) :
-    printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
- ;; #(
+    have_broken_printf=true
+     have_ipv6=true
+     have_nice=true ;; #(
   *-*-solaris*) :
-    # This is required as otherwise floats are printed
-    # as "Infinity" and "Inf" instead of the expected "inf"
-    printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
- ;; #(
+    has_broken_printf=true ;; #(
   *) :
      ;;
 esac
+
+if ${have_broken_printf}
+then :
+
+printf "%s\n" "#define HAVE_BROKEN_PRINTF 1" >>confdefs.h
+
+fi
+
+if $have_ipv6
+then :
+
+printf "%s\n" "#define HAVE_IPV6 1" >>confdefs.h
+
+fi
+
+if ${have_nice}
+then :
+
+printf "%s\n" "#define HAVE_NICE 1" >>confdefs.h
+
+fi
 
 # Do not permanently cache the result of flexdll.h
 unset ac_cv_header_flexdll_h

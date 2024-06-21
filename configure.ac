@@ -1054,12 +1054,13 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
 
 mkexe_cmd_exp="$CC"
 
+have_arch_code32=false
 AS_CASE([$ocaml_cc_vendor,$host],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
-    AC_DEFINE([HAS_ARCH_CODE32], [1])],
+    have_arch_code32=true],
   [*,aarch64-*-darwin*|arm64-*-darwin*],
-    AC_DEFINE([HAS_ARCH_CODE32], [1]),
+    [have_arch_code32=true],
   [*,*-*-cygwin*],
     [common_cppflags="$common_cppflags -U_WIN32"
     AS_IF([$supports_shared_libraries],
@@ -1092,12 +1093,18 @@ AS_CASE([$ocaml_cc_vendor,$host],
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag=''],
   [*,x86_64-*-linux*],
-    AC_DEFINE([HAS_ARCH_CODE32], [1]),
+    [have_arch_code32=true],
   [xlc-*,powerpc-ibm-aix*],
     [oc_ldflags='-brtl -bexpfull'
-    AC_DEFINE([HAS_ARCH_CODE32], [1])],
+    have_arch_code32=true],
   [gcc-*,powerpc-*-linux*],
     [oc_ldflags="-mbss-plt"])
+
+AS_IF([${have_arch_code32}],
+  [AC_DEFINE([HAVE_ARCH_CODE32], [1], [m4_normalize([Define HAVE_ARCH_CODE32 if,
+    on a 64-bit machine, code pointers fit in 32 bits, i.e. the code segment
+    resides in the low 4G of the addressing space.
+    HAVE_ARCH_CODE32 is ignored on 32-bit machines.])])])
 
 # Winpthreads emulation library for the MSVC port
 AC_MSG_CHECKING([for winpthreads sources])
@@ -1213,14 +1220,24 @@ AS_IF([! $arch64],
   [AS_CASE([$target_cpu],
     [i686], [],
     [AS_IF([test "$ac_cv_alignof_double" -gt 4],
-      [AC_DEFINE([ARCH_ALIGN_DOUBLE], [1])])
+       [AC_DEFINE([ARCH_ALIGN_DOUBLE], [1], [m4_normalize([Define
+          ARCH_ALIGN_DOUBLE if the processor requires doubles to be
+          doubleword-aligned. Leave ARCH_ALIGN_DOUBLE undefined if the processor
+          supports word-aligned doubles.])])])
+     arch_align_int64=false
      AS_IF([test "x$ac_cv_sizeof_long" = "x8" &&
             test "$ac_cv_alignof_long" -gt 4],
-      [AC_DEFINE([ARCH_ALIGN_INT64], [1])],
-      [AS_IF([test "x$ac_cv_sizeof_long_long" = "x8" &&
-              test "$ac_cv_alignof_long_long" -gt 4],
-      [AC_DEFINE([ARCH_ALIGN_INT64], [1])])])
-    ])])
+       [arch_align_int64=true],
+       [AS_IF([test "x$ac_cv_sizeof_long_long" = "x8" &&
+               test "$ac_cv_alignof_long_long" -gt 4],
+          [arch_align_int64=true])])
+     AS_IF([$arch_align_int64],
+       [AC_DEFINE([ARCH_ALIGN_INT64], [1], [m4_normalize([Define
+          ARCH_ALIGN_INT64 if the processor requires 64-bit integers to be
+          doubleword-aligned. Leave ARCH_ALIGN_INT64 undefined if the processor
+          supports word-aligned 64-bit integers. Leave undefined if 64-bit
+          integers are not supported.])])])
+])])
 
 AC_CHECK_TYPES([max_align_t], [], [], [[#include <stddef.h>]])
 
@@ -1935,7 +1952,8 @@ AS_CASE([$host],
   ]
 )
 
-AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS], [1])])
+AS_IF([$sockets],
+  [AC_DEFINE([HAVE_SOCKETS], [1], [Define if you have BSD sockets.])])
 
 ## socklen_t
 
@@ -1952,14 +1970,14 @@ AS_CASE([$host],
 
 ## IPv6 support
 
-ipv6=true
+have_ipv6=true
 
 AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
     [AC_CHECK_TYPE(
-      [struct sockaddr_in6], [], [ipv6=false], [#include <ws2tcpip.h>])],
+      [struct sockaddr_in6], [], [have_ipv6=false], [#include <ws2tcpip.h>])],
   [AC_CHECK_TYPE(
-    [struct sockaddr_in6], [], [ipv6=false],
+    [struct sockaddr_in6], [], [have_ipv6=false],
 [
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -1968,11 +1986,9 @@ AS_CASE([$host],
   )]
 )
 
-AS_IF([$ipv6],
+AS_IF([$have_ipv6],
   [AC_CHECK_FUNCS([getaddrinfo getnameinfo inet_pton inet_ntop], [],
-    [ipv6=false])])
-AS_IF([$ipv6],
-  [AC_DEFINE([HAS_IPV6], [1])])
+    [$have_ipv6=false])])
 
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
@@ -2512,22 +2528,32 @@ AS_IF([test x"$prefix" = "xNONE"],
     [AS_CASE([$build],
       [*-pc-cygwin], [prefix="$(LC_ALL=C.UTF-8 cygpath -m "$prefix")"])])])
 
-# Define a few macros that were defined in config/m-nt.h
-# but whose value is not guessed properly by configure
-# (all this should be understood and fixed)
+# Define a few macros that were defined in config/m-nt.h but which values are
+# not guessed properly by configure (all this should be understood and fixed)
+have_nice=false
+have_broken_printf=false
 AS_CASE([$host],
   [*-*-mingw32*],
-    [AC_DEFINE([HAS_BROKEN_PRINTF], [1])
-    AC_DEFINE([HAS_IPV6], [1])
-    AC_DEFINE([HAS_NICE], [1])],
+    [have_broken_printf=true
+     have_ipv6=true
+     have_nice=true],
   [*-pc-windows],
-    [AC_DEFINE([HAS_BROKEN_PRINTF], [1])
-    AC_DEFINE([HAS_IPV6], [1])
-    AC_DEFINE([HAS_NICE], [1])],
+    [have_broken_printf=true
+     have_ipv6=true
+     have_nice=true],
   [*-*-solaris*],
-    # This is required as otherwise floats are printed
-    # as "Infinity" and "Inf" instead of the expected "inf"
-    [AC_DEFINE([HAS_BROKEN_PRINTF], [1])])
+    [has_broken_printf=true])
+
+AS_IF([${have_broken_printf}],
+  [AC_DEFINE([HAVE_BROKEN_PRINTF], [1],
+    [m4_normalize([Define if floats are printed as "Infinity" and "Inf" instead
+    of the expected "inf".])])])
+
+AS_IF([$have_ipv6],
+  [AC_DEFINE([HAVE_IPV6], [1], [Define if IPv6 is supported.])])
+
+AS_IF([${have_nice}],
+  [AC_DEFINE([HAVE_NICE], [1], [Define if you have nice().])])
 
 # Do not permanently cache the result of flexdll.h
 unset ac_cv_header_flexdll_h

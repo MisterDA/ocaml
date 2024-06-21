@@ -84,9 +84,9 @@
 
 /* 2. For the Unix library. */
 
-#undef HAS_SOCKETS
+#undef HAVE_SOCKETS
 
-/* Define HAS_SOCKETS if you have BSD sockets. */
+/* Define HAVE_SOCKETS if you have BSD sockets. */
 
 #undef HAVE_SOCKETPAIR
 
@@ -104,7 +104,7 @@
 
 #undef HAVE_INET_ATON
 
-#undef HAS_IPV6
+#undef HAVE_IPV6
 
 #undef HAVE_PTHREAD_NP_H
 
@@ -303,7 +303,7 @@
 
 #undef HAS_LIBUNWIND
 
-#undef HAS_BROKEN_PRINTF
+#undef HAVE_BROKEN_PRINTF
 
 #undef HAS_POSIX_MONOTONIC_CLOCK
 
