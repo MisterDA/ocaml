@@ -20,7 +20,7 @@
 #include <errno.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include "caml/socketaddr.h"
 
@@ -40,7 +40,7 @@ CAMLexport value caml_unix_alloc_inet_addr(struct in_addr * a)
   return res;
 }
 
-#ifdef HAS_IPV6
+#ifdef HAVE_IPV6
 
 CAMLexport value caml_unix_alloc_inet6_addr(struct in6_addr * a)
 {
@@ -76,7 +76,7 @@ void caml_unix_get_sockaddr(value mladr,
       break;
     }
   case 1:                       /* ADDR_INET */
-#ifdef HAS_IPV6
+#ifdef HAVE_IPV6
     if (caml_string_length(Field(mladr, 0)) == 16) {
       memset(&adr->s_inet6, 0, sizeof(struct sockaddr_in6));
       adr->s_inet6.sin6_family = AF_INET6;
@@ -152,7 +152,7 @@ value caml_unix_alloc_sockaddr(union sock_addr_union * adr /*in*/,
       Field(res,1) = Val_int(ntohs(adr->s_inet.sin_port));
       break;
     }
-#ifdef HAS_IPV6
+#ifdef HAVE_IPV6
   case AF_INET6:
     { a = caml_unix_alloc_inet6_addr(&adr->s_inet6.sin6_addr);
       res = caml_alloc_small(2, 1);

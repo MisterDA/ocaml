@@ -1123,13 +1123,14 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$target],
 
 mkexe_cmd_exp="$CC"
 
+have_arch_code32=false
 AS_CASE([$ocaml_cc_vendor,$target],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
-    AC_DEFINE([HAS_ARCH_CODE32], [1])],
+    have_arch_code32=true],
   [*,aarch64-*-darwin*|*,arm64-*-darwin*],
-    AC_DEFINE([HAS_ARCH_CODE32], [1]),
-  [*,*-*-cygwin],
+    [have_arch_code32=true],
+  [*,*-*-cygwin*],
     [common_cppflags="$common_cppflags -U_WIN32"
     AS_IF([$supports_shared_libraries],
       [mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
@@ -1161,37 +1162,18 @@ AS_CASE([$ocaml_cc_vendor,$target],
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag=''],
   [*,x86_64-*-linux*],
-    AC_DEFINE([HAS_ARCH_CODE32], [1]),
+    [have_arch_code32=true],
   [xlc-*,powerpc-ibm-aix*],
     [oc_ldflags='-brtl -bexpfull'
-    AC_DEFINE([HAS_ARCH_CODE32], [1])],
+    have_arch_code32=true],
   [gcc-*,powerpc-*-linux*],
     [oc_ldflags="-mbss-plt"])
 
-# How to build sak
-
-AS_IF([test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
-  [AS_CASE([$target],
-    [*-pc-windows],
-      [SAK_BUILD=m4_normalize([
-        "\$(CC) \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2)
-        /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)"])],
-    [SAK_BUILD=m4_normalize([
-      '$(MKEXE_VIA_CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)'])])
-  SAK="\$(ROOTDIR)/runtime/sak${EXEEXT}"],
-  [AC_MSG_NOTICE([detecting the C toolchain for build])
-  AX_PROG_CC_FOR_BUILD
-  # Note that *-pc-windows is not supported for _build_ so we can use '-o'
-  SAK_BUILD=m4_normalize(["$CC_FOR_BUILD $LDFLAGS_FOR_BUILD -o \$(1) \$(2)
-    $CFLAGS_FOR_BUILD $CPPFLAGS_FOR_BUILD"])
-  SAK="\$(ROOTDIR)/runtime/sak${BUILD_EXEEXT}"])
-
-# sak command to use to encode C literal strings
-
-AS_CASE([$target],
-  [*-w64-mingw32*|*-pc-windows],
-    [encode_C_literal="encode-C-utf16-literal"],
-  [encode_C_literal="encode-C-utf8-literal"])
+AS_IF([${have_arch_code32}],
+  [AC_DEFINE([HAVE_ARCH_CODE32], [1], [Define HAVE_ARCH_CODE32 if, on a 64-bit
+    machine, code pointers fit in 32 bits, i.e. the code segment resides in the
+    low 4G of the addressing space.
+    HAVE_ARCH_CODE32 is ignored on 32-bit machines.])])
 
 # Winpthreads emulation library for the MSVC port
 AC_MSG_CHECKING([for winpthreads sources])
@@ -1309,12 +1291,11 @@ AS_IF([! $arch64],
        AC_DEFINE([ARCH_ALIGN_DOUBLE], [1])])
      AS_IF([test "x$ac_cv_sizeof_long" = "x8" &&
             test "$ac_cv_alignof_long" -gt 4],
-      [align_int64=true
-       AC_DEFINE([ARCH_ALIGN_INT64], [1])],
+      [align_int64=true],
       [AS_IF([test "x$ac_cv_sizeof_long_long" = "x8" &&
               test "$ac_cv_alignof_long_long" -gt 4],
-      [align_int64=true
-       AC_DEFINE([ARCH_ALIGN_INT64], [1])])])
+      [align_int64=true])])
+      AS_IF([$align_int64], [AC_DEFINE([ARCH_ALIGN_INT64], [1])])
     ])])
 
 AC_CHECK_TYPES([max_align_t], [], [], [[#include <stddef.h>]])
@@ -2011,7 +1992,8 @@ AS_CASE([$target],
   ]
 )
 
-AS_IF([$sockets], [AC_DEFINE([HAS_SOCKETS], [1])])
+AS_IF([$sockets],
+  [AC_DEFINE([HAVE_SOCKETS], [1], [Define if you have BSD sockets.])])
 
 ## socklen_t
 
@@ -2028,14 +2010,14 @@ AS_CASE([$target],
 
 ## IPv6 support
 
-ipv6=true
+have_ipv6=true
 
 AS_CASE([$target],
   [*-w64-mingw32*|*-pc-windows],
     [AC_CHECK_TYPE(
-      [struct sockaddr_in6], [], [ipv6=false], [#include <ws2tcpip.h>])],
+      [struct sockaddr_in6], [], [have_ipv6=false], [#include <ws2tcpip.h>])],
   [AC_CHECK_TYPE(
-    [struct sockaddr_in6], [], [ipv6=false],
+    [struct sockaddr_in6], [], [have_ipv6=false],
 [
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -2044,11 +2026,9 @@ AS_CASE([$target],
   )]
 )
 
-AS_IF([$ipv6],
+AS_IF([$have_ipv6],
   [AC_CHECK_FUNCS([getaddrinfo getnameinfo inet_pton inet_ntop], [],
-    [ipv6=false])])
-AS_IF([$ipv6],
-  [AC_DEFINE([HAS_IPV6], [1])])
+    [$have_ipv6=false])])
 
 ## utime
 AS_CASE([$target],
@@ -2597,17 +2577,26 @@ AS_IF([test x"$prefix" = "xNONE"],
     [*-*-cygwin,*-w64-mingw32*|*-*-cygwin,*-pc-windows],
       [prefix="$(LC_ALL=C.UTF-8 cygpath -m "$prefix")"])])
 
-# Define a few macros that were defined in config/m-nt.h
-# but whose value is not guessed properly by configure
-# (all this should be understood and fixed)
+# Define a few macros that were defined in config/m-nt.h but which values are
+# not guessed properly by configure (all this should be understood and fixed)
+have_broken_printf=false
 AS_CASE([$target],
-  [*-w64-mingw32*|*-pc-windows],
-    [AC_DEFINE([HAS_BROKEN_PRINTF], [1])
-    AC_DEFINE([HAS_IPV6], [1])],
+  [*-w64-mingw32*],
+    [have_broken_printf=true
+     have_ipv6=true],
+  [*-pc-windows],
+    [have_broken_printf=true
+     have_ipv6=true],
   [*-*-solaris*],
-    # This is required as otherwise floats are printed
-    # as "Infinity" and "Inf" instead of the expected "inf"
-    [AC_DEFINE([HAS_BROKEN_PRINTF], [1])])
+    [have_broken_printf=true])
+
+AS_IF([${have_broken_printf}],
+  [AC_DEFINE([HAVE_BROKEN_PRINTF], [1],
+    [m4_normalize([Define if floats are printed as "Infinity" and "Inf" instead
+    of the expected "inf".])])])
+
+AS_IF([$have_ipv6],
+  [AC_DEFINE([HAVE_IPV6], [1], [Define if IPv6 is supported.])])
 
 # Do not permanently cache the result of flexdll.h
 unset ac_cv_header_flexdll_h

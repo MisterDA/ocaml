@@ -20,7 +20,7 @@
 #include "caml/unixsupport.h"
 #include <errno.h>
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include "caml/socketaddr.h"
 #include <ws2tcpip.h>
@@ -200,4 +200,4 @@ CAMLprim value caml_unix_socketpair(value cloexec, value vdomain, value vtype,
 
 #endif  /* HAVE_SOCKETPAIR */
 
-#endif  /* HAS_SOCKETS */
+#endif  /* HAVE_SOCKETS */

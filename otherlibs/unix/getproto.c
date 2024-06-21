@@ -19,7 +19,7 @@
 #include <caml/memory.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #ifndef _WIN32
 #include <netdb.h>

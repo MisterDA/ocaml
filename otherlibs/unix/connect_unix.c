@@ -18,7 +18,7 @@
 #include <caml/signals.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include "caml/socketaddr.h"
 

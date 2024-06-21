@@ -240,4 +240,20 @@
 #define HAS_GETHOSTNAME 1
 #endif
 
+#ifdef HAVE_SOCKETS
+#define HAS_SOCKETS 1
+#endif
+
+#ifdef HAVE_IPV6
+#define HAS_IPV6 1
+#endif
+
+#ifdef HAVE_BROKEN_PRINTF
+#define HAS_BROKEN_PRINTF 1
+#endif
+
+#ifdef HAVE_ARCH_CODE32
+#define HAS_ARCH_CODE32 1
+#endif
+
 #endif  /* CAML_COMPATIBILITY_H */

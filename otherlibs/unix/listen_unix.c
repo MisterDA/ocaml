@@ -17,7 +17,7 @@
 #include <caml/mlvalues.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include <sys/socket.h>
 

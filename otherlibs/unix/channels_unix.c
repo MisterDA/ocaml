@@ -23,7 +23,7 @@
 #include <caml/signals.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 #include <sys/socket.h>
 #include "caml/socketaddr.h"
 #endif
@@ -43,7 +43,7 @@ static int caml_unix_check_stream_semantics(int fd)
   case S_IFREG: case S_IFCHR: case S_IFIFO:
     /* These have stream semantics */
     return 0;
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
   case S_IFSOCK: {
     int so_type;
     socklen_param_type so_type_len = sizeof(so_type);
