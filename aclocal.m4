@@ -95,18 +95,22 @@ AC_DEFUN([OCAML_SIGNAL_HANDLERS_SEMANTICS], [
 ])
 
 AC_DEFUN([OCAML_CC_SUPPORTS_TREE_VECTORIZE], [
-  AC_MSG_CHECKING(
- [whether the C compiler supports __attribute__((optimize("tree-vectorize")))])
-  saved_CFLAGS="$CFLAGS"
-  CFLAGS="$warn_error_flag $CFLAGS"
-  AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM(
-      [[__attribute__((optimize("tree-vectorize"))) void f(void) {}]],
-      [[f();]])],
-    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1])
-    AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no])])
-  CFLAGS="$saved_CFLAGS"
+  AC_CACHE_CHECK(m4_normalize([whether the C compiler supports
+      __attribute__((optimize("tree-vectorize")))]),
+    [ocaml_cv_prog_cc_optimize_tree_vectorize], [
+
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$warn_error_flag $CFLAGS"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+        [[__attribute__((optimize("tree-vectorize"))) void f(void) {}]],
+        [[f();]])],
+      [ocaml_cv_prog_cc_optimize_tree_vectorize=yes],
+      [ocaml_cv_prog_cc_optimize_tree_vectorize=no])
+    CFLAGS="$saved_CFLAGS"
+    ])
+  ])
+  AS_IF([test "x$ocaml_cv_prog_cc_tree_vectorize" = xyes],
+    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1])])
 ])
 
 # Save C compiler related variables
@@ -243,9 +247,9 @@ AC_DEFUN([OCAML_MMAP_SUPPORTS_MAP_STACK], [
 ])
 
 AC_DEFUN([OCAML_MMAP_SUPPORTS_HUGE_PAGES], [
-  AC_MSG_CHECKING([whether mmap supports huge pages])
-  AC_RUN_IFELSE(
-    [AC_LANG_PROGRAM([[
+  AC_CACHE_CHECK([whether mmap supports huge pages],
+    [ocaml_cv_func_mmap_huge_pages],
+    [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -280,11 +284,13 @@ AC_DEFUN([OCAML_MMAP_SUPPORTS_HUGE_PAGES], [
     p[i] = (char) i;
   }
     ]])],
-    [AC_DEFINE([HAS_HUGE_PAGES], [1])
+      [ocaml_cv_func_mmap_huge_pages=yes],
+      [ocaml_cv_func_mmap_huge_pages=no],
+      [ocaml_cv_func_mmap_huge_pages='no assumed'])])
+  AS_IF([test "x$ocaml_cv_prog_cc_func_mmap_huge_pages" = xyes], [
+    AC_DEFINE([HAS_HUGE_PAGES], [1])
     AC_DEFINE_UNQUOTED([HUGE_PAGE_SIZE], [(4 * 1024 * 1024)])
-    AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no])],
-    [AC_MSG_RESULT([no assumed])])
+  ])
 ])
 
 AC_DEFUN([OCAML_CHECK_LIBUNWIND], [
@@ -552,8 +558,8 @@ AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
        [ocaml_cv_prog_cc_labels_as_values=yes],
        [ocaml_cv_prog_cc_labels_as_values=no])
   ])
-  if test "x$ocaml_cv_prog_cc_labels_as_values" = xyes; then
+  AS_IF([test "x$ocaml_cv_prog_cc_labels_as_values" = xyes], [
     AC_DEFINE([HAVE_LABELS_AS_VALUES], [1],
       [Define if the C compiler supports the labels as values extension.])
-  fi
+  ])
 ])
