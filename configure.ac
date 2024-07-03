@@ -678,6 +678,16 @@ AS_CASE([$ocaml_cc_vendor],
   [CPP="$CC -E -P"
   ocamltest_CPP="$CPP"])
 
+# Check that we're using C11 or later.
+# Autoconf C11 and MSVC detection will be fixed in 2.73.
+AS_CASE([$ocaml_cc_vendor],
+  [msvc-*],
+    [AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L
+#error "No C11 support"
+#endif
+    ]])], [], [CFLAGS="$CFLAGS -std:c11"])])
+
 # Absolute path to the toplevel source directory
 
 # A sentinel character (X) is added at the end of the directory name
@@ -1226,13 +1236,9 @@ AS_IF([! $arch64],
 OCAML_CC_SUPPORTS_ATOMIC([], [$cclibs])
 AS_CASE([$cc_supports_atomic,$ocaml_cc_vendor],
   [false,msvc-*],
-    [OCAML_CC_SUPPORTS_ATOMIC([-std:c11])
+    [OCAML_CC_SUPPORTS_ATOMIC([-experimental:c11atomics])
      AS_IF([$cc_supports_atomic],
-       [common_cflags="$common_cflags -std:c11"],
-       [OCAML_CC_SUPPORTS_ATOMIC([-std:c11 -experimental:c11atomics])
-        AS_IF([$cc_supports_atomic],
-          [common_cflags="$common_cflags -std:c11 -experimental:c11atomics"])
-])])
+       [common_cflags="$common_cflags -experimental:c11atomics"])])
 AS_IF([! $cc_supports_atomic],
   [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
 
