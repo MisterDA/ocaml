@@ -1149,7 +1149,7 @@ CAMLexport void caml_deserialize_block_1(void * data, intnat len)
 CAMLexport void caml_deserialize_block_2(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   const unsigned char * p, * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 2, q += 2)
     Reverse_16(q, p);
@@ -1163,7 +1163,7 @@ CAMLexport void caml_deserialize_block_2(void * data, intnat len)
 CAMLexport void caml_deserialize_block_4(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   const unsigned char * p, * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 4, q += 4)
     Reverse_32(q, p);
@@ -1177,7 +1177,7 @@ CAMLexport void caml_deserialize_block_4(void * data, intnat len)
 CAMLexport void caml_deserialize_block_8(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   const unsigned char * p, * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 8, q += 8)
     Reverse_64(q, p);

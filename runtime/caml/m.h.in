@@ -22,11 +22,11 @@
    Otherwise, leave ARCH_SIXTYFOUR undefined.
    This assumes sizeof(char *) = 4. */
 
-#undef ARCH_BIG_ENDIAN
+#undef WORDS_BIGENDIAN
 
-/* Define ARCH_BIG_ENDIAN if the processor is big endian (the most
+/* Define WORDS_BIGENDIAN if the processor is big endian (the most
    significant byte of an integer stored in memory comes first).
-   Leave ARCH_BIG_ENDIAN undefined if the processor is little-endian
+   Leave WORDS_BIGENDIAN undefined if the processor is little-endian
    (the least significant byte comes first).
 */
 

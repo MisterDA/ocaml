@@ -832,7 +832,6 @@ sharedlib_cflags
 asm_size_type_directives
 asm_cfi_supported
 AS
-endianness
 ASPP
 ocamltest_opt_target
 ocamltest_target
@@ -3541,7 +3540,6 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 
 
  # TODO: rename this variable
-
 
 
 
@@ -17753,13 +17751,10 @@ fi
 printf "%s\n" "$ac_cv_c_bigendian" >&6; }
  case $ac_cv_c_bigendian in #(
    yes)
-
-    printf "%s\n" "#define ARCH_BIG_ENDIAN 1" >>confdefs.h
-
-    endianness="be"
-  ;; #(
+     printf "%s\n" "#define WORDS_BIGENDIAN 1" >>confdefs.h
+;; #(
    no)
-     endianness="le" ;; #(
+      ;; #(
    universal)
      as_fn_error $? "unable to handle universal endianness" "$LINENO" 5
 

@@ -17,6 +17,10 @@
 #ifndef CAML_COMPATIBILITY_H
 #define CAML_COMPATIBILITY_H
 
+#ifdef WORDS_BIGENDIAN
+#define ARCH_BIG_ENDIAN 1
+#endif
+
 #define HAS_STDINT_H 1 /* Deprecated since OCaml 5.3 */
 
 /* HAS_NANOSECOND_STAT is deprecated since OCaml 5.3 */

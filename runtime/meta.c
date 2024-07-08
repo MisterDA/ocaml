@@ -68,7 +68,7 @@ CAMLprim value caml_reify_bytecode(value ls_prog,
   prog = caml_stat_alloc(len + sizeof(opcode_t) * 2 /* for 'RETURN 1' */);
 
   memcpy(prog, Caml_ba_data_val(ls_prog), len);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   caml_fixup_endianness(prog, len);
 #endif
   prog[len / sizeof(opcode_t)] = RETURN;
