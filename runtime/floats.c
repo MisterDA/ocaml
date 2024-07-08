@@ -1058,7 +1058,7 @@ CAMLprim value caml_erfc_float(value f)
 
 union double_as_two_int32 {
     double d;
-#if defined(ARCH_BIG_ENDIAN) || (defined(__arm__) && !defined(__ARM_EABI__))
+#if defined(WORDS_BIGENDIAN) || (defined(__arm__) && !defined(__ARM_EABI__))
     struct { uint32_t h; uint32_t l; } i;
 #else
     struct { uint32_t l; uint32_t h; } i;

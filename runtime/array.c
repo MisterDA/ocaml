@@ -257,7 +257,7 @@ CAMLprim value caml_array_create_float(value len)
     Caml_out_of_heap_header(Double_wosize, Double_tag),
 #if defined(ARCH_SIXTYFOUR)
     0x7FF0000000000001
-#elif defined(ARCH_BIG_ENDIAN)
+#elif defined(WORDS_BIGENDIAN)
     0x7FF00000, 0x00000001,
 #else
     0x00000001, 0x7FF00000

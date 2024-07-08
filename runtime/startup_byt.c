@@ -89,7 +89,7 @@ static void error(char *msg, ...)
 
 static void fixup_endianness_trailer(uint32_t * p)
 {
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   Reverse_32(p, p);
 #endif
 }

@@ -1186,7 +1186,7 @@ CAMLexport void caml_serialize_block_2(void * data, intnat len)
   struct caml_extern_state* s = get_extern_state ();
   if (s->extern_ptr + 2 * len > s->extern_limit)
     grow_extern_output(s, 2 * len);
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   {
     unsigned char * p;
     char * q;
@@ -1205,7 +1205,7 @@ CAMLexport void caml_serialize_block_4(void * data, intnat len)
   struct caml_extern_state* s = get_extern_state ();
   if (s->extern_ptr + 4 * len > s->extern_limit)
     grow_extern_output(s, 4 * len);
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   {
     unsigned char * p;
     char * q;
@@ -1224,7 +1224,7 @@ CAMLexport void caml_serialize_block_8(void * data, intnat len)
   struct caml_extern_state* s = get_extern_state ();
   if (s->extern_ptr + 8 * len > s->extern_limit)
     grow_extern_output(s, 8 * len);
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   {
     unsigned char * p;
     char * q;

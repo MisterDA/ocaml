@@ -159,7 +159,7 @@ typedef uint64_t uintnat;
 
 #if defined(__arm__) && !defined(__ARM_EABI__)
 #define ARCH_FLOAT_ENDIANNESS 0x45670123
-#elif defined(ARCH_BIG_ENDIAN)
+#elif defined(WORDS_BIGENDIAN)
 #define ARCH_FLOAT_ENDIANNESS 0x76543210
 #else
 #define ARCH_FLOAT_ENDIANNESS 0x01234567

@@ -100,7 +100,7 @@ CAMLexport void caml_md5_block(unsigned char digest[16],
  * will fill a supplied 16-byte array with the digest.
  */
 
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
 #define byteReverse(buf, len)   /* Nothing */
 #else
 static void byteReverse(unsigned char * buf, unsigned longs)

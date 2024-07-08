@@ -790,7 +790,7 @@ CAMLprim value caml_ba_uint8_get16(value vb, value vind)
   if (idx < 0 || idx >= b->dim[0] - 1) caml_array_bound_error();
   b1 = ((unsigned char*) b->data)[idx];
   b2 = ((unsigned char*) b->data)[idx+1];
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   res = b1 << 8 | b2;
 #else
   res = b2 << 8 | b1;
@@ -809,7 +809,7 @@ CAMLprim value caml_ba_uint8_get32(value vb, value vind)
   b2 = ((unsigned char*) b->data)[idx+1];
   b3 = ((unsigned char*) b->data)[idx+2];
   b4 = ((unsigned char*) b->data)[idx+3];
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   res = b1 << 24 | b2 << 16 | b3 << 8 | b4;
 #else
   res = b4 << 24 | b3 << 16 | b2 << 8 | b1;
@@ -832,7 +832,7 @@ CAMLprim value caml_ba_uint8_get64(value vb, value vind)
   b6 = ((unsigned char*) b->data)[idx+5];
   b7 = ((unsigned char*) b->data)[idx+6];
   b8 = ((unsigned char*) b->data)[idx+7];
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   res = (uint64_t) b1 << 56 | (uint64_t) b2 << 48
         | (uint64_t) b3 << 40 | (uint64_t) b4 << 32
         | (uint64_t) b5 << 24 | (uint64_t) b6 << 16
@@ -940,7 +940,7 @@ CAMLprim value caml_ba_uint8_set16(value vb, value vind, value newval)
   struct caml_ba_array * b = Caml_ba_array_val(vb);
   if (idx < 0 || idx >= b->dim[0] - 1) caml_array_bound_error();
   val = Long_val(newval);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   b1 = 0xFF & val >> 8;
   b2 = 0xFF & val;
 #else
@@ -960,7 +960,7 @@ CAMLprim value caml_ba_uint8_set32(value vb, value vind, value newval)
   struct caml_ba_array * b = Caml_ba_array_val(vb);
   if (idx < 0 || idx >= b->dim[0] - 3) caml_array_bound_error();
   val = Int32_val(newval);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   b1 = 0xFF & val >> 24;
   b2 = 0xFF & val >> 16;
   b3 = 0xFF & val >> 8;
@@ -986,7 +986,7 @@ CAMLprim value caml_ba_uint8_set64(value vb, value vind, value newval)
   struct caml_ba_array * b = Caml_ba_array_val(vb);
   if (idx < 0 || idx >= b->dim[0] - 7) caml_array_bound_error();
   val = Int64_val(newval);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   b1 = 0xFF & val >> 56;
   b2 = 0xFF & val >> 48;
   b3 = 0xFF & val >> 40;

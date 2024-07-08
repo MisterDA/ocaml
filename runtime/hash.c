@@ -90,7 +90,7 @@ CAMLexport uint32_t caml_hash_mix_double(uint32_t hash, double d)
 {
   union {
     double d;
-#if defined(ARCH_BIG_ENDIAN) || (defined(__arm__) && !defined(__ARM_EABI__))
+#if defined(WORDS_BIGENDIAN) || (defined(__arm__) && !defined(__ARM_EABI__))
     struct { uint32_t h; uint32_t l; } i;
 #else
     struct { uint32_t l; uint32_t h; } i;
@@ -150,7 +150,7 @@ CAMLexport uint32_t caml_hash_mix_string(uint32_t h, value s)
 
   /* Mix by 32-bit blocks (little-endian) */
   for (i = 0; i + 4 <= len; i += 4) {
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
     w = Byte_u(s, i)
         | (Byte_u(s, i+1) << 8)
         | (Byte_u(s, i+2) << 16)

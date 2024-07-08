@@ -656,7 +656,7 @@ CAMLprim value caml_sys_random_seed (value unit)
 
 CAMLprim value caml_sys_const_big_endian(value unit)
 {
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   return Val_true;
 #else
   return Val_false;
@@ -709,7 +709,7 @@ CAMLprim value caml_sys_get_config(value unit)
   result = caml_alloc_small (3, 0);
   Field(result, 0) = ostype;
   Field(result, 1) = Val_long (8 * sizeof(value));
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   Field(result, 2) = Val_true;
 #else
   Field(result, 2) = Val_false;

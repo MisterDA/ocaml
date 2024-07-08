@@ -50,7 +50,7 @@ struct lexing_table {
   value lex_code;
 };
 
-#if defined(ARCH_BIG_ENDIAN) || SIZEOF_SHORT != 2
+#if defined(WORDS_BIGENDIAN) || SIZEOF_SHORT != 2
 #define Short(tbl,n) \
   (*((unsigned char *)((tbl) + (n) * 2)) + \
           (*((signed char *)((tbl) + (n) * 2 + 1)) << 8))
