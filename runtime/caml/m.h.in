@@ -66,11 +66,7 @@
 
 #undef WITH_FRAME_POINTERS
 
-#define NO_NAKED_POINTERS 1
-
 #undef CAML_WITH_FPIC
-
-#define CAML_SAFE_STRING 1
 
 #undef FLAT_FLOAT_ARRAY
 
