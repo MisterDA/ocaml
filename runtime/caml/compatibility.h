@@ -21,6 +21,9 @@
 #define ARCH_BIG_ENDIAN 1
 #endif
 
+#define NO_NAKED_POINTERS 1
+#define CAML_SAFE_STRING 1
+
 #define HAS_STDINT_H 1 /* Deprecated since OCaml 5.3 */
 
 /* HAS_NANOSECOND_STAT is deprecated since OCaml 5.3 */
