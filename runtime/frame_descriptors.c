@@ -221,8 +221,7 @@ static void add_frame_descriptors(
     table->mask = tblsize - 1;
 
     if (table->descriptors != NULL) caml_stat_free(table->descriptors);
-    table->descriptors =
-      (frame_descr **) caml_stat_calloc_noexc(tblsize, sizeof(frame_descr *));
+    table->descriptors = caml_stat_calloc_noexc(tblsize, sizeof(frame_descr *));
     if (table->descriptors == NULL) caml_raise_out_of_memory();
 
     fill_hashtable(table, new_frametables);

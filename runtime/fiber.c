@@ -87,8 +87,7 @@ void caml_change_max_stack_size (uintnat new_max_wsize)
 struct stack_info** caml_alloc_stack_cache (void)
 {
   struct stack_info** stack_cache =
-    (struct stack_info**)caml_stat_alloc_noexc(sizeof(struct stack_info*) *
-                                               NUM_STACK_SIZE_CLASSES);
+    caml_stat_alloc_noexc(sizeof(struct stack_info*) * NUM_STACK_SIZE_CLASSES);
   if (stack_cache == NULL)
     return NULL;
 

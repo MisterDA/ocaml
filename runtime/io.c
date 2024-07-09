@@ -170,8 +170,8 @@ CAMLexport struct channel * caml_open_descriptor_in(int fd)
 {
   struct channel * channel;
 
-  channel = (struct channel *) caml_stat_alloc(sizeof(struct channel));
-  channel->buff = (char *) caml_stat_alloc_noexc(IO_BUFFER_SIZE);
+  channel = caml_stat_alloc(sizeof(struct channel));
+  channel->buff = caml_stat_alloc_noexc(IO_BUFFER_SIZE);
   if (channel->buff == NULL){
     caml_stat_free(channel);
     caml_raise_out_of_memory();

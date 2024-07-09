@@ -39,7 +39,7 @@ static array cstringvect(value arg)
   mlsize_t size;
 
   size = Wosize_val(arg);
-  res = (array) caml_stat_alloc((size + 1) * sizeof(char_os *));
+  res = caml_stat_alloc((size + 1) * sizeof(char_os *));
   for (mlsize_t i = 0; i < size; i++)
     res[i] = caml_stat_strdup_to_os(String_val(Field(arg, i)));
   res[size] = NULL;

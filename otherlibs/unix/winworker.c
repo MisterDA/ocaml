@@ -96,7 +96,7 @@ LPWORKER caml_win32_worker_new (void)
 {
   LPWORKER lpWorker = NULL;
 
-  lpWorker = (LPWORKER)caml_stat_alloc(sizeof(WORKER));
+  lpWorker = caml_stat_alloc(sizeof(WORKER));
   caml_win32_list_init((LPLIST)lpWorker);
   lpWorker->hJobStarted  = CreateEvent(NULL, TRUE, FALSE, NULL);
   lpWorker->hJobStop     = CreateEvent(NULL, TRUE, FALSE, NULL);

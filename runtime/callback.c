@@ -406,7 +406,7 @@ CAMLprim value caml_register_named_value(value vname, value val)
     }
   }
   if (!found) {
-    struct named_value * nv = (struct named_value *)
+    struct named_value * nv =
       caml_stat_alloc(sizeof(struct named_value) + namelen);
     memcpy(nv->name, name, namelen + 1);
     nv->val = val;

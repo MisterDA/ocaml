@@ -184,7 +184,7 @@ static LPSELECTDATA select_data_new (LPSELECTDATA lpSelectData,
   /* Allocate the data structure */
   LPSELECTDATA res;
 
-  res = (LPSELECTDATA)caml_stat_alloc(sizeof(SELECTDATA));
+  res = caml_stat_alloc(sizeof(SELECTDATA));
 
   /* Init common data */
   caml_win32_list_init((LPLIST)res);
@@ -1063,7 +1063,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       exceptfds_len  = caml_list_length(exceptfds);
       hdsMax         = MAX(readfds_len, MAX(writefds_len, exceptfds_len));
 
-      hdsData = (HANDLE *)caml_stat_alloc(sizeof(HANDLE) * hdsMax);
+      hdsData = caml_stat_alloc(sizeof(HANDLE) * hdsMax);
 
       if (tm >= 0.0)
         {
@@ -1142,7 +1142,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       DEBUG_PRINT("Building events done array");
       nEventsMax   = caml_win32_list_length((LPLIST)lpSelectData);
       nEventsCount = 0;
-      lpEventsDone = (HANDLE *)caml_stat_alloc(sizeof(HANDLE) * nEventsMax);
+      lpEventsDone = caml_stat_alloc(sizeof(HANDLE) * nEventsMax);
 
       iterSelectData = lpSelectData;
       while (iterSelectData != NULL)

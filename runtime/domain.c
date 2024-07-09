@@ -613,8 +613,7 @@ static void domain_create(uintnat initial_minor_heap_wsize,
   */
   if (d->state == NULL) {
     /* FIXME: Never freed. Not clear when to. */
-    domain_state = (caml_domain_state*)
-      caml_stat_calloc_noexc(1, sizeof(caml_domain_state));
+    domain_state = caml_stat_calloc_noexc(1, sizeof(caml_domain_state));
     if (domain_state == NULL)
       goto domain_init_complete;
     d->state = domain_state;
@@ -1285,9 +1284,7 @@ CAMLprim value caml_domain_spawn(value callback, value term_sync)
   p.parent = domain_self;
   p.status = Dom_starting;
 
-  p.ml_values =
-      (struct domain_ml_values*) caml_stat_alloc(
-                                    sizeof(struct domain_ml_values));
+  p.ml_values = caml_stat_alloc(sizeof(struct domain_ml_values));
   init_domain_ml_values(p.ml_values, callback, term_sync);
 
   err = pthread_create(&th, 0, domain_thread_func, (void*)&p);

@@ -338,8 +338,7 @@ static void store_argument(wchar_t * arg)
 {
   if (argc + 1 >= argvsize) {
     argvsize *= 2;
-    argv =
-      (wchar_t **) caml_stat_resize_noexc(argv, argvsize * sizeof(wchar_t *));
+    argv = caml_stat_resize_noexc(argv, argvsize * sizeof(wchar_t *));
     if (argv == NULL) out_of_memory();
   }
   argv[argc++] = arg;
@@ -392,7 +391,7 @@ CAMLexport void caml_expand_command_line(int * argcp, wchar_t *** argvp)
 {
   argc = 0;
   argvsize = 16;
-  argv = (wchar_t **) caml_stat_alloc_noexc(argvsize * sizeof(wchar_t *));
+  argv = caml_stat_alloc_noexc(argvsize * sizeof(wchar_t *));
   if (argv == NULL) out_of_memory();
   for (int i = 0; i < *argcp; i++) expand_argument((*argvp)[i]);
   argv[argc] = NULL;
