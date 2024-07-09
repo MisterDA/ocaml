@@ -130,7 +130,7 @@ CAMLprim value caml_unix_has_symlink(value unit)
 
       if (!GetTokenInformation(hProcess, TokenPrivileges, NULL, 0, &length)) {
         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-          TOKEN_PRIVILEGES* privileges = (TOKEN_PRIVILEGES*)caml_stat_alloc(length);
+          TOKEN_PRIVILEGES* privileges = caml_stat_alloc(length);
           if (GetTokenInformation(hProcess,
                                   TokenPrivileges,
                                   privileges,

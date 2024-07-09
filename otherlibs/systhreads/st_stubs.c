@@ -311,7 +311,7 @@ static caml_thread_t caml_thread_new_info(void)
   caml_domain_state *domain_state = Caml_state;
   uintnat stack_wsize = caml_get_init_stack_wsize();
 
-  th = (caml_thread_t)caml_stat_alloc_noexc(sizeof(struct caml_thread_struct));
+  th = caml_stat_alloc_noexc(sizeof(struct caml_thread_struct));
   if (th == NULL) return NULL;
 
   th->descr = Val_unit;
@@ -527,7 +527,7 @@ static void caml_thread_domain_initialize_hook(void)
   caml_check_error(ret, "caml_thread_domain_initialize_hook");
 
   new_thread =
-    (caml_thread_t) caml_stat_alloc(sizeof(struct caml_thread_struct));
+    caml_stat_alloc(sizeof(struct caml_thread_struct));
 
   new_thread->domain_id = Caml_state->id;
   new_thread->descr = caml_thread_new_descriptor(Val_unit);

@@ -89,8 +89,7 @@ void caml_remove_code_fragment(struct code_fragment *cf) {
     for [caml_remove_code_fragment] to be called concurrently and we need
     to ensure that only one code_fragment is put on to the garbage list */
   if (caml_lf_skiplist_remove(&code_fragments_by_num, cf->fragnum)) {
-    cf_cell = (struct code_fragment_garbage *)caml_stat_alloc(
-        sizeof(struct code_fragment_garbage));
+    cf_cell = caml_stat_alloc(sizeof(struct code_fragment_garbage));
 
     cf_cell->cf = cf;
 

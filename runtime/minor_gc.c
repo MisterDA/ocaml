@@ -60,8 +60,7 @@ static void alloc_generic_table (struct generic_table *tbl, asize_t sz,
 
   tbl->size = sz;
   tbl->reserve = rsv;
-  new_table = (void *) caml_stat_alloc_noexc((tbl->size + tbl->reserve) *
-                                             element_size);
+  new_table = caml_stat_alloc_noexc((tbl->size + tbl->reserve) * element_size);
   if (new_table == NULL) caml_fatal_error ("not enough memory");
   if (tbl->base != NULL) caml_stat_free (tbl->base);
   tbl->base = new_table;

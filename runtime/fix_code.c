@@ -50,7 +50,7 @@ void caml_init_code_fragments(void) {
 void caml_load_code(int fd, asize_t len)
 {
   caml_code_size = len;
-  caml_start_code = (code_t) caml_stat_alloc(caml_code_size);
+  caml_start_code = caml_stat_alloc(caml_code_size);
   if (read(fd, (char *) caml_start_code, caml_code_size) != caml_code_size)
     caml_fatal_error("truncated bytecode file");
   caml_init_code_fragments();
@@ -95,7 +95,7 @@ static int* opcode_nargs = NULL;
 int* caml_init_opcode_nargs(void)
 {
   if( opcode_nargs == NULL ){
-    int* l = (int*)caml_stat_alloc(sizeof(int) * FIRST_UNIMPLEMENTED_OP);
+    int* l = caml_stat_alloc(sizeof(int) * FIRST_UNIMPLEMENTED_OP);
     for (int i = 0; i < FIRST_UNIMPLEMENTED_OP; i++) {
       l [i] = 0;
     }

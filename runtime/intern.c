@@ -405,8 +405,7 @@ static void intern_alloc_storage(struct caml_intern_state* s, mlsize_t whsize,
   }
   s->obj_counter = 0;
   if (num_objects > 0) {
-    s->intern_obj_table =
-      (value *) caml_stat_alloc_noexc(num_objects * sizeof(value));
+    s->intern_obj_table = caml_stat_alloc_noexc(num_objects * sizeof(value));
     if (s->intern_obj_table == NULL) {
       intern_cleanup(s);
       caml_raise_out_of_memory();
