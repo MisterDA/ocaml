@@ -36,17 +36,15 @@ static void set_EFF(void)
     int symbol;
     short *sp;
     int rowsize;
-    int i;
-    int rule;
 
     rowsize = WORDSIZE(nvars);
     EFF = NEW2(nvars * rowsize, unsigned);
 
     row = EFF;
-    for (i = start_symbol; i < nsyms; i++)
+    for (int i = start_symbol; i < nsyms; i++)
     {
         sp = derives[i];
-        for (rule = *sp; rule > 0; rule = *++sp)
+        for (int rule = *sp; rule > 0; rule = *++sp)
         {
             symbol = ritem[rrhs[rule]];
             if (ISVAR(symbol))
@@ -70,13 +68,11 @@ void set_first_derives(void)
 {
   unsigned *rrow;
   unsigned *vrow;
-  int j;
   unsigned mask;
   unsigned cword;
   short *rp;
 
   int rule;
-  int i;
   int rulesetsize;
   int varsetsize;
 
@@ -87,12 +83,12 @@ void set_first_derives(void)
   set_EFF();
 
   rrow = first_derives + ntokens * rulesetsize;
-  for (i = start_symbol; i < nsyms; i++)
+  for (int i = start_symbol; i < nsyms; i++)
     {
       vrow = EFF + ((i - ntokens) * varsetsize);
       cword = *vrow++;
       mask = 1;
-      for (j = start_symbol; j < nsyms; j++)
+      for (int j = start_symbol; j < nsyms; j++)
         {
           if (cword & mask)
             {
@@ -208,31 +204,28 @@ void finalize_closure(void)
 
 void print_closure(int n)
 {
-  short *isp;
-
   printf("\n\nn = %d\n\n", n);
-  for (isp = itemset; isp < itemsetend; isp++)
+  for (short *isp = itemset; isp < itemsetend; isp++)
     printf("   %d\n", *isp);
 }
 
 
 void print_EFF(void)
 {
-    int i, j;
     unsigned *rowp;
     unsigned word;
     unsigned mask;
 
     printf("\n\nEpsilon Free Firsts\n");
 
-    for (i = start_symbol; i < nsyms; i++)
+    for (int i = start_symbol; i < nsyms; i++)
     {
         printf("\n%s", symbol_name[i]);
         rowp = EFF + ((i - start_symbol) * WORDSIZE(nvars));
         word = *rowp++;
 
         mask = 1;
-        for (j = 0; j < nvars; j++)
+        for (int j = 0; j < nvars; j++)
         {
             if (word & mask)
                 printf("  %s", symbol_name[start_symbol + j]);
@@ -250,21 +243,19 @@ void print_EFF(void)
 
 void print_first_derives(void)
 {
-  int i;
-  int j;
   unsigned *rp;
   unsigned cword;
   unsigned mask;
 
   printf("\n\n\nFirst Derives\n");
 
-  for (i = start_symbol; i < nsyms; i++)
+  for (int i = start_symbol; i < nsyms; i++)
     {
       printf("\n%s derives\n", symbol_name[i]);
       rp = first_derives + i * WORDSIZE(nrules);
       cword = *rp++;
       mask = 1;
-      for (j = 0; j <= nrules; j++)
+      for (int j = 0; j <= nrules; j++)
         {
           if (cword & mask)
             printf("   %d\n", j);

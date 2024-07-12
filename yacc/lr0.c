@@ -56,10 +56,8 @@ void show_cores (void), show_ritems (void), show_rrhs (void), show_shifts (void)
 
 static void allocate_itemsets(void)
 {
-    short *itemp;
     short *item_end;
     int symbol;
-    int i;
     int count;
     int max;
     short *symbol_count;
@@ -68,7 +66,7 @@ static void allocate_itemsets(void)
     symbol_count = NEW2(nsyms, short);
 
     item_end = ritem + nitems;
-    for (itemp = ritem; itemp < item_end; itemp++)
+    for (short *itemp = ritem; itemp < item_end; itemp++)
     {
         symbol = *itemp;
         if (symbol >= 0)
@@ -83,7 +81,7 @@ static void allocate_itemsets(void)
 
     count = 0;
     max = 0;
-    for (i = 0; i < nsyms; i++)
+    for (int i = 0; i < nsyms; i++)
     {
         kernel_base[i] = kernel_items + count;
         count += symbol_count[i];
@@ -107,14 +105,13 @@ static void allocate_storage(void)
 
 static void append_states(void)
 {
-    int i;
     int j;
     int symbol;
 
 #ifdef        TRACE
     fprintf(stderr, "Entering append_states()\n");
 #endif
-    for (i = 1; i < nshifts; i++)
+    for (int i = 1; i < nshifts; i++)
     {
         symbol = shift_symbol[i];
         j = i;
@@ -126,7 +123,7 @@ static void append_states(void)
         shift_symbol[j] = symbol;
     }
 
-    for (i = 0; i < nshifts; i++)
+    for (int i = 0; i < nshifts; i++)
     {
         symbol = shift_symbol[i];
         shiftset[i] = get_state(symbol);
@@ -267,20 +264,19 @@ void initialize_states(void)
 
 void new_itemsets(void)
 {
-    int i;
     int shiftcount;
     short *isp;
     short *ksp;
     int symbol;
 
-    for (i = 0; i < nsyms; i++)
+    for (int i = 0; i < nsyms; i++)
         kernel_end[i] = 0;
 
     shiftcount = 0;
     isp = itemset;
     while (isp < itemsetend)
     {
-        i = *isp++;
+        int i = *isp++;
         symbol = ritem[i];
         if (symbol > 0)
         {
@@ -343,22 +339,20 @@ new_state(int symbol)
 
 void show_cores(void)
 {
-    core *p;
-    int i, j, k, n;
-    int itemno;
+    int k;
 
     k = 0;
-    for (p = first_state; p; ++k, p = p->next)
+    for (core *p = first_state; p; ++k, p = p->next)
     {
         if (k) printf("\n");
         printf("state %d, number = %d, accessing symbol = %s\n",
                 k, p->number, symbol_name[p->accessing_symbol]);
-        n = p->nitems;
-        for (i = 0; i < n; ++i)
+        int n = p->nitems;
+        for (int i = 0; i < n; ++i)
         {
-            itemno = p->items[i];
+            int itemno = p->items[i];
             printf("%4d  ", itemno);
-            j = itemno;
+            int j = itemno;
             while (ritem[j] >= 0) ++j;
             printf("%s :", symbol_name[rlhs[-ritem[j]]]);
             j = rrhs[-ritem[j]];
@@ -378,9 +372,7 @@ void show_cores(void)
 
 void show_ritems(void)
 {
-    int i;
-
-    for (i = 0; i < nitems; ++i)
+    for (int i = 0; i < nitems; ++i)
         printf("ritem[%d] = %d\n", i, ritem[i]);
 }
 
@@ -389,9 +381,7 @@ void show_ritems(void)
 
 void show_rrhs(void)
 {
-    int i;
-
-    for (i = 0; i < nrules; ++i)
+    for (int i = 0; i < nrules; ++i)
         printf("rrhs[%d] = %d\n", i, rrhs[i]);
 }
 
@@ -400,17 +390,16 @@ void show_rrhs(void)
 
 void show_shifts(void)
 {
-    shifts *p;
-    int i, j, k;
+    int k;
 
     k = 0;
-    for (p = first_shift; p; ++k, p = p->next)
+    for (shifts *p = first_shift; p; ++k, p = p->next)
     {
         if (k) printf("\n");
         printf("shift %d, number = %d, nshifts = %d\n", k, p->number,
                 p->nshifts);
-        j = p->nshifts;
-        for (i = 0; i < j; ++i)
+        int j = p->nshifts;
+        for (int i = 0; i < j; ++i)
             printf("\t%d\n", p->shift[i]);
     }
 }
@@ -452,7 +441,6 @@ void save_shifts(void)
 
 void save_reductions(void)
 {
-    short *isp;
     short *rp1;
     short *rp2;
     int item;
@@ -461,7 +449,7 @@ void save_reductions(void)
     short *rend;
 
     count = 0;
-    for (isp = itemset; isp < itemsetend; isp++)
+    for (short *isp = itemset; isp < itemsetend; isp++)
     {
         item = ritem[*isp];
         if (item < 0)
@@ -502,14 +490,13 @@ void save_reductions(void)
 static void set_derives(void)
 {
     int i, k;
-    int lhs;
     short *rules;
 
     derives = NEW2(nsyms, short *);
     rules = NEW2(nvars + nrules, short);
 
     k = 0;
-    for (lhs = start_symbol; lhs < nsyms; lhs++)
+    for (int lhs = start_symbol; lhs < nsyms; lhs++)
     {
         derives[lhs] = rules + k;
         for (i = 0; i < nrules; i++)
@@ -532,12 +519,11 @@ static void set_derives(void)
 #ifdef        DEBUG
 void print_derives(void)
 {
-    int i;
     short *sp;
 
     printf("\nDERIVES\n\n");
 
-    for (i = start_symbol; i < nsyms; i++)
+    for (int i = start_symbol; i < nsyms; i++)
     {
         printf("%s derives ", symbol_name[i]);
         for (sp = derives[i]; *sp >= 0; sp++)
@@ -554,23 +540,22 @@ void print_derives(void)
 
 static void set_nullable(void)
 {
-    int i, j;
-    int empty;
     int done;
 
     nullable = MALLOC(nsyms);
     if (nullable == 0) no_space();
 
-    for (i = 0; i < nsyms; ++i)
+    for (int i = 0; i < nsyms; ++i)
         nullable[i] = 0;
 
     done = 0;
     while (!done)
     {
         done = 1;
-        for (i = 1; i < nitems; i++)
+        for (int i = 1; i < nitems; i++)
         {
-            empty = 1;
+            int j;
+            int empty = 1;
             while ((j = ritem[i]) >= 0)
             {
                 if (!nullable[j])
@@ -590,7 +575,7 @@ static void set_nullable(void)
     }
 
 #ifdef DEBUG
-    for (i = 0; i < nsyms; i++)
+    for (int i = 0; i < nsyms; i++)
     {
         if (nullable[i])
             printf("%s is nullable\n", symbol_name[i]);

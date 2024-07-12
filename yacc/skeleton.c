@@ -48,11 +48,10 @@ char *define_tables[] =
 
 void write_section(char **section)
 {
-    int i;
     FILE *fp;
 
     fp = code_file;
-    for (i = 0; section[i]; ++i)
+    for (int i = 0; section[i]; ++i)
     {
         ++outline;
         fprintf(fp, "%s\n", section[i]);

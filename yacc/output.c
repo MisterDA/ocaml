@@ -112,7 +112,6 @@ static void output_short(int n)
 
 void output_rule_data(void)
 {
-    int i;
     int j;
 
 
@@ -120,7 +119,7 @@ void output_rule_data(void)
     output_short(symbol_value[start_symbol]);
 
     j = 8;
-    for (i = 3; i < nrules; i++)
+    for (int i = 3; i < nrules; i++)
     {
         if (j >= 8)
         {
@@ -140,7 +139,7 @@ void output_rule_data(void)
     output_short(2);
 
     j = 8;
-    for (i = 3; i < nrules; i++)
+    for (int i = 3; i < nrules; i++)
     {
         if (j >= 8)
         {
@@ -160,13 +159,13 @@ void output_rule_data(void)
 
 void output_yydefred(void)
 {
-    int i, j;
+    int j;
 
     fprintf(output_file, "let yydefred = \"");
     output_short(defred[0] ? defred[0] - 2 : 0);
 
     j = 8;
-    for (i = 1; i < nstates; i++)
+    for (int i = 1; i < nstates; i++)
     {
         if (j < 8)
             ++j;
@@ -215,18 +214,17 @@ void output_actions(void)
 
 void token_actions(void)
 {
-    int i, j;
     int shiftcount, reducecount;
     int max, min;
     short *actionrow, *r, *s;
     action *p;
 
     actionrow = NEW2(2*ntokens, short);
-    for (i = 0; i < nstates; ++i)
+    for (int i = 0; i < nstates; ++i)
     {
         if (parser[i])
         {
-            for (j = 0; j < 2*ntokens; ++j)
+            for (int j = 0; j < 2*ntokens; ++j)
             actionrow[j] = 0;
 
             shiftcount = 0;
@@ -258,7 +256,7 @@ void token_actions(void)
                 tos[i] = s = NEW2(shiftcount, short);
                 min = MAXSHORT;
                 max = 0;
-                for (j = 0; j < ntokens; ++j)
+                for (int j = 0; j < ntokens; ++j)
                 {
                     if (actionrow[j])
                     {
@@ -278,7 +276,7 @@ void token_actions(void)
                 tos[nstates+i] = s = NEW2(reducecount, short);
                 min = MAXSHORT;
                 max = 0;
-                for (j = 0; j < ntokens; ++j)
+                for (int j = 0; j < ntokens; ++j)
                 {
                     if (actionrow[ntokens+j])
                     {
@@ -299,7 +297,7 @@ void token_actions(void)
 
 void goto_actions(void)
 {
-    int i, j, k;
+    int j, k;
 
     state_count = NEW2(nstates, short);
 
@@ -310,7 +308,7 @@ void goto_actions(void)
     save_column(start_symbol + 1, k);
 
     j = 8;
-    for (i = start_symbol + 2; i < nsyms; i++)
+    for (int i = start_symbol + 2; i < nsyms; i++)
     {
         if (j >= 8)
         {
@@ -334,7 +332,6 @@ void goto_actions(void)
 int
 default_goto(int symbol)
 {
-    int i;
     int m;
     int n;
     int default_state;
@@ -345,15 +342,15 @@ default_goto(int symbol)
 
     if (m == n) return (0);
 
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
         state_count[i] = 0;
 
-    for (i = m; i < n; i++)
+    for (int i = m; i < n; i++)
         state_count[to_state[i]]++;
 
     max = 0;
     default_state = 0;
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
     {
         if (state_count[i] > max)
         {
@@ -369,7 +366,6 @@ default_goto(int symbol)
 
 void save_column(int symbol, int default_state)
 {
-    int i;
     int m;
     int n;
     short *sp;
@@ -382,7 +378,7 @@ void save_column(int symbol, int default_state)
     n = goto_map[symbol + 1];
 
     count = 0;
-    for (i = m; i < n; i++)
+    for (int i = m; i < n; i++)
     {
         if (to_state[i] != default_state)
             ++count;
@@ -394,7 +390,7 @@ void save_column(int symbol, int default_state)
     froms[symno] = sp1 = sp = NEW2(count, short);
     tos[symno] = sp2 = NEW2(count, short);
 
-    for (i = m; i < n; i++)
+    for (int i = m; i < n; i++)
     {
         if (to_state[i] != default_state)
         {
@@ -409,7 +405,6 @@ void save_column(int symbol, int default_state)
 
 void sort_actions(void)
 {
-  int i;
   int j;
   int k;
   int t;
@@ -418,7 +413,7 @@ void sort_actions(void)
   order = NEW2(nvectors, short);
   nentries = 0;
 
-  for (i = 0; i < nvectors; i++)
+  for (int i = 0; i < nvectors; i++)
     {
       if (tally[i] > 0)
         {
@@ -444,7 +439,6 @@ void sort_actions(void)
 
 void pack_table(void)
 {
-    int i;
     int place;
     int state;
 
@@ -458,10 +452,10 @@ void pack_table(void)
     lowzero = 0;
     high = 0;
 
-    for (i = 0; i < maxtable; i++)
+    for (int i = 0; i < maxtable; i++)
         check[i] = -1;
 
-    for (i = 0; i < nentries; i++)
+    for (int i = 0; i < nentries; i++)
     {
         state = matching_vector(i);
 
@@ -474,7 +468,7 @@ void pack_table(void)
         base[order[i]] = place;
     }
 
-    for (i = 0; i < nvectors; i++)
+    for (int i = 0; i < nvectors; i++)
     {
         if (froms[i])
             FREE(froms[i]);
@@ -508,12 +502,9 @@ int
 matching_vector(int vector)
 {
     int i;
-    int j;
-    int k;
     int t;
     int w;
     int match;
-    int prev;
 
     i = order[vector];
     if (i >= 2*nstates)
@@ -522,14 +513,14 @@ matching_vector(int vector)
     t = tally[i];
     w = width[i];
 
-    for (prev = vector - 1; prev >= 0; prev--)
+    for (int prev = vector - 1; prev >= 0; prev--)
     {
-        j = order[prev];
+        int j = order[prev];
         if (width[j] != w || tally[j] != t)
             return (-1);
 
         match = 1;
-        for (k = 0; match && k < t; k++)
+        for (int k = 0; match && k < t; k++)
         {
             if (tos[j][k] != tos[i][k] || froms[j][k] != froms[i][k])
                 match = 0;
@@ -547,7 +538,7 @@ matching_vector(int vector)
 int
 pack_vector(int vector)
 {
-    int i, j, k, l;
+    int i, j;
     int t;
     int loc;
     int ok;
@@ -563,7 +554,7 @@ pack_vector(int vector)
     to = tos[i];
 
     j = lowzero - from[0];
-    for (k = 1; k < t; ++k)
+    for (int k = 1; k < t; ++k)
         if (lowzero - from[k] > j)
             j = lowzero - from[k];
     for (;; ++j)
@@ -571,7 +562,7 @@ pack_vector(int vector)
         if (j == 0)
             continue;
         ok = 1;
-        for (k = 0; ok && k < t; k++)
+        for (int k = 0; ok && k < t; k++)
         {
             loc = j + from[k];
             if (loc >= maxtable)
@@ -585,7 +576,7 @@ pack_vector(int vector)
                 if (table == 0) no_space();
                 check = (short *) REALLOC(check, newmax*sizeof(short));
                 if (check == 0) no_space();
-                for (l  = maxtable; l < newmax; ++l)
+                for (int l = maxtable; l < newmax; ++l)
                 {
                     table[l] = 0;
                     check[l] = -1;
@@ -596,14 +587,14 @@ pack_vector(int vector)
             if (check[loc] != -1)
                 ok = 0;
         }
-        for (k = 0; ok && k < vector; k++)
+        for (int k = 0; ok && k < vector; k++)
         {
             if (pos[k] == j)
                 ok = 0;
         }
         if (ok)
         {
-            for (k = 0; k < t; k++)
+            for (int k = 0; k < t; k++)
             {
                 loc = j + from[k];
                 table[loc] = to[k];
@@ -623,13 +614,13 @@ pack_vector(int vector)
 
 void output_base(void)
 {
-    int i, j;
+    int j;
 
     fprintf(output_file, "let yysindex = \"");
     output_short(base[0]);
 
     j = 8;
-    for (i = 1; i < nstates; i++)
+    for (int i = 1; i < nstates; i++)
     {
         if (j >= 8)
         {
@@ -650,7 +641,7 @@ void output_base(void)
     output_short(base[nstates]);
 
     j = 8;
-    for (i = nstates + 1; i < 2*nstates; i++)
+    for (int i = nstates + 1; i < 2 * nstates; i++)
     {
         if (j >= 8)
         {
@@ -671,7 +662,7 @@ void output_base(void)
     output_short(base[2*nstates]);
 
     j = 8;
-    for (i = 2*nstates + 1; i < nvectors - 1; i++)
+    for (int i = 2 * nstates + 1; i < nvectors - 1; i++)
     {
         if (j >= 8)
         {
@@ -694,7 +685,6 @@ void output_base(void)
 
 void output_table(void)
 {
-    int i;
     int j;
 
     ++outline;
@@ -703,7 +693,7 @@ void output_table(void)
     output_short(table[0]);
 
     j = 8;
-    for (i = 1; i <= high; i++)
+    for (int i = 1; i <= high; i++)
     {
         if (j >= 8)
         {
@@ -726,14 +716,13 @@ void output_table(void)
 
 void output_check(void)
 {
-    int i;
     int j;
 
     fprintf(output_file, "let yycheck = \"");
     output_short(check[0]);
 
     j = 8;
-    for (i = 1; i <= high; i++)
+    for (int i = 1; i <= high; i++)
     {
         if (j >= 8)
         {
@@ -755,11 +744,9 @@ void output_check(void)
 
 void output_transl(void)
 {
-  int i;
-
   ++outline;
   fprintf(code_file, "let yytransl_const = [|\n");
-  for (i = 0; i < ntokens; i++) {
+  for (int i = 0; i < ntokens; i++) {
     if (symbol_true_token[i] && symbol_tag[i] == NULL) {
       ++outline;
       fprintf(code_file, "  %3d (* %s *);\n", symbol_value[i], symbol_name[i]);
@@ -769,7 +756,7 @@ void output_transl(void)
   fprintf(code_file, "    0|]\n\n");
   ++outline;
   fprintf(code_file, "let yytransl_block = [|\n");
-  for (i = 0; i < ntokens; i++) {
+  for (int i = 0; i < ntokens; i++) {
     if (symbol_true_token[i] && symbol_tag[i] != NULL) {
       ++outline;
       fprintf(code_file, "  %3d (* %s *);\n", symbol_value[i], symbol_name[i]);
@@ -808,11 +795,9 @@ void output_stored_text(void)
 
 void output_debug(void)
 {
-  int i;
-
   ++outline;
   fprintf(code_file, "let yynames_const = \"\\\n");
-  for (i = 0; i < ntokens; i++) {
+  for (int i = 0; i < ntokens; i++) {
     if (symbol_true_token[i] && symbol_tag[i] == NULL) {
       ++outline;
       fprintf(code_file, "  %s\\000\\\n", symbol_name[i]);
@@ -822,7 +807,7 @@ void output_debug(void)
   fprintf(code_file, "  \"\n\n");
   ++outline;
   fprintf(code_file, "let yynames_block = \"\\\n");
-  for (i = 0; i < ntokens; i++) {
+  for (int i = 0; i < ntokens; i++) {
     if (symbol_true_token[i] && symbol_tag[i] != NULL) {
       ++outline;
       fprintf(code_file, "  %s\\000\\\n", symbol_name[i]);
@@ -947,10 +932,8 @@ void output_entries(void)
 
 void free_itemsets(void)
 {
-    core *cp, *next;
-
     FREE(state_table);
-    for (cp = first_state; cp; cp = next)
+    for (core *cp = first_state, *next; cp; cp = next)
     {
         next = cp->next;
         FREE(cp);
@@ -960,10 +943,8 @@ void free_itemsets(void)
 
 void free_shifts(void)
 {
-    shifts *sp, *next;
-
     FREE(shift_table);
-    for (sp = first_shift; sp; sp = next)
+    for (shifts *sp = first_shift, *next; sp; sp = next)
     {
         next = sp->next;
         FREE(sp);
@@ -974,10 +955,8 @@ void free_shifts(void)
 
 void free_reductions(void)
 {
-    reductions *rp, *next;
-
     FREE(reduction_table);
-    for (rp = first_reduction; rp; rp = next)
+    for (reductions *rp = first_reduction, *next; rp; rp = next)
     {
         next = rp->next;
         FREE(rp);

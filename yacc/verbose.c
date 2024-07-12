@@ -34,14 +34,12 @@ void print_gotos (int stateno);
 
 void verbose(void)
 {
-    int i;
-
     if (!vflag) return;
 
     null_rules = (short *) MALLOC(nrules*sizeof(short));
     if (null_rules == 0) no_space();
     fprintf(verbose_file, "\f\n");
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
         print_state(i);
     FREE(null_rules);
 
@@ -58,16 +56,13 @@ void verbose(void)
 
 void log_unused(void)
 {
-    int i;
-    short *p;
-
     fprintf(verbose_file, "\n\nRules never reduced:\n");
-    for (i = 3; i < nrules; ++i)
+    for (int i = 3; i < nrules; ++i)
     {
         if (!rules_used[i])
         {
             fprintf(verbose_file, "\t%s :", symbol_name[rlhs[i]]);
-            for (p = ritem + rrhs[i]; *p >= 0; ++p)
+            for (short *p = ritem + rrhs[i]; *p >= 0; ++p)
                 fprintf(verbose_file, " %s", symbol_name[*p]);
             fprintf(verbose_file, "  (%d)\n", i - 2);
         }
@@ -77,10 +72,8 @@ void log_unused(void)
 
 void log_conflicts(void)
 {
-    int i;
-
     fprintf(verbose_file, "\n\n");
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
     {
         if (SRconflicts[i] || RRconflicts[i])
         {
@@ -119,12 +112,11 @@ void print_state(int state)
 void print_conflicts(int state)
 {
     int symbol, act, number;
-    action *p;
 
     symbol = -1;
     act = 0;
     number = 0;
-    for (p = parser[state]; p; p = p->next)
+    for (action *p = parser[state]; p; p = p->next)
     {
         if (p->suppressed == 2)
             continue;
@@ -167,7 +159,6 @@ void print_conflicts(int state)
 
 void print_core(int state)
 {
-    int i;
     int k;
     int rule;
     core *statep;
@@ -177,7 +168,7 @@ void print_core(int state)
     statep = state_table[state];
     k = statep->nitems;
 
-    for (i = 0; i < k; i++)
+    for (int i = 0; i < k; i++)
     {
         sp1 = sp = ritem + statep->items[i];
 
@@ -202,18 +193,18 @@ void print_core(int state)
 
 void print_nulls(int state)
 {
-    action *p;
-    int i, j, k, nnulls;
+    int nnulls;
 
     nnulls = 0;
-    for (p = parser[state]; p; p = p->next)
+    for (action *p = parser[state]; p; p = p->next)
     {
         if (p->action_code == REDUCE &&
                 (p->suppressed == 0 || p->suppressed == 1))
         {
-            i = p->number;
+            int i = p->number;
             if (rrhs[i] + 1 == rrhs[i+1])
             {
+                int j;
                 for (j = 0; j < nnulls && i > null_rules[j]; ++j)
                     continue;
 
@@ -225,7 +216,7 @@ void print_nulls(int state)
                 else if (i != null_rules[j])
                 {
                     ++nnulls;
-                    for (k = nnulls - 1; k > j; --k)
+                    for (int k = nnulls - 1; k > j; --k)
                         null_rules[k] = null_rules[k-1];
                     null_rules[j] = i;
                 }
@@ -233,9 +224,9 @@ void print_nulls(int state)
         }
     }
 
-    for (i = 0; i < nnulls; ++i)
+    for (int i = 0; i < nnulls; ++i)
     {
-        j = null_rules[i];
+        int j = null_rules[i];
         fprintf(verbose_file, "\t%s : .  (%d)\n", symbol_name[rlhs[j]],
                 j - 2);
     }
@@ -272,10 +263,9 @@ void print_actions(int stateno)
 void print_shifts(action *p)
 {
     int count;
-    action *q;
 
     count = 0;
-    for (q = p; q; q = q->next)
+    for (action *q = p; q; q = q->next)
     {
         if (q->suppressed < 2 && q->action_code == SHIFT)
             ++count;
@@ -296,10 +286,9 @@ void print_shifts(action *p)
 void print_reductions(action *p, int defred)
 {
     int k, anyreds;
-    action *q;
 
     anyreds = 0;
-    for (q = p; q ; q = q->next)
+    for (action *q = p; q; q = q->next)
     {
         if (q->action_code == REDUCE && q->suppressed < 2)
         {
@@ -331,7 +320,7 @@ void print_reductions(action *p, int defred)
 
 void print_gotos(int stateno)
 {
-    int i, k;
+    int k;
     int as;
     short *to_state;
     shifts *sp;
@@ -339,7 +328,7 @@ void print_gotos(int stateno)
     putc('\n', verbose_file);
     sp = shift_table[stateno];
     to_state = sp->shift;
-    for (i = 0; i < sp->nshifts; ++i)
+    for (int i = 0; i < sp->nshifts; ++i)
     {
         k = to_state[i];
         as = accessing_symbol[k];

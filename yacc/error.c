@@ -54,10 +54,8 @@ void unexpected_EOF(void)
 
 static void print_pos(char *st_line, char *st_cptr)
 {
-    char *s;
-
     if (st_line == 0) return;
-    for (s = st_line; *s != '\n'; ++s)
+    for (char *s = st_line; *s != '\n'; ++s)
     {
         if (isprint((unsigned char) *s) || *s == '\t')
             putc(*s, stderr);
@@ -65,7 +63,7 @@ static void print_pos(char *st_line, char *st_cptr)
             putc('?', stderr);
     }
     putc('\n', stderr);
-    for (s = st_line; s < st_cptr; ++s)
+    for (char *s = st_line; s < st_cptr; ++s)
     {
         if (*s == '\t')
             putc('\t', stderr);

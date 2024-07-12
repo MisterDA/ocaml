@@ -325,8 +325,7 @@ static void process_open_curly_bracket(FILE *f) {
                 if (c == '|')
                 {
                     int match = 1;
-                    size_t i;
-                    for (i = 0; i <= size; ++i) {
+                    for (size_t i = 0; i <= size; ++i) {
                         if (cptr[i] != buf[i]) {
                             match = 0;
                             break;
@@ -415,13 +414,12 @@ static void process_comment(FILE *const f) {
 
 static char *substring (char *str, int start, int len)
 {
-  int i;
   char *buf = MALLOC (len+1);
   if (buf == NULL) return NULL;
-  for (i = 0; i < len; i++){
+  for (int i = 0; i < len; i++){
     buf[i] = str[start+i];
   }
-  buf[i] = '\0';      /* PR#4796 */
+  buf[len] = '\0';      /* PR#4796 */
   return buf;
 }
 
@@ -690,10 +688,8 @@ is_reserved(char *name)
 static bucket *
 get_name(void)
 {
-    int c;
-
     cinc = 0;
-    for (c = *cptr; IS_IDENT(c); c = *++cptr)
+    for (int c = *cptr; IS_IDENT(c); c = *++cptr)
         cachec(c);
     cachec(NUL);
 
@@ -706,11 +702,10 @@ get_name(void)
 static int
 get_number(void)
 {
-    int c;
     int n;
 
     n = 0;
-    for (c = *cptr; isdigit(c); c = *++cptr)
+    for (int c = *cptr; isdigit(c); c = *++cptr)
         n = 10*n + (c - '0');
 
     return (n);
@@ -721,7 +716,6 @@ static char *
 get_tag(void)
 {
     int c;
-    int i;
     char *s;
     char *t_line = dup_line();
     long bracket_depth;
@@ -740,7 +734,7 @@ get_tag(void)
     ++cptr;
     cachec(NUL);
 
-    for (i = 0; i < ntags; ++i)
+    for (int i = 0; i < ntags; ++i)
     {
         if (strcmp(cache, tag_table[i]) == 0) {
             FREE(t_line);
@@ -933,13 +927,10 @@ static int infline = 1;
 
 static void output_token_type(void)
 {
-  bucket * bp;
-  int i;
-
   fprintf(interface_file, "type token =\n");
   if (!rflag) ++outline;
   fprintf(output_file, "type token =\n");
-  for (bp = first_symbol; bp; bp = bp->next) {
+  for (bucket * bp = first_symbol; bp; bp = bp->next) {
     if (bp->class == TERM && bp->true_token) {
       fprintf(interface_file, "  | %s", bp->name);
       fprintf(output_file, "  | %s", bp->name);
@@ -948,7 +939,7 @@ static void output_token_type(void)
            that the constructor is unary */
         fprintf(output_file, " of (\n" line_format, bp->lineno, input_file_name_disp);
         fprintf(interface_file, " of (\n" line_format, bp->lineno, input_file_name_disp);
-        for (i = 0; i < bp->column; i++) {
+        for (int i = 0; i < bp->column; i++) {
             fputc(' ', interface_file);
             fputc(' ', output_file);
         }
@@ -1139,7 +1130,7 @@ static void
 copy_action(void)
 {
     int c;
-    int i, n;
+    int n;
     int depth;
     bucket *item;
     char *tagres;
@@ -1162,9 +1153,9 @@ copy_action(void)
       fprintf(f, "; (fun __caml_parser_env ->\n");
 
     n = 0;
-    for (i = nitems - 1; pitem[i]; --i) ++n;
+    for (int i = nitems - 1; pitem[i]; --i) ++n;
 
-    for (i = 1; i <= n; i++) {
+    for (int i = 1; i <= n; i++) {
       item = pitem[nitems + i - n - 1];
       if (item->class == TERM && !item->tag) continue;
       fprintf(f, "    let _%d = ", i);
@@ -1179,7 +1170,7 @@ copy_action(void)
     }
     fprintf(f, "    Obj.repr(\n");
     fprintf(f, line_format, lineno, input_file_name_disp);
-    for (i = 0; i < cptr - line; i++) fputc(' ', f);
+    for (int i = 0; i < cptr - line; i++) fputc(' ', f);
     fputc ('(', f);
 
     depth = 1;
@@ -1192,7 +1183,7 @@ loop:
         if (isdigit((unsigned char) cptr[1]))
         {
             ++cptr;
-            i = get_number();
+            int i = get_number();
 
             if (i <= 0 || i > n)
               unknown_rhs(i);
@@ -1359,11 +1350,9 @@ read_grammar(void)
 static void
 free_tags(void)
 {
-    int i;
-
     if (tag_table == 0) return;
 
-    for (i = 0; i < ntags; ++i)
+    for (int i = 0; i < ntags; ++i)
     {
         assert(tag_table[i]);
         FREE(tag_table[i]);
@@ -1375,11 +1364,10 @@ free_tags(void)
 static void
 pack_names(void)
 {
-    bucket *bp;
     char *p, *s, *t;
 
     name_pool_size = 13;  /* 13 == sizeof("$end") + sizeof("$accept") */
-    for (bp = first_symbol; bp; bp = bp->next)
+    for (bucket *bp = first_symbol; bp; bp = bp->next)
         name_pool_size += strlen(bp->name) + 1;
     name_pool = MALLOC(name_pool_size);
     if (name_pool == 0) no_space();
@@ -1387,7 +1375,7 @@ pack_names(void)
     strcpy(name_pool, "$accept");
     strcpy(name_pool+8, "$end");
     t = name_pool + 13;
-    for (bp = first_symbol; bp; bp = bp->next)
+    for (bucket *bp = first_symbol; bp; bp = bp->next)
     {
         p = t;
         s = bp->name;
@@ -1401,12 +1389,10 @@ pack_names(void)
 static void
 check_symbols(void)
 {
-    bucket *bp;
-
     if (goal->class == UNKNOWN)
         undefined_goal(goal->name);
 
-    for (bp = first_symbol; bp; bp = bp->next)
+    for (bucket *bp = first_symbol; bp; bp = bp->next)
     {
         if (bp->class == UNKNOWN)
         {
@@ -1420,13 +1406,12 @@ check_symbols(void)
 static void
 pack_symbols(void)
 {
-    bucket *bp;
     bucket **v;
     int i, j, k, n;
 
     nsyms = 2;
     ntokens = 1;
-    for (bp = first_symbol; bp; bp = bp->next)
+    for (bucket *bp = first_symbol; bp; bp = bp->next)
     {
         ++nsyms;
         if (bp->class == TERM) ++ntokens;
@@ -1455,7 +1440,7 @@ pack_symbols(void)
 
     i = 1;
     j = start_symbol + 1;
-    for (bp = first_symbol; bp; bp = bp->next)
+    for (bucket *bp = first_symbol; bp; bp = bp->next)
     {
         if (bp->class == TERM)
             v[i++] = bp;
@@ -1574,12 +1559,11 @@ static void
 make_goal(void)
 {
   static char name[7] = "'\\xxx'";
-  bucket * bp;
   bucket * bc;
 
   goal = lookup("%entry%");
   ntotalrules = nrules - 2;
-  for(bp = first_symbol; bp != 0; bp = bp->next) {
+  for (bucket * bp = first_symbol; bp != 0; bp = bp->next) {
     if (bp->entry) {
       start_rule(goal, 0);
       if (nitems + 2> maxitems)
@@ -1684,14 +1668,14 @@ pack_grammar(void)
 static void
 print_grammar(void)
 {
-    int i, j, k;
+    int j, k;
     int spacing = 0;
     FILE *f = verbose_file;
 
     if (!vflag) return;
 
     k = 1;
-    for (i = 2; i < nrules; ++i)
+    for (int i = 2; i < nrules; ++i)
     {
         if (rlhs[i] != rlhs[i-1])
         {

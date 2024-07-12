@@ -38,10 +38,8 @@ void defreds (void);
 
 void make_parser(void)
 {
-    int i;
-
     parser = NEW2(nstates, action *);
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
         parser[i] = parse_actions(i);
 
     find_final_state();
@@ -69,7 +67,6 @@ get_shifts(int stateno)
     action *actions, *temp;
     shifts *sp;
     short *to_state;
-    int i, k;
     int symbol;
 
     actions = 0;
@@ -77,9 +74,9 @@ get_shifts(int stateno)
     if (sp)
     {
         to_state = sp->shift;
-        for (i = sp->nshifts - 1; i >= 0; i--)
+        for (int i = sp->nshifts - 1; i >= 0; i--)
         {
-            k = to_state[i];
+            int k = to_state[i];
             symbol = accessing_symbol[k];
             if (ISTOKEN(symbol))
             {
@@ -100,18 +97,18 @@ get_shifts(int stateno)
 action *
 add_reductions(int stateno, action *actions)
 {
-    int i, j, m, n;
+    int m, n;
     int ruleno, tokensetsize;
     unsigned *rowp;
 
     tokensetsize = WORDSIZE(ntokens);
     m = lookaheads[stateno];
     n = lookaheads[stateno + 1];
-    for (i = m; i < n; i++)
+    for (int i = m; i < n; i++)
     {
         ruleno = LAruleno[i];
         rowp = LA + i * tokensetsize;
-        for (j = ntokens - 1; j >= 0; j--)
+        for (int j = ntokens - 1; j >= 0; j--)
         {
             if (BIT(rowp, j))
                 actions = add_reduce(actions, ruleno, j);
@@ -162,14 +159,14 @@ add_reduce(action *actions, int ruleno, int symbol)
 
 void find_final_state(void)
 {
-    int goal, i;
+    int goal;
     short *to_state;
     shifts *p;
 
     p = shift_table[0];
     to_state = p->shift;
     goal = ritem[1];
-    for (i = p->nshifts - 1; i >= 0; --i)
+    for (int i = p->nshifts - 1; i >= 0; --i)
     {
         final_state = to_state[i];
         if (accessing_symbol[final_state] == goal) break;
@@ -179,18 +176,15 @@ void find_final_state(void)
 
 void unused_rules(void)
 {
-    int i;
-    action *p;
-
     rules_used = (short *) MALLOC(nrules*sizeof(short));
     if (rules_used == 0) no_space();
 
-    for (i = 0; i < nrules; ++i)
+    for (int i = 0; i < nrules; ++i)
         rules_used[i] = 0;
 
-    for (i = 0; i < nstates; ++i)
+    for (int i = 0; i < nstates; ++i)
     {
-        for (p = parser[i]; p; p = p->next)
+        for (action *p = parser[i]; p; p = p->next)
         {
             if (p->action_code == REDUCE && p->suppressed == 0)
                 rules_used[p->number] = 1;
@@ -198,7 +192,7 @@ void unused_rules(void)
     }
 
     nunused = 0;
-    for (i = 3; i < nrules; ++i)
+    for (int i = 3; i < nrules; ++i)
         if (!rules_used[i]) ++nunused;
 
     if (nunused){
@@ -212,21 +206,20 @@ void unused_rules(void)
 
 void remove_conflicts(void)
 {
-    int i;
     int symbol;
-    action *p, *pref;
+    action *pref;
 
     SRtotal = 0;
     RRtotal = 0;
     SRconflicts = NEW2(nstates, short);
     RRconflicts = NEW2(nstates, short);
     pref = NULL;
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
     {
         SRcount = 0;
         RRcount = 0;
         symbol = -1;
-        for (p = parser[i]; p; p = p->next)
+        for (action *p = parser[i]; p; p = p->next)
         {
             if (p->symbol != symbol)
             {
@@ -309,11 +302,10 @@ int
 sole_reduction(int stateno)
 {
     int count, ruleno;
-    action *p;
 
     count = 0;
     ruleno = 0;
-    for (p = parser[stateno]; p; p = p->next)
+    for (action *p = parser[stateno]; p; p = p->next)
     {
         if (p->action_code == SHIFT && p->suppressed == 0)
             return (0);
@@ -335,10 +327,8 @@ sole_reduction(int stateno)
 
 void defreds(void)
 {
-    int i;
-
     defred = NEW2(nstates, short);
-    for (i = 0; i < nstates; i++)
+    for (int i = 0; i < nstates; i++)
         defred[i] = sole_reduction(i);
 }
 
@@ -356,9 +346,7 @@ void free_action_row(action *p)
 
 void free_parser(void)
 {
-  int i;
-
-  for (i = 0; i < nstates; i++)
+  for (int i = 0; i < nstates; i++)
     free_action_row(parser[i]);
 
   FREE(parser);

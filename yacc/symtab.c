@@ -93,12 +93,11 @@ lookup(char *name)
 
 void create_symbol_table(void)
 {
-    int i;
     bucket *bp;
 
     symbol_table = (bucket **) MALLOC(TABLE_SIZE*sizeof(bucket *));
     if (symbol_table == 0) no_space();
-    for (i = 0; i < TABLE_SIZE; i++)
+    for (int i = 0; i < TABLE_SIZE; i++)
         symbol_table[i] = 0;
 
     bp = make_bucket("error");
@@ -120,9 +119,7 @@ void free_symbol_table(void)
 
 void free_symbols(void)
 {
-    bucket *p, *q;
-
-    for (p = first_symbol; p; p = q)
+    for (bucket *p = first_symbol, *q; p; p = q)
     {
         q = p->next;
         FREE(p);
