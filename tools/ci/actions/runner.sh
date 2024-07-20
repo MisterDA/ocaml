@@ -41,7 +41,6 @@ EOF
     --prefix=$PREFIX \
     --enable-flambda-invariants \
     --enable-ocamltest \
-    --disable-dependency-generation \
     $CONFIG_ARG"
 
   local failed
@@ -178,8 +177,7 @@ BasicCompiler () {
   trap ReportBuildStatus ERR
 
   local failed
-  ./configure --disable-dependency-generation \
-              --disable-debug-runtime \
+  ./configure --disable-debug-runtime \
               --disable-instrumented-runtime \
               --enable-ocamltest \
       || failed=$?

@@ -62,18 +62,14 @@ function set_configuration {
   args=('--cache-file' "$CACHE_FILE" '--prefix' "$2" '--enable-ocamltest')
 
   case "$1" in
-    cygwin*)
-      args+=('--disable-dependency-generation');;
     mingw32)
-      args+=('--host=i686-w64-mingw32' '--disable-dependency-generation');;
+      args+=('--host=i686-w64-mingw32');;
     mingw64)
-      args+=('--host=x86_64-w64-mingw32' '--disable-dependency-generation' \
-             '--disable-stdlib-manpages');;
+      args+=('--host=x86_64-w64-mingw32' '--disable-stdlib-manpages');;
     msvc32)
-      args+=('--host=i686-pc-windows' '--disable-dependency-generation');;
+      args+=('--host=i686-pc-windows');;
     msvc64)
-      # Explicitly test dependency generation on msvc64
-      args+=('--host=x86_64-pc-windows' '--enable-dependency-generation');;
+      args+=('--host=x86_64-pc-windows');;
   esac
 
   # Remove old configure cache if the configure script or the OS
