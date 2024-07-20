@@ -176,5 +176,4 @@ include $(addprefix $(DEPDIR)/, $(COBJS_BYTECODE:.b.$(O)=.$(D)))
 endif
 endif
 
-$(DEPDIR)/%.$(D): %.c | $(DEPDIR)
-	$(V_CCDEPS)$(DEP_CC) $(OC_CPPFLAGS) $(CPPFLAGS) $< -MT '$*.$(O)' -MF $@
+$(eval $(call DEP_RULE,$(DEPDIR)/%.$(D),%.c,$(DEPDIR),$$*.$(O)))

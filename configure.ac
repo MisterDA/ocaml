@@ -122,6 +122,7 @@ AC_SUBST([CMXS_MAGIC_NUMBER], [CMXS__MAGIC_NUMBER])
 AC_SUBST([CMT_MAGIC_NUMBER], [CMT__MAGIC_NUMBER])
 AC_SUBST([LINEAR_MAGIC_NUMBER], [LINEAR__MAGIC_NUMBER])
 AC_SUBST([CC])
+AC_SUBST([DEPFLAGS])
 AC_SUBST([DIFF_FLAGS])
 AC_SUBST([CSC])
 AC_SUBST([CSCFLAGS])
@@ -620,29 +621,6 @@ CFLAGS="$saved_CFLAGS"
 host_os=$old_host_os
 
 AS_CASE([$host],
-  [sparc-sun-solaris*],
-    [DEP_CC="false"],
-  [*-pc-windows],
-    [AC_CHECK_TOOLS(
-      [DEP_CC],
-      [$DEP_CC gcc cc x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc],
-      [false])],
-  [DEP_CC="$CC"])
-
-AS_CASE([$enable_dependency_generation],
-  [yes],
-    [AS_IF([test "$DEP_CC" = "false"],
-      [AC_MSG_ERROR(m4_normalize([The MSVC ports cannot generate dependency
-        information. Install gcc (or another CC-like compiler)]))],
-      [compute_deps=true])],
-  [no], [compute_deps=false],
-  [AS_IF([test -e .git],
-    [AS_IF([test "$DEP_CC" = "false"],
-      [compute_deps=false],
-      [compute_deps=true])],
-    [compute_deps=false])])
-
-AS_CASE([$host],
   # In config/Makefile.mingw*, we had:
   # TARGET=i686-w64-mingw32 and x86_64-w64-mingw32
   # TOOLPREF=$(TARGET)-
@@ -669,6 +647,26 @@ OCAML_CC_VENDOR
 ## In cross-compilation mode, can we run executables produced?
 # At the moment, it's required, but the fact is used in C99 function detection
 OCAML_HOST_IS_EXECUTABLE
+
+AS_CASE([$ocaml_cc_vendor],
+  [msvc-*-clang-*],
+    [DEPFLAGS="-Zs $(addprefix -Xclang ,-dependency-file $(4) -MT $$@)"],
+  [msvc-*],
+    [DEPFLAGS="-nologo -Zs /showIncludes /c $(2) | $(SAK) show-includes $(4) $$@"],
+  [DEPFLAGS='-MM -MT $(4) -MF $$@'])
+
+AS_CASE([$enable_dependency_generation,$ocaml_cc_vendor],
+  [yes,sunc-*],
+    [AS_IF([test "$DEP_CC" = "false"],
+      [AC_MSG_ERROR(m4_normalize([This compiler cannot generate dependency
+       information. Install gcc (or another CC-like compiler)]))],
+      [compute_deps=true])],
+  [no,*], [compute_deps=false],
+  [AS_IF([test -e .git],
+    [AS_IF([test "$DEP_CC" = "false"],
+      [compute_deps=false],
+      [compute_deps=true])],
+    [compute_deps=false])])
 
 # Determine how to call the C preprocessor directly.
 # Most of the time, calling the C preprocessor through the C compiler is

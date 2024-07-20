@@ -1500,9 +1500,13 @@ ifneq "$(1)" "%"
 # ones will not be generated. For this reason, we don't use -MG and
 # instead include $(runtime_BUILT_HEADERS) in the order only dependencies
 # to ensure that they exist before dependencies are computed.
-$(DEPDIR)/$(1).$(D): runtime/%.c | $(DEPDIR)/runtime $(runtime_BUILT_HEADERS)
-	$$(V_CCDEPS)$$(DEP_CC) $$(OC_CPPFLAGS) $$(CPPFLAGS) $$< -MT \
-	  'runtime/$$*$(subst runtime/%,,$(1)).$(O)' -MF $$@
+
+$(eval $(call DEP_RULE,$(DEPDIR)/$(1).$(D),runtime/%.c,$(DEPDIR)/runtime $(runtime_BUILT_HEADERS),'runtime/$$*$(subst runtime/%,,$(1)).$(O)'))
+
+# $(DEPDIR)/$(1).$(D): runtime/%.c | $(DEPDIR)/runtime $(runtime_BUILT_HEADERS)
+# 	$$(V_CCDEPS)$$(DEP_CC) $$(OC_CPPFLAGS) $$(CPPFLAGS) $$< -MT \
+# 	  'runtime/$$*$(subst runtime/%,,$(1)).$(O)' -MF $$@
+
 endif # ifneq "$(1)" "%"
 $(1).$(O): $(2).c
 else
@@ -1934,8 +1938,7 @@ $(ocamltest_DEP_FILES): | $(DEPDIR)/ocamltest
 $(DEPDIR)/ocamltest:
 	$(MKDIR) $@
 
-$(ocamltest_DEP_FILES): $(DEPDIR)/ocamltest/%.$(D): ocamltest/%.c
-	$(V_CCDEPS)$(DEP_CC) $(OC_CPPFLAGS) $(CPPFLAGS) $< -MT '$*.$(O)' -MF $@
+$(eval $(call DEP_RULE,$(ocamltest_DEP_FILES),$(DEPDIR)/ocamltest/%.$(D): ocamltest/%.c,,'$*.$(O)'))
 
 ocamltest/%: CAMLC = $(BEST_OCAMLC) $(STDLIBFLAGS)
 

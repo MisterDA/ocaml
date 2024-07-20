@@ -69,7 +69,9 @@ OPTIONAL_NATIVE_TOOLS = @optional_native_tools@
 INSTALL_OCAMLNAT = @install_ocamlnat@
 
 # The command to generate C dependency information
-DEP_CC=@DEP_CC@ -MM
+DEP_CC=@DEP_CC@
+DEPFLAGS=@DEPFLAGS@
+# Whether to compute C dependency information
 COMPUTE_DEPS=@compute_deps@
 
 # Default flags to use to compile C files
