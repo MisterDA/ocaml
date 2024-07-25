@@ -63,6 +63,11 @@ Working version
   under certain conditions.
   (Antonin Décimo, review by Nicolás Ojeda Bär)
 
+- #13416: Implement concurrency primitives using WinAPI instead of
+  winpthreads on Windows.
+  (Antonin Décimo, review by Samuel Hym, Gabriel Scherer, Miod Vallat,
+  B. Szilvasy, and Nicolás Ojeda Bär)
+
 ### Code generation and optimizations:
 
 ### Standard library:
