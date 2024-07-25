@@ -25,7 +25,6 @@
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-#include <pthread.h>
 #include <string.h>
 #include <assert.h>
 #ifdef HAS_GNU_GETAFFINITY_NP
@@ -43,6 +42,9 @@ typedef cpuset_t cpu_set_t;
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <sysinfoapi.h>
+#include <process.h>
+#else
+#include <pthread.h>
 #endif
 #include "caml/alloc.h"
 #include "caml/backtrace.h"
@@ -1139,7 +1141,8 @@ struct domain_startup_params {
   uintnat unique_id; /* out */
 };
 
-static void* backup_thread_func(void* v)
+static CAML_THREAD_FUNCTION
+backup_thread_func(void* v)
 {
   dom_internal* di = (dom_internal*)v;
   uintnat msg;
@@ -1309,7 +1312,8 @@ static void sync_result(value term_sync, value res)
   CAMLreturn0;
 }
 
-static void* domain_thread_func(void* v)
+static CAML_THREAD_FUNCTION
+domain_thread_func(void* v)
 {
   struct domain_startup_params* p = v;
   struct domain_ml_values *ml_values = p->ml_values;

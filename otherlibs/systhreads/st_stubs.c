@@ -39,6 +39,7 @@
 #if defined(_WIN32)
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
+#  include <process.h>
 #  include <processthreadsapi.h>
 #  include "caml/osdeps.h"
 
@@ -59,7 +60,6 @@ SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
 #endif
 
 #include <stdbool.h>
-
 #include "caml/alloc.h"
 #include "caml/backtrace.h"
 #include "caml/backtrace_prim.h"
@@ -685,7 +685,8 @@ static void thread_init_current(caml_thread_t th)
 /* Create a thread */
 
 /* the thread lock is not held when entering */
-static void * caml_thread_start(void * v)
+static CAML_THREAD_FUNCTION
+caml_thread_start(void * v)
 {
   caml_thread_t th = (caml_thread_t) v;
   int dom_id = th->domain_id;
@@ -710,7 +711,7 @@ struct caml_thread_tick_args {
 };
 
 /* The tick thread: interrupt the domain periodically to force preemption  */
-static void * caml_thread_tick(void * arg)
+static CAML_THREAD_FUNCTION caml_thread_tick(void * arg)
 {
   struct caml_thread_tick_args* tick_thread_args =
     (struct caml_thread_tick_args*) arg;
@@ -728,7 +729,7 @@ static void * caml_thread_tick(void * arg)
     atomic_store_release(&domain->requested_external_interrupt, 1);
     caml_interrupt_self();
   }
-  return NULL;
+  return 0;
 }
 
 static st_retcode create_tick_thread(void)
@@ -993,23 +994,12 @@ static st_retcode caml_threadstatus_wait (value wrapper)
 /* Set the current thread's name. */
 CAMLprim value caml_set_current_thread_name(value name)
 {
-#if defined(_WIN32)
-#  if defined(HAS_SETTHREADDESCRIPTION)
+#if defined(_WIN32) && defined(HAS_SETTHREADDESCRIPTION)
   wchar_t *thread_name = caml_stat_strdup_to_utf16(String_val(name));
   HRESULT hr = SetThreadDescription(GetCurrentThread(), thread_name);
   caml_stat_free(thread_name);
   if (FAILED(hr))
     caml_set_current_thread_name_warning("SetThreadDescription failed!");
-#  endif
-
-#  if defined(HAS_PTHREAD_SETNAME_NP)
-  // We are using both methods.
-  // See: https://github.com/ocaml/ocaml/pull/13504#discussion_r1786358928
-  char buf[1024];
-  int ret = pthread_setname_np(pthread_self(), String_val(name));
-  if (ret != 0)
-    caml_set_current_thread_name_warning(caml_strerror(ret, buf, sizeof(buf)));
-#  endif
 
 #elif defined(HAS_PRCTL)
   char buf[1024];

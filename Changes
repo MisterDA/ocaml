@@ -56,6 +56,11 @@ Working version
   (Tim McGilchrist, review by Nick Barnes, Sadiq Jaffer and
   Gabriel Scherer)
 
+- #13416: Implement concurrency primitives using WinAPI instead of
+  winpthreads on Windows.
+  (Antonin Décimo, review by Samuel Hym, Gabriel Scherer, Miod Vallat,
+  B. Szilvasy, and Nicolás Ojeda Bär)
+
 ### Code generation and optimizations:
 
 ### Standard library:
