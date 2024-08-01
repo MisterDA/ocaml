@@ -29,7 +29,7 @@
 CAMLprim value caml_unix_rewinddir(value vd)
 {
   DIR * d = DIR_Val(vd);
-  if (d == (DIR *) NULL) caml_unix_error(EBADF, "rewinddir", Nothing);
+  if (d == NULL) caml_unix_error(EBADF, "rewinddir", Nothing);
   rewinddir(d);
   return Val_unit;
 }

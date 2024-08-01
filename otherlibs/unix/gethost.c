@@ -124,7 +124,7 @@ CAMLprim value caml_unix_gethostbyaddr(value a)
   caml_leave_blocking_section();
   if (rc != 0) hp = NULL;
 #endif
-  if (hp == (struct hostent *) NULL) caml_raise_not_found();
+  if (hp == NULL) caml_raise_not_found();
   return alloc_host_entry(hp);
 }
 
@@ -168,7 +168,7 @@ CAMLprim value caml_unix_gethostbyname(value name)
 
   caml_stat_free(hostname);
 
-  if (hp == (struct hostent *) NULL) caml_raise_not_found();
+  if (hp == NULL) caml_raise_not_found();
   return alloc_host_entry(hp);
 }
 

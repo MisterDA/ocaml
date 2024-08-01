@@ -1030,7 +1030,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
         && fdlist_to_fdset(exceptfds, &except)) {
       DEBUG_PRINT("only sockets to select on, using classic select");
       if (tm < 0.0) {
-        tvp = (struct timeval *) NULL;
+        tvp = NULL;
       } else {
         tv.tv_sec = (int) tm;
         tv.tv_usec = (int) (1e6 * (tm - (int) tm));
