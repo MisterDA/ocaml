@@ -52,7 +52,7 @@ CAMLprim value caml_unix_getservbyname(value name, value proto)
   if (! (caml_string_is_c_safe(name) && caml_string_is_c_safe(proto)))
     caml_raise_not_found();
   entry = getservbyname(String_val(name), String_val(proto));
-  if (entry == (struct servent *) NULL) caml_raise_not_found();
+  if (entry == NULL) caml_raise_not_found();
   return alloc_service_entry(entry);
 }
 
@@ -61,7 +61,7 @@ CAMLprim value caml_unix_getservbyport(value port, value proto)
   struct servent * entry;
   if (! caml_string_is_c_safe(proto)) caml_raise_not_found();
   entry = getservbyport(htons(Int_val(port)), String_val(proto));
-  if (entry == (struct servent *) NULL) caml_raise_not_found();
+  if (entry == NULL) caml_raise_not_found();
   return alloc_service_entry(entry);
 }
 

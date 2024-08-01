@@ -38,7 +38,7 @@ CAMLprim value caml_unix_utimes(value path, value atime, value mtime)
   at = Double_val(atime);
   mt = Double_val(mtime);
   if (at == 0.0 && mt == 0.0) {
-    t = (struct timeval *) NULL;
+    t = NULL;
   } else {
     tv[0].tv_sec = at;
     tv[0].tv_usec = (at - tv[0].tv_sec) * 1000000;

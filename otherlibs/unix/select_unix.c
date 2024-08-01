@@ -81,7 +81,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   if (retcode != 0) caml_unix_error(EINVAL, "select", Nothing);
   tm = Double_val(timeout);
   if (tm < 0.0)
-    tvp = (struct timeval *) NULL;
+    tvp = NULL;
   else {
     tv.tv_sec = (int) tm;
     tv.tv_usec = (int) (1e6 * (tm - tv.tv_sec));

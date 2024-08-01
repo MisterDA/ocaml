@@ -20,7 +20,7 @@
 
 double caml_unix_time_unboxed(value unit)
 {
-  return ((double) time((time_t *) NULL));
+  return ((double) time(NULL));
 }
 
 CAMLprim value caml_unix_time(value unit)

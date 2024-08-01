@@ -33,10 +33,10 @@ CAMLprim value caml_unix_readdir(value vd)
   DIR * d;
   directory_entry * e;
   d = DIR_Val(vd);
-  if (d == (DIR *) NULL) caml_unix_error(EBADF, "readdir", Nothing);
+  if (d == NULL) caml_unix_error(EBADF, "readdir", Nothing);
   caml_enter_blocking_section();
   e = readdir((DIR *) d);
   caml_leave_blocking_section();
-  if (e == (directory_entry *) NULL) caml_raise_end_of_file();
+  if (e == NULL) caml_raise_end_of_file();
   return caml_copy_string(e->d_name);
 }

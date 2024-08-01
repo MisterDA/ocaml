@@ -45,7 +45,7 @@ CAMLprim value caml_unix_getprotobyname(value name)
   struct protoent * entry;
   if (! caml_string_is_c_safe(name)) caml_raise_not_found();
   entry = getprotobyname(String_val(name));
-  if (entry == (struct protoent *) NULL) caml_raise_not_found();
+  if (entry == NULL) caml_raise_not_found();
   return alloc_proto_entry(entry);
 }
 
@@ -53,7 +53,7 @@ CAMLprim value caml_unix_getprotobynumber(value proto)
 {
   struct protoent * entry;
   entry = getprotobynumber(Int_val(proto));
-  if (entry == (struct protoent *) NULL) caml_raise_not_found();
+  if (entry == NULL) caml_raise_not_found();
   return alloc_proto_entry(entry);
 }
 

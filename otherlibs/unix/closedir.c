@@ -29,10 +29,10 @@ CAMLprim value caml_unix_closedir(value vd)
 {
   CAMLparam1(vd);
   DIR * d = DIR_Val(vd);
-  if (d == (DIR *) NULL) caml_unix_error(EBADF, "closedir", Nothing);
+  if (d == NULL) caml_unix_error(EBADF, "closedir", Nothing);
   caml_enter_blocking_section();
   closedir(d);
   caml_leave_blocking_section();
-  DIR_Val(vd) = (DIR *) NULL;
+  DIR_Val(vd) = NULL;
   CAMLreturn(Val_unit);
 }
