@@ -37,7 +37,7 @@ _Atomic caml_timing_hook caml_finalise_end_hook = (caml_timing_hook)NULL;
 
 #ifdef DEBUG
 
-void caml_failed_assert (char * expr, char_os * file_os, int line)
+void caml_failed_assert (const char * expr, const char_os * file_os, int line)
 {
   char* file = caml_stat_strdup_of_os(file_os);
   fprintf(stderr, "[%02d] file %s; line %d ### Assertion failed: %s\n",
@@ -72,7 +72,7 @@ void caml_alloc_point_here(void)
 
 atomic_uintnat caml_verb_gc = 0;
 
-void caml_gc_log (char *msg, ...)
+void caml_gc_log (const char *msg, ...)
 {
   if ((atomic_load_relaxed(&caml_verb_gc) & 0x800) != 0) {
     char fmtbuf[GC_LOG_LENGTH];
@@ -86,7 +86,7 @@ void caml_gc_log (char *msg, ...)
   }
 }
 
-void caml_gc_message (int level, char *msg, ...)
+void caml_gc_message (int level, const char *msg, ...)
 {
   if ((atomic_load_relaxed(&caml_verb_gc) & level) != 0){
     va_list ap;
@@ -99,7 +99,7 @@ void caml_gc_message (int level, char *msg, ...)
 
 _Atomic fatal_error_hook caml_fatal_error_hook = (fatal_error_hook)NULL;
 
-CAMLexport void caml_fatal_error (char *msg, ...)
+CAMLexport void caml_fatal_error (const char *msg, ...)
 {
   va_list ap;
   fatal_error_hook hook;
