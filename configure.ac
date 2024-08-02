@@ -856,6 +856,11 @@ for flag in '-Wimplicit-fallthrough=5' '-Wimplicit-fallthrough'; do
     [cc_warnings="$cc_warnings $flag"; break], [], [$warn_error_flag])
 done
 
+# Use -Wcast-function-type if supported
+AX_CHECK_COMPILE_FLAG([-Wcast-function-type],
+  [cc_warnings="$cc_warnings -Wcast-function-type"], [],
+  [$warn_error_flag])
+
 AS_CASE([$enable_warn_error,OCAML__DEVELOPMENT_VERSION],
   [yes,*|,true],
     [cc_warnings="$cc_warnings $warn_error_flag"])
