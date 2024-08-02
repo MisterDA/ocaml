@@ -856,6 +856,12 @@ for flag in '-Wimplicit-fallthrough=5' '-Wimplicit-fallthrough'; do
     [cc_warnings="$cc_warnings $flag"; break], [], [$warn_error_flag])
 done
 
+# Give string constants the type `const char[length]` so that copying
+# the address of one into a non-`const char *` pointer produces a
+# warning.
+AX_CHECK_COMPILE_FLAG([-Wwrite-string],
+  [internal_cflags="$internal_cflags -Wwrite-string"], [], [$warn_error_flag])
+
 AS_CASE([$enable_warn_error,OCAML__DEVELOPMENT_VERSION],
   [yes,*|,true],
     [cc_warnings="$cc_warnings $warn_error_flag"])
