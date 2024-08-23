@@ -17,10 +17,10 @@
 #include <caml/alloc.h>
 #include <caml/fail.h>
 
-#ifdef HAS_GETGROUPS
+#ifdef HAVE_GETGROUPS
 
 #include <sys/types.h>
-#ifdef HAS_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <limits.h>

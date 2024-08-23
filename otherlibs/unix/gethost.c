@@ -23,7 +23,7 @@
 #include <caml/signals.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include "caml/socketaddr.h"
 #ifndef _WIN32
@@ -84,7 +84,7 @@ CAMLprim value caml_unix_gethostbyaddr(value a)
   struct hostent * hp;
   int addr_type = AF_INET;
   socklen_t addr_len = 4;
-#if HAS_IPV6
+#if HAVE_IPV6
   struct in6_addr in6;
   if (caml_string_length(a) == 16) {
     addr_type = AF_INET6;
@@ -95,7 +95,7 @@ CAMLprim value caml_unix_gethostbyaddr(value a)
 #endif
     in4 = GET_INET_ADDR(a);
     adr = (char *)&in4;
-#if HAS_IPV6
+#if HAVE_IPV6
   }
 #endif
 #if !defined(HAS_GETHOSTBYADDR_R)

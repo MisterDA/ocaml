@@ -22,11 +22,11 @@
    Otherwise, leave ARCH_SIXTYFOUR undefined.
    This assumes sizeof(char *) = 4. */
 
-#undef ARCH_BIG_ENDIAN
+#undef WORDS_BIGENDIAN
 
-/* Define ARCH_BIG_ENDIAN if the processor is big endian (the most
+/* Define WORDS_BIGENDIAN if the processor is big endian (the most
    significant byte of an integer stored in memory comes first).
-   Leave ARCH_BIG_ENDIAN undefined if the processor is little-endian
+   Leave WORDS_BIGENDIAN undefined if the processor is little-endian
    (the least significant byte comes first).
 */
 
@@ -36,22 +36,22 @@
    doubleword-aligned. Leave ARCH_ALIGN_DOUBLE undefined if the processor
    supports word-aligned doubles. */
 
-#undef HAS_ARCH_CODE32
+#undef HAVE_ARCH_CODE32
 
-/* Define HAS_ARCH_CODE32 if, on a 64-bit machine, code pointers fit
+/* Define HAVE_ARCH_CODE32 if, on a 64-bit machine, code pointers fit
    in 32 bits, i.e. the code segment resides in the low 4G of the
    addressing space.
-   HAS_ARCH_CODE32 is ignored on 32-bit machines. */
+   HAVE_ARCH_CODE32 is ignored on 32-bit machines. */
 
 #undef SIZEOF_INT
 #undef SIZEOF_LONG
-#undef SIZEOF_PTR
+#undef SIZEOF_LONG_P
 #undef SIZEOF_SHORT
-#undef SIZEOF_LONGLONG
+#undef SIZEOF_LONG_LONG
 
-/* Define SIZEOF_INT, SIZEOF_LONG, SIZEOF_PTR, SIZEOF_SHORT and
-   SIZEOF_LONGLONG to the sizes in bytes of the C types "int", "long",
-   "char *", "short" and "long long" respectively. */
+/* Define SIZEOF_INT, SIZEOF_LONG, SIZEOF_LONG_P, SIZEOF_SHORT and
+   SIZEOF_LONG_LONG to the sizes in bytes of the C types "int", "long",
+   "long *", "short" and "long long" respectively. */
 
 #undef ARCH_ALIGN_INT64
 
@@ -66,11 +66,7 @@
 
 #undef WITH_FRAME_POINTERS
 
-#define NO_NAKED_POINTERS 1
-
 #undef CAML_WITH_FPIC
-
-#define CAML_SAFE_STRING 1
 
 #undef FLAT_FLOAT_ARRAY
 

@@ -22,7 +22,7 @@
 #ifdef HAS_SELECT
 #include <sys/types.h>
 #include <sys/time.h>
-#ifdef HAS_SYS_SELECT_H
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #endif
@@ -31,7 +31,7 @@ CAMLprim value caml_unix_sleep(value duration)
 {
   double d = Double_val(duration);
   if (d < 0.0) return Val_unit;
-#if defined(HAS_NANOSLEEP)
+#if defined(HAVE_NANOSLEEP)
   {
     struct timespec t;
     int ret;

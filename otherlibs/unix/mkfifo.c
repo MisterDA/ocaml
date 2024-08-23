@@ -21,7 +21,7 @@
 #include <caml/signals.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_MKFIFO
+#ifdef HAVE_MKFIFO
 
 CAMLprim value caml_unix_mkfifo(value path, value vmode)
 {

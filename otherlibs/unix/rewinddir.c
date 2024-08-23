@@ -24,7 +24,7 @@
 #include <sys/dir.h>
 #endif
 
-#ifdef HAS_REWINDDIR
+#ifdef HAVE_REWINDDIR
 
 CAMLprim value caml_unix_rewinddir(value vd)
 {

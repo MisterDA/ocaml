@@ -118,7 +118,7 @@ CAMLprim value caml_string_get16(value str, value index)
   if (idx < 0 || idx + 1 >= caml_string_length(str)) caml_array_bound_error();
   b1 = Byte_u(str, idx);
   b2 = Byte_u(str, idx + 1);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   res = b1 << 8 | b2;
 #else
   res = b2 << 8 | b1;
@@ -141,7 +141,7 @@ CAMLprim value caml_string_get32(value str, value index)
   b2 = Byte_u(str, idx + 1);
   b3 = Byte_u(str, idx + 2);
   b4 = Byte_u(str, idx + 3);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   res = b1 << 24 | b2 << 16 | b3 << 8 | b4;
 #else
   res = b4 << 24 | b3 << 16 | b2 << 8 | b1;
@@ -168,7 +168,7 @@ CAMLprim value caml_string_get64(value str, value index)
   b6 = Byte_u(str, idx + 5);
   b7 = Byte_u(str, idx + 6);
   b8 = Byte_u(str, idx + 7);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   res = (uint64_t) b1 << 56 | (uint64_t) b2 << 48
         | (uint64_t) b3 << 40 | (uint64_t) b4 << 32
         | (uint64_t) b5 << 24 | (uint64_t) b6 << 16
@@ -194,7 +194,7 @@ CAMLprim value caml_bytes_set16(value str, value index, value newval)
   intnat idx = Long_val(index);
   if (idx < 0 || idx + 1 >= caml_string_length(str)) caml_array_bound_error();
   val = Long_val(newval);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   b1 = 0xFF & val >> 8;
   b2 = 0xFF & val;
 #else
@@ -213,7 +213,7 @@ CAMLprim value caml_bytes_set32(value str, value index, value newval)
   intnat idx = Long_val(index);
   if (idx < 0 || idx + 3 >= caml_string_length(str)) caml_array_bound_error();
   val = Int32_val(newval);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   b1 = 0xFF & val >> 24;
   b2 = 0xFF & val >> 16;
   b3 = 0xFF & val >> 8;
@@ -238,7 +238,7 @@ CAMLprim value caml_bytes_set64(value str, value index, value newval)
   intnat idx = Long_val(index);
   if (idx < 0 || idx + 7 >= caml_string_length(str)) caml_array_bound_error();
   val = Int64_val(newval);
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   b1 = 0xFF & val >> 56;
   b2 = 0xFF & val >> 48;
   b3 = 0xFF & val >> 40;

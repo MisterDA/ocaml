@@ -19,7 +19,7 @@
 
 #include "caml/config.h"
 
-#ifdef HAS_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #else
 #include <io.h>
@@ -55,7 +55,7 @@ void caml_load_code(int fd, asize_t len)
     caml_fatal_error("truncated bytecode file");
   caml_init_code_fragments();
   /* Prepare the code for execution */
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
   caml_fixup_endianness(caml_start_code, caml_code_size);
 #endif
 #ifdef THREADED_CODE
@@ -65,7 +65,7 @@ void caml_load_code(int fd, asize_t len)
 
 /* This code is needed only if the processor is big endian */
 
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
 
 void caml_fixup_endianness(code_t code, asize_t len)
 {

@@ -177,13 +177,13 @@ CAMLprim value caml_format_float(value fmt, value arg)
   value res;
   double d = Double_val(arg);
 
-#ifdef HAS_BROKEN_PRINTF
+#ifdef HAVE_BROKEN_PRINTF
   if (isfinite(d)) {
 #endif
     USE_LOCALE;
     res = caml_alloc_sprintf(String_val(fmt), d);
     RESTORE_LOCALE;
-#ifdef HAS_BROKEN_PRINTF
+#ifdef HAVE_BROKEN_PRINTF
   } else {
     if (isnan(d)) {
       res = caml_copy_string("nan");
@@ -403,13 +403,13 @@ CAMLprim value caml_float_of_string(value vs)
     if (sign < 0) d = -d;
   } else {
     /* Convert using strtod */
-#if defined(HAS_STRTOD_L) && defined(HAS_LOCALE)
+#if defined(HAVE_STRTOD_L) && defined(HAS_LOCALE)
     d = strtod_l((const char *) buf, &end, caml_locale);
 #else
     USE_LOCALE;
     d = strtod((const char *) buf, &end);
     RESTORE_LOCALE;
-#endif /* HAS_STRTOD_L */
+#endif /* HAVE_STRTOD_L */
     if (end != dst) goto error;
   }
   if (buf != parse_buffer) caml_stat_free(buf);
@@ -1059,7 +1059,7 @@ CAMLprim value caml_erfc_float(value f)
 
 union double_as_two_int32 {
     double d;
-#if defined(ARCH_BIG_ENDIAN) || (defined(__arm__) && !defined(__ARM_EABI__))
+#if defined(WORDS_BIGENDIAN) || (defined(__arm__) && !defined(__ARM_EABI__))
     struct { uint32_t h; uint32_t l; } i;
 #else
     struct { uint32_t l; uint32_t h; } i;

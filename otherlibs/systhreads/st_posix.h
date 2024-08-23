@@ -15,7 +15,7 @@
 
 /* POSIX thread implementation of the "st" interface */
 
-#ifdef HAS_SYS_SELECT_H
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 
@@ -78,7 +78,7 @@ value caml_thread_sigmask(value cmd, value sigs)
 
 value caml_wait_signal(value sigs)
 {
-#ifdef HAS_SIGWAIT
+#ifdef HAVE_SIGWAIT
   sigset_t set;
   int retcode, signo;
 

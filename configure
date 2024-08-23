@@ -715,6 +715,7 @@ ac_includes_default="\
 #endif"
 
 ac_header_c_list=
+ac_func_c_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 DIFF
@@ -815,7 +816,6 @@ rpath
 sharedlib_cflags
 asm_cfi_supported
 AS
-endianness
 ASPP
 ocamltest_opt_target
 ocamltest_target
@@ -830,7 +830,7 @@ build_ocamldoc
 build_ocamltex
 build_ocamldebug
 with_debugger
-as_has_debug_prefix_map
+ocaml_cv_prog_as_debug_prefix_map
 cc_has_debug_prefix_map
 unix_directory
 unix_library
@@ -3091,6 +3091,40 @@ as_fn_append ac_header_c_list " strings.h strings_h HAVE_STRINGS_H"
 as_fn_append ac_header_c_list " sys/stat.h sys_stat_h HAVE_SYS_STAT_H"
 as_fn_append ac_header_c_list " sys/types.h sys_types_h HAVE_SYS_TYPES_H"
 as_fn_append ac_header_c_list " unistd.h unistd_h HAVE_UNISTD_H"
+as_fn_append ac_header_c_list " pthread_np.h pthread_np_h HAVE_PTHREAD_NP_H"
+as_fn_append ac_header_c_list " sys/mman.h sys_mman_h HAVE_SYS_MMAN_H"
+as_fn_append ac_func_c_list " accept4 HAVE_ACCEPT4"
+as_fn_append ac_func_c_list " dup3 HAVE_DUP3"
+as_fn_append ac_func_c_list " execvpe HAVE_EXECVPE"
+as_fn_append ac_func_c_list " getauxval HAVE_GETAUXVAL"
+as_fn_append ac_func_c_list " getcwd HAVE_GETCWD"
+as_fn_append ac_func_c_list " getentropy HAVE_GETENTROPY"
+as_fn_append ac_func_c_list " getgroups HAVE_GETGROUPS"
+as_fn_append ac_func_c_list " getrusage HAVE_GETRUSAGE"
+as_fn_append ac_func_c_list " gettimeofday HAVE_GETTIMEOFDAY"
+as_fn_append ac_func_c_list " inet_aton HAVE_INET_ATON"
+as_fn_append ac_func_c_list " initgroups HAVE_INITGROUPS"
+as_fn_append ac_func_c_list " issetugid HAVE_ISSETUGID"
+as_fn_append ac_func_c_list " lockf HAVE_LOCKF"
+as_fn_append ac_func_c_list " mkfifo HAVE_MKFIFO"
+as_fn_append ac_func_c_list " mkstemp HAVE_MKSTEMP"
+as_fn_append ac_func_c_list " mktime HAVE_MKTIME"
+as_fn_append ac_func_c_list " nanosleep HAVE_NANOSLEEP"
+as_fn_append ac_func_c_list " nice HAVE_NICE"
+as_fn_append ac_func_c_list " pipe2 HAVE_PIPE2"
+as_fn_append ac_func_c_list " putenv HAVE_PUTENV"
+as_fn_append ac_func_c_list " pwrite HAVE_PWRITE"
+as_fn_append ac_func_c_list " realpath HAVE_REALPATH"
+as_fn_append ac_func_c_list " rewinddir HAVE_REWINDDIR"
+as_fn_append ac_func_c_list " secure_getenv HAVE_SECURE_GETENV"
+as_fn_append ac_func_c_list " __secure_getenv HAVE___SECURE_GETENV"
+as_fn_append ac_func_c_list " setgroups HAVE_SETGROUPS"
+as_fn_append ac_func_c_list " setitimer HAVE_SETITIMER"
+as_fn_append ac_func_c_list " system HAVE_SYSTEM"
+as_fn_append ac_func_c_list " times HAVE_TIMES"
+as_fn_append ac_func_c_list " utimes HAVE_UTIMES"
+as_fn_append ac_func_c_list " waitpid HAVE_WAITPID"
+as_fn_append ac_func_c_list " wait4 HAVE_WAIT4"
 
 # Auxiliary files required by this configure script.
 ac_aux_files="install-sh ltmain.sh config.guess config.sub"
@@ -3469,7 +3503,6 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 
 
  # TODO: rename this variable
-
 
 
 
@@ -14577,14 +14610,13 @@ esac
 
 mkexe_cmd_exp="$CC"
 
+have_arch_code32=false
 case $ocaml_cc_vendor,$host in #(
   *,x86_64-*-darwin*) :
     oc_ldflags='-Wl,-no_compact_unwind';
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   *,aarch64-*-darwin*|arm64-*-darwin*) :
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   *,*-*-cygwin*) :
     common_cppflags="$common_cppflags -U_WIN32"
     if $supports_shared_libraries
@@ -14624,17 +14656,22 @@ esac
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag='' ;; #(
   *,x86_64-*-linux*) :
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   xlc-*,powerpc-ibm-aix*) :
     oc_ldflags='-brtl -bexpfull'
-    printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
- ;; #(
+    have_arch_code32=true ;; #(
   gcc-*,powerpc-*-linux*) :
     oc_ldflags="-mbss-plt" ;; #(
   *) :
      ;;
 esac
+
+if ${have_arch_code32}
+then :
+
+printf "%s\n" "#define HAVE_ARCH_CODE32 1" >>confdefs.h
+
+fi
 
 # Winpthreads emulation library for the MSVC port
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for winpthreads sources" >&5
@@ -14907,59 +14944,22 @@ fi
 
 # Checks for header files
 
-# Don't check for unistd.h on Windows
-case $host in #(
-  *-*-mingw32*|*-pc-windows) :
-     ;; #(
-  *) :
-           for ac_header in unistd.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
-if test "x$ac_cv_header_unistd_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_UNISTD_H 1" >>confdefs.h
- printf "%s\n" "#define HAS_UNISTD 1" >>confdefs.h
 
-fi
 
-done ;;
-esac
 
-ac_fn_c_check_header_compile "$LINENO" "math.h" "ac_cv_header_math_h" "$ac_includes_default"
-if test "x$ac_cv_header_math_h" = xyes
-then :
-
-fi
-
-ac_fn_c_check_header_compile "$LINENO" "pthread_np.h" "ac_cv_header_pthread_np_h" "$ac_includes_default"
-if test "x$ac_cv_header_pthread_np_h" = xyes
-then :
-  printf "%s\n" "#define HAS_PTHREAD_NP_H 1" >>confdefs.h
-
-fi
 
 ac_fn_c_check_header_compile "$LINENO" "dirent.h" "ac_cv_header_dirent_h" "#include <sys/types.h>
 "
 if test "x$ac_cv_header_dirent_h" = xyes
 then :
-  printf "%s\n" "#define HAS_DIRENT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_DIRENT_H 1" >>confdefs.h
 
 fi
-
-
 ac_fn_c_check_header_compile "$LINENO" "sys/select.h" "ac_cv_header_sys_select_h" "#include <sys/types.h>
 "
 if test "x$ac_cv_header_sys_select_h" = xyes
 then :
-  printf "%s\n" "#define HAS_SYS_SELECT_H 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_header_compile "$LINENO" "sys/mman.h" "ac_cv_header_sys_mman_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_mman_h" = xyes
-then :
-  printf "%s\n" "#define HAS_SYS_MMAN_H 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SYS_SELECT_H 1" >>confdefs.h
 
 fi
 
@@ -14969,7 +14969,7 @@ case $host in #(
     ac_fn_c_check_header_compile "$LINENO" "linux/futex.h" "ac_cv_header_linux_futex_h" "$ac_includes_default"
 if test "x$ac_cv_header_linux_futex_h" = xyes
 then :
-  printf "%s\n" "#define HAS_LINUX_FUTEX_H 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_LINUX_FUTEX_H 1" >>confdefs.h
 
 fi
  ;; #(
@@ -15187,11 +15187,6 @@ then :
   as_fn_error $? "Sorry, we can't find a 64-bit integer type." "$LINENO" 5
 
 fi
-
-printf "%s\n" "#define SIZEOF_PTR $ac_cv_sizeof_long_p" >>confdefs.h
-
-printf "%s\n" "#define SIZEOF_LONGLONG $ac_cv_sizeof_long_long" >>confdefs.h
-
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Target is a $bits bits architecture" >&5
 printf "%s\n" "$as_me: Target is a $bits bits architecture" >&6;}
@@ -15415,13 +15410,10 @@ fi
 printf "%s\n" "$ac_cv_c_bigendian" >&6; }
  case $ac_cv_c_bigendian in #(
    yes)
-
-    printf "%s\n" "#define ARCH_BIG_ENDIAN 1" >>confdefs.h
-
-    endianness="be"
-  ;; #(
+     printf "%s\n" "#define WORDS_BIGENDIAN 1" >>confdefs.h
+;; #(
    no)
-     endianness="le" ;; #(
+      ;; #(
    universal)
      as_fn_error $? "unable to handle universal endianness" "$LINENO" 5
 
@@ -15536,23 +15528,29 @@ then :
   *) :
     if test "$ac_cv_alignof_double" -gt 4
 then :
-  printf "%s\n" "#define ARCH_ALIGN_DOUBLE 1" >>confdefs.h
+
+printf "%s\n" "#define ARCH_ALIGN_DOUBLE 1" >>confdefs.h
 
 fi
+     arch_align_int64=false
      if test "x$ac_cv_sizeof_long" = "x8" &&
             test "$ac_cv_alignof_long" -gt 4
 then :
-  printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
-
+  arch_align_int64=true
 else $as_nop
   if test "x$ac_cv_sizeof_long_long" = "x8" &&
-              test "$ac_cv_alignof_long_long" -gt 4
+               test "$ac_cv_alignof_long_long" -gt 4
 then :
-  printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
+  arch_align_int64=true
+fi
+fi
+     if $arch_align_int64
+then :
+
+printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
 
 fi
-fi
-     ;;
+ ;;
 esac
 fi
 
@@ -15604,8 +15602,8 @@ fi
 then :
   LIBS="$LIBS $cclibs"; opts="${opts:+$opts }$cclibs"
 fi
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if $CC supports _Atomic types with ${opts:-no additional options}" >&5
-printf %s "checking if $CC supports _Atomic types with ${opts:-no additional options}... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the C compiler supports _Atomic types with ${opts:-no additional options}" >&5
+printf %s "checking if the C compiler supports _Atomic types with ${opts:-no additional options}... " >&6; }
 
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -15678,8 +15676,8 @@ fi
 then :
   LIBS="$LIBS "; opts="${opts:+$opts }"
 fi
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if $CC supports _Atomic types with ${opts:-no additional options}" >&5
-printf %s "checking if $CC supports _Atomic types with ${opts:-no additional options}... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the C compiler supports _Atomic types with ${opts:-no additional options}" >&5
+printf %s "checking if the C compiler supports _Atomic types with ${opts:-no additional options}... " >&6; }
 
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -15754,8 +15752,8 @@ fi
 then :
   LIBS="$LIBS "; opts="${opts:+$opts }"
 fi
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if $CC supports _Atomic types with ${opts:-no additional options}" >&5
-printf %s "checking if $CC supports _Atomic types with ${opts:-no additional options}... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the C compiler supports _Atomic types with ${opts:-no additional options}" >&5
+printf %s "checking if the C compiler supports _Atomic types with ${opts:-no additional options}... " >&6; }
 
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16068,9 +16066,15 @@ esac
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler supports __attribute__((optimize(\"tree-vectorize\")))" >&5
 printf %s "checking whether the C compiler supports __attribute__((optimize(\"tree-vectorize\")))... " >&6; }
-  saved_CFLAGS="$CFLAGS"
-  CFLAGS="-Werror $CFLAGS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+if test ${ocaml_cv_prog_cc_optimize_tree_vectorize+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$warn_error_flag $CFLAGS"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 __attribute__((optimize("tree-vectorize"))) void f(void) {}
 int
@@ -16083,22 +16087,22 @@ f();
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  printf "%s\n" "#define SUPPORTS_TREE_VECTORIZE 1" >>confdefs.h
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+  ocaml_cv_prog_cc_optimize_tree_vectorize=yes
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  ocaml_cv_prog_cc_optimize_tree_vectorize=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-  CFLAGS="$saved_CFLAGS"
+    CFLAGS="$saved_CFLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_prog_cc_optimize_tree_vectorize" >&5
+printf "%s\n" "$ocaml_cv_prog_cc_optimize_tree_vectorize" >&6; }
 
 
 # Check whether the C compiler supports the labels as values extension.
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CC supports the labels as values extension" >&5
-printf %s "checking whether $CC supports the labels as values extension... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler supports the labels as values extension" >&5
+printf %s "checking whether the C compiler supports the labels as values extension... " >&6; }
 if test ${ocaml_cv_prog_cc_labels_as_values+y}
 then :
   printf %s "(cached) " >&6
@@ -16131,11 +16135,14 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_prog_cc_labels_as_values" >&5
 printf "%s\n" "$ocaml_cv_prog_cc_labels_as_values" >&6; }
-  if test "x$ocaml_cv_prog_cc_labels_as_values" = xyes; then
+  if test "x$ocaml_cv_prog_cc_labels_as_values" = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_LABELS_AS_VALUES 1" >>confdefs.h
 
-  fi
+
+fi
 
 
 # Configure the native-code compiler
@@ -16605,6 +16612,52 @@ esac
 
 # Checks for library functions
 
+ac_func=
+for ac_item in $ac_func_c_list
+do
+  if test $ac_func; then
+    ac_fn_c_check_func "$LINENO" $ac_func ac_cv_func_$ac_func
+    if eval test \"x\$ac_cv_func_$ac_func\" = xyes; then
+      echo "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_func=
+  else
+    ac_func=$ac_item
+  fi
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Check the semantics of signal handlers
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking semantics of signal handlers" >&5
@@ -16835,66 +16888,6 @@ then :
   as_fn_error $? "C99 float ops unavailable, enable replacements with --enable-imprecise-c99-float-ops" "$LINENO" 5
 fi
 fi
-
-## getentropy
-ac_fn_c_check_func "$LINENO" "getentropy" "ac_cv_func_getentropy"
-if test "x$ac_cv_func_getentropy" = xyes
-then :
-  printf "%s\n" "#define HAS_GETENTROPY 1" >>confdefs.h
-
-fi
-
-
-## getrusage
-ac_fn_c_check_func "$LINENO" "getrusage" "ac_cv_func_getrusage"
-if test "x$ac_cv_func_getrusage" = xyes
-then :
-  printf "%s\n" "#define HAS_GETRUSAGE 1" >>confdefs.h
-
-fi
-
-
-## times
-ac_fn_c_check_func "$LINENO" "times" "ac_cv_func_times"
-if test "x$ac_cv_func_times" = xyes
-then :
-  printf "%s\n" "#define HAS_TIMES 1" >>confdefs.h
-
-fi
-
-
-## secure_getenv and __secure_getenv
-
-saved_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
-
-ac_fn_c_check_func "$LINENO" "secure_getenv" "ac_cv_func_secure_getenv"
-if test "x$ac_cv_func_secure_getenv" = xyes
-then :
-  printf "%s\n" "#define HAS_SECURE_GETENV 1" >>confdefs.h
-
-else $as_nop
-  ac_fn_c_check_func "$LINENO" "__secure_getenv" "ac_cv_func___secure_getenv"
-if test "x$ac_cv_func___secure_getenv" = xyes
-then :
-  printf "%s\n" "#define HAS___SECURE_GETENV 1" >>confdefs.h
-
-fi
-
-fi
-
-
-CPPFLAGS="$saved_CPPFLAGS"
-
-## issetugid
-
-ac_fn_c_check_func "$LINENO" "issetugid" "ac_cv_func_issetugid"
-if test "x$ac_cv_func_issetugid" = xyes
-then :
-  printf "%s\n" "#define HAS_ISSETUGID 1" >>confdefs.h
-
-fi
-
 
 ## Checking for monotonic clock source
 ## On Windows MSVC, QueryPerformanceCounter and QueryPerformanceFrequency
@@ -17416,7 +17409,7 @@ fi
     ac_fn_c_check_func "$LINENO" "socketpair" "ac_cv_func_socketpair"
 if test "x$ac_cv_func_socketpair" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKETPAIR 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SOCKETPAIR 1" >>confdefs.h
 
 fi
  ;; #(
@@ -17484,7 +17477,7 @@ fi
     ac_fn_c_check_func "$LINENO" "socketpair" "ac_cv_func_socketpair"
 if test "x$ac_cv_func_socketpair" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKETPAIR 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SOCKETPAIR 1" >>confdefs.h
 
 fi
  ;; #(
@@ -17693,7 +17686,8 @@ esac
 
 if $sockets
 then :
-  printf "%s\n" "#define HAS_SOCKETS 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_SOCKETS 1" >>confdefs.h
 
 fi
 
@@ -17705,7 +17699,9 @@ case $host in #(
 "
 if test "x$ac_cv_type_socklen_t" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKLEN_T 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_SOCKLEN_T 1" >>confdefs.h
+
 
 fi
  ;; #(
@@ -17714,43 +17710,33 @@ fi
 "
 if test "x$ac_cv_type_socklen_t" = xyes
 then :
-  printf "%s\n" "#define HAS_SOCKLEN_T 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_SOCKLEN_T 1" >>confdefs.h
+
 
 fi
  ;;
 esac
 
-ac_fn_c_check_func "$LINENO" "inet_aton" "ac_cv_func_inet_aton"
-if test "x$ac_cv_func_inet_aton" = xyes
-then :
-  printf "%s\n" "#define HAS_INET_ATON 1" >>confdefs.h
-
-fi
-
-
 ## Unix domain sockets support on Windows
 
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
-           for ac_header in afunix.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "afunix.h" "ac_cv_header_afunix_h" "#include <winsock2.h>
+    ac_fn_c_check_header_compile "$LINENO" "afunix.h" "ac_cv_header_afunix_h" "#include <winsock2.h>
 "
 if test "x$ac_cv_header_afunix_h" = xyes
 then :
   printf "%s\n" "#define HAVE_AFUNIX_H 1" >>confdefs.h
- printf "%s\n" "#define HAS_AFUNIX_H 1" >>confdefs.h
 
 fi
-
-done ;; #(
+ ;; #(
   *) :
      ;;
 esac
 
 ## IPv6 support
 
-ipv6=true
+have_ipv6=true
 
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
@@ -17760,7 +17746,7 @@ if test "x$ac_cv_type_struct_sockaddr_in6" = xyes
 then :
 
 else $as_nop
-  ipv6=false
+  have_ipv6=false
 fi
  ;; #(
   *) :
@@ -17775,13 +17761,13 @@ if test "x$ac_cv_type_struct_sockaddr_in6" = xyes
 then :
 
 else $as_nop
-  ipv6=false
+  have_ipv6=false
 fi
 
  ;;
 esac
 
-if $ipv6
+if $have_ipv6
 then :
 
   for ac_func in getaddrinfo getnameinfo inet_pton inet_ntop
@@ -17795,56 +17781,11 @@ then :
 _ACEOF
 
 else $as_nop
-  ipv6=false
+  $have_ipv6=false
 fi
 
 done
 fi
-if $ipv6
-then :
-  printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
-
-fi
-
-ac_fn_c_check_func "$LINENO" "rewinddir" "ac_cv_func_rewinddir"
-if test "x$ac_cv_func_rewinddir" = xyes
-then :
-  printf "%s\n" "#define HAS_REWINDDIR 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "lockf" "ac_cv_func_lockf"
-if test "x$ac_cv_func_lockf" = xyes
-then :
-  printf "%s\n" "#define HAS_LOCKF 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "mkfifo" "ac_cv_func_mkfifo"
-if test "x$ac_cv_func_mkfifo" = xyes
-then :
-  printf "%s\n" "#define HAS_MKFIFO 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "getcwd" "ac_cv_func_getcwd"
-if test "x$ac_cv_func_getcwd" = xyes
-then :
-  printf "%s\n" "#define HAS_GETCWD 1" >>confdefs.h
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "system" "ac_cv_func_system"
-if test "x$ac_cv_func_system" = xyes
-then :
-  printf "%s\n" "#define HAS_SYSTEM 1" >>confdefs.h
-
-fi
-
 
 ## utime
 ## Note: this was defined in config/s-nt.h but the autoconf macros do not
@@ -17873,14 +17814,6 @@ fi
 fi
  ;;
 esac
-
-ac_fn_c_check_func "$LINENO" "utimes" "ac_cv_func_utimes"
-if test "x$ac_cv_func_utimes" = xyes
-then :
-  printf "%s\n" "#define HAS_UTIMES 1" >>confdefs.h
-
-fi
-
 
 ac_fn_c_check_func "$LINENO" "fchmod" "ac_cv_func_fchmod"
 if test "x$ac_cv_func_fchmod" = xyes
@@ -17926,14 +17859,6 @@ fi
 fi
 
 
-ac_fn_c_check_func "$LINENO" "nanosleep" "ac_cv_func_nanosleep"
-if test "x$ac_cv_func_nanosleep" = xyes
-then :
-  printf "%s\n" "#define HAS_NANOSLEEP 1" >>confdefs.h
-
-fi
-
-
 ac_fn_c_check_func "$LINENO" "symlink" "ac_cv_func_symlink"
 if test "x$ac_cv_func_symlink" = xyes
 then :
@@ -17948,66 +17873,6 @@ then :
 fi
 
 fi
-
-fi
-
-
-ac_fn_c_check_func "$LINENO" "realpath" "ac_cv_func_realpath"
-if test "x$ac_cv_func_realpath" = xyes
-then :
-  printf "%s\n" "#define HAS_REALPATH 1" >>confdefs.h
-
-fi
-
-
-# wait
-ac_fn_c_check_func "$LINENO" "waitpid" "ac_cv_func_waitpid"
-if test "x$ac_cv_func_waitpid" = xyes
-then :
-
-    wait=true
-    printf "%s\n" "#define HAS_WAITPID 1" >>confdefs.h
-
-
-else $as_nop
-  wait=false
-fi
-
-
-ac_fn_c_check_func "$LINENO" "wait4" "ac_cv_func_wait4"
-if test "x$ac_cv_func_wait4" = xyes
-then :
-
-    has_wait=true
-    printf "%s\n" "#define HAS_WAIT4 1" >>confdefs.h
-
-
-fi
-
-
-## getgroups
-ac_fn_c_check_func "$LINENO" "getgroups" "ac_cv_func_getgroups"
-if test "x$ac_cv_func_getgroups" = xyes
-then :
-  printf "%s\n" "#define HAS_GETGROUPS 1" >>confdefs.h
-
-fi
-
-
-## setgroups
-ac_fn_c_check_func "$LINENO" "setgroups" "ac_cv_func_setgroups"
-if test "x$ac_cv_func_setgroups" = xyes
-then :
-  printf "%s\n" "#define HAS_SETGROUPS 1" >>confdefs.h
-
-fi
-
-
-## initgroups
-ac_fn_c_check_func "$LINENO" "initgroups" "ac_cv_func_initgroups"
-if test "x$ac_cv_func_initgroups" = xyes
-then :
-  printf "%s\n" "#define HAS_INITGROUPS 1" >>confdefs.h
 
 fi
 
@@ -18047,33 +17912,18 @@ fi
 fi
 
 
-## setitimer
-
-ac_fn_c_check_func "$LINENO" "setitimer" "ac_cv_func_setitimer"
-if test "x$ac_cv_func_setitimer" = xyes
-then :
-
-    setitimer=true
-    printf "%s\n" "#define HAS_SETITIMER 1" >>confdefs.h
-
-
-else $as_nop
-  setitimer=false
-fi
-
-
 ## gethostname
 # Note: detection fails on Windows so hardcoding the result
 # (should be debugged later)
 case $host in #(
   *-*-mingw32*|*-pc-windows) :
-    printf "%s\n" "#define HAS_GETHOSTNAME 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_GETHOSTNAME 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "gethostname" "ac_cv_func_gethostname"
 if test "x$ac_cv_func_gethostname" = xyes
 then :
-  printf "%s\n" "#define HAS_GETHOSTNAME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_GETHOSTNAME 1" >>confdefs.h
 
 fi
  ;;
@@ -18087,34 +17937,9 @@ then :
   ac_fn_c_check_func "$LINENO" "uname" "ac_cv_func_uname"
 if test "x$ac_cv_func_uname" = xyes
 then :
-  printf "%s\n" "#define HAS_UNAME 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_UNAME 1" >>confdefs.h
 
 fi
-
-fi
-
-
-## gettimeofday
-
-ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
-if test "x$ac_cv_func_gettimeofday" = xyes
-then :
-
-    gettimeofday=true
-    printf "%s\n" "#define HAS_GETTIMEOFDAY 1" >>confdefs.h
-
-
-else $as_nop
-  gettimeofday=false
-fi
-
-
-## mktime
-
-ac_fn_c_check_func "$LINENO" "mktime" "ac_cv_func_mktime"
-if test "x$ac_cv_func_mktime" = xyes
-then :
-  printf "%s\n" "#define HAS_MKTIME 1" >>confdefs.h
 
 fi
 
@@ -18128,21 +17953,11 @@ case $host in #(
     ac_fn_c_check_func "$LINENO" "setsid" "ac_cv_func_setsid"
 if test "x$ac_cv_func_setsid" = xyes
 then :
-  printf "%s\n" "#define HAS_SETSID 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SETSID 1" >>confdefs.h
 
 fi
  ;;
 esac
-
-## putenv
-
-ac_fn_c_check_func "$LINENO" "putenv" "ac_cv_func_putenv"
-if test "x$ac_cv_func_putenv" = xyes
-then :
-  printf "%s\n" "#define HAS_PUTENV 1" >>confdefs.h
-
-fi
-
 
 ## setenv and unsetenv
 
@@ -18219,13 +18034,13 @@ fi
 # (should be debugged later)
 case $host in #(
   *-pc-windows) :
-    printf "%s\n" "#define HAS_STRTOD_L 1" >>confdefs.h
+    printf "%s\n" "#define HAVE_STRTOD_L 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "strtod_l" "ac_cv_func_strtod_l"
 if test "x$ac_cv_func_strtod_l" = xyes
 then :
-  printf "%s\n" "#define HAS_STRTOD_L 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_STRTOD_L 1" >>confdefs.h
 
 fi
  ;;
@@ -18319,16 +18134,6 @@ then :
 fi
 
 fi
-
-fi
-
-
-## pwrite
-
-ac_fn_c_check_func "$LINENO" "pwrite" "ac_cv_func_pwrite"
-if test "x$ac_cv_func_pwrite" = xyes
-then :
-  printf "%s\n" "#define HAS_PWRITE 1" >>confdefs.h
 
 fi
 
@@ -18842,93 +18647,23 @@ case $ac_cv_func_which_gethostbyaddr_r in #(
      ;;
 esac
 
-## mkstemp
-
-ac_fn_c_check_func "$LINENO" "mkstemp" "ac_cv_func_mkstemp"
-if test "x$ac_cv_func_mkstemp" = xyes
-then :
-  printf "%s\n" "#define HAS_MKSTEMP 1" >>confdefs.h
-
-fi
-
-
-## nice
-
-ac_fn_c_check_func "$LINENO" "nice" "ac_cv_func_nice"
-if test "x$ac_cv_func_nice" = xyes
-then :
-  printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
-
-fi
-
-
-## dup3
-
-ac_fn_c_check_func "$LINENO" "dup3" "ac_cv_func_dup3"
-if test "x$ac_cv_func_dup3" = xyes
-then :
-  printf "%s\n" "#define HAS_DUP3 1" >>confdefs.h
-
-fi
-
-
-## pipe2
-
-ac_fn_c_check_func "$LINENO" "pipe2" "ac_cv_func_pipe2"
-if test "x$ac_cv_func_pipe2" = xyes
-then :
-  printf "%s\n" "#define HAS_PIPE2 1" >>confdefs.h
-
-fi
-
-
-## accept4
-
-ac_fn_c_check_func "$LINENO" "accept4" "ac_cv_func_accept4"
-if test "x$ac_cv_func_accept4" = xyes
-then :
-  printf "%s\n" "#define HAS_ACCEPT4 1" >>confdefs.h
-
-fi
-
-
-## getauxval
-
-ac_fn_c_check_func "$LINENO" "getauxval" "ac_cv_func_getauxval"
-if test "x$ac_cv_func_getauxval" = xyes
-then :
-  printf "%s\n" "#define HAS_GETAUXVAL 1" >>confdefs.h
-
-fi
-
-
 ## shmat
-ac_fn_c_check_header_compile "$LINENO" "sys/shm.h" "ac_cv_header_sys_shm_h" "$ac_includes_default"
+       for ac_header in sys/shm.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "sys/shm.h" "ac_cv_header_sys_shm_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_shm_h" = xyes
 then :
-
-    printf "%s\n" "#define HAS_SYS_SHM_H 1" >>confdefs.h
-
-    ac_fn_c_check_func "$LINENO" "shmat" "ac_cv_func_shmat"
+  printf "%s\n" "#define HAVE_SYS_SHM_H 1" >>confdefs.h
+ ac_fn_c_check_func "$LINENO" "shmat" "ac_cv_func_shmat"
 if test "x$ac_cv_func_shmat" = xyes
 then :
-  printf "%s\n" "#define HAS_SHMAT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SHMAT 1" >>confdefs.h
 
 fi
 
-
 fi
 
-
-## execvpe
-
-ac_fn_c_check_func "$LINENO" "execvpe" "ac_cv_func_execvpe"
-if test "x$ac_cv_func_execvpe" = xyes
-then :
-  printf "%s\n" "#define HAS_EXECVPE 1" >>confdefs.h
-
-fi
-
+done
 
 ## posix_spawn
 
@@ -20159,7 +19894,7 @@ if test "x$ax_pthread_ok" = "xyes"; then
     ac_fn_c_check_func "$LINENO" "sigwait" "ac_cv_func_sigwait"
 if test "x$ac_cv_func_sigwait" = xyes
 then :
-  printf "%s\n" "#define HAS_SIGWAIT 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_SIGWAIT 1" >>confdefs.h
 
 fi
 
@@ -20184,7 +19919,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #define _GNU_SOURCE
       #include <sched.h>
-      #ifdef HAS_PTHREAD_NP_H
+      #ifdef HAVE_PTHREAD_NP_H
       #include <pthread_np.h>
       #endif
       #include <pthread.h>
@@ -20261,7 +19996,6 @@ printf "%s\n" "$as_me: the threads library is supported" >&6;} ;;
 esac
 
 ## Does the assembler support debug prefix map and CFI directives
-as_has_debug_prefix_map=false
 asm_cfi_supported=false
 if $native_compiler
 then :
@@ -20272,7 +20006,10 @@ then :
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the assembler supports --debug-prefix-map" >&5
 printf %s "checking whether the assembler supports --debug-prefix-map... " >&6; }
-
+if test ${ocaml_cv_prog_as_debug_prefix_map+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
 
   saved_CC="$CC"
   saved_CFLAGS="$CFLAGS"
@@ -20286,14 +20023,14 @@ printf %s "checking whether the assembler supports --debug-prefix-map... " >&6; 
   touch confdefs.h
 
 
-  # Modify C-compiler variables to use the assembler
-  CC="$AS"
-  CFLAGS="--debug-prefix-map old=new -o conftest.$ac_objext"
-  CPPFLAGS=""
-  ac_ext="S"
-  ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+    # Modify C-compiler variables to use the assembler
+    CC="$AS"
+    CFLAGS="--debug-prefix-map old=new -o conftest.$ac_objext"
+    CPPFLAGS=""
+    ac_ext="S"
+    ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 camlPervasives__loop_1128:
@@ -20303,13 +20040,9 @@ camlPervasives__loop_1128:
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  as_has_debug_prefix_map=true
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+  ocaml_cv_prog_as_debug_prefix_map=true
 else $as_nop
-  as_has_debug_prefix_map=false
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  ocaml_cv_prog_as_debug_prefix_map=false
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
@@ -20323,6 +20056,9 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
   CC="$saved_CC"
   LIBS="$saved_LIBS"
 
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_prog_as_debug_prefix_map" >&5
+printf "%s\n" "$ocaml_cv_prog_as_debug_prefix_map" >&6; }
 
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the assembler supports CFI directives" >&5
@@ -20433,6 +20169,7 @@ fi
 fi ;;
 esac
 fi
+: ${ocaml_cv_prog_as_debug_prefix_map=false}
 
 ## Frame pointers
 
@@ -20466,10 +20203,13 @@ fi
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether mmap supports huge pages" >&5
 printf %s "checking whether mmap supports huge pages... " >&6; }
+if test ${ocaml_cv_func_mmap_huge_pages+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
   if test "$cross_compiling" = yes
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no assumed" >&5
-printf "%s\n" "no assumed" >&6; }
+  ocaml_cv_func_mmap_huge_pages='no assumed'
 else $as_nop
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -20518,20 +20258,26 @@ main (void)
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
-  printf "%s\n" "#define HAS_HUGE_PAGES 1" >>confdefs.h
-
-    printf "%s\n" "#define HUGE_PAGE_SIZE (4 * 1024 * 1024)" >>confdefs.h
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+  ocaml_cv_func_mmap_huge_pages=yes
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  ocaml_cv_func_mmap_huge_pages=no
 fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_func_mmap_huge_pages" >&5
+printf "%s\n" "$ocaml_cv_func_mmap_huge_pages" >&6; }
+  if test "x$ocaml_cv_prog_cc_func_mmap_huge_pages" = xyes
+then :
+
+    printf "%s\n" "#define HAS_HUGE_PAGES 1" >>confdefs.h
+
+    printf "%s\n" "#define HUGE_PAGE_SIZE (4 * 1024 * 1024)" >>confdefs.h
+
+
+fi
 
 
 printf "%s\n" "#define HEADER_RESERVED_BITS $reserved_header_bits" >>confdefs.h
@@ -20718,10 +20464,13 @@ fi
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether mmap supports MAP_STACK" >&5
 printf %s "checking whether mmap supports MAP_STACK... " >&6; }
+if test ${ocaml_cv_func_mmap_MAP_STACK+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
   if test "$cross_compiling" = yes
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no assumed" >&5
-printf "%s\n" "no assumed" >&6; }
+  ocaml_cv_func_mmap_MAP_STACK='no assumed'
 else $as_nop
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -20747,45 +20496,45 @@ main (void)
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
-  has_mmap_map_stack=true
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+  ocaml_cv_func_mmap_MAP_STACK=yes
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  ocaml_cv_func_mmap_MAP_STACK=no
 fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_func_mmap_MAP_STACK" >&5
+printf "%s\n" "$ocaml_cv_func_mmap_MAP_STACK" >&6; }
 
 if test x"$enable_mmap_map_stack" = "xyes"
 then :
-  if test x"$has_mmap_map_stack" = "xtrue"
+  if test x"$ocaml_cv_func_mmap_MAP_STACK" = "xyes"
 then :
   case $target in #(
   *-freebsd*) :
-    as_fn_error $? "mmap MAP_STACK not supported on FreeBSD" "$LINENO" 5 ;; #(
+    as_fn_error $? "mmap MAP_STACK is not supported on FreeBSD" "$LINENO" 5 ;; #(
   *) :
-    with_mmap_map_stack=true;
-        printf "%s\n" "#define USE_MMAP_MAP_STACK 1" >>confdefs.h
- ;;
+    use_mmap_map_stack=true ;;
 esac
 else $as_nop
   as_fn_error $? "mmap MAP_STACK requested but not found on $target" "$LINENO" 5
 fi
-
 else $as_nop
   case $target in #(
   *-openbsd*) :
-    with_mmap_map_stack=true;
-      printf "%s\n" "#define USE_MMAP_MAP_STACK 1" >>confdefs.h
-
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using MAP_STACK on OpenBSD due to stack checking" >&5
-printf "%s\n" "$as_me: using MAP_STACK on OpenBSD due to stack checking" >&6;} ;; #(
+    use_mmap_map_stack=true
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using MAP_STACK on OpenBSD due to stack checking" >&5
+printf "%s\n" "$as_me: Using MAP_STACK on OpenBSD due to stack checking" >&6;} ;; #(
   *) :
-    with_mmap_map_stack=false ;;
+     ;;
 esac
+fi
+if ${use_mmap_map_stack=false}
+then :
+
+printf "%s\n" "#define USE_MMAP_MAP_STACK 1" >>confdefs.h
 
 fi
 
@@ -20930,32 +20679,45 @@ esac
 fi
 fi
 
-# Define a few macros that were defined in config/m-nt.h
-# but whose value is not guessed properly by configure
-# (all this should be understood and fixed)
+# Define a few macros that were defined in config/m-nt.h but which values are
+# not guessed properly by configure (all this should be understood and fixed)
+have_nice=false
+have_broken_printf=false
 case $host in #(
   *-*-mingw32*) :
-    printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
- ;; #(
+    have_broken_printf=true
+     have_ipv6=true
+     have_nice=true ;; #(
   *-pc-windows) :
-    printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_IPV6 1" >>confdefs.h
-
-    printf "%s\n" "#define HAS_NICE 1" >>confdefs.h
- ;; #(
+    have_broken_printf=true
+     have_ipv6=true
+     have_nice=true ;; #(
   *-*-solaris*) :
-    # This is required as otherwise floats are printed
-    # as "Infinity" and "Inf" instead of the expected "inf"
-    printf "%s\n" "#define HAS_BROKEN_PRINTF 1" >>confdefs.h
- ;; #(
+    has_broken_printf=true ;; #(
   *) :
      ;;
 esac
+
+if ${have_broken_printf}
+then :
+
+printf "%s\n" "#define HAVE_BROKEN_PRINTF 1" >>confdefs.h
+
+fi
+
+if $have_ipv6
+then :
+
+printf "%s\n" "#define HAVE_IPV6 1" >>confdefs.h
+
+fi
+
+if ${have_nice}
+then :
+
+printf "%s\n" "#define HAVE_NICE 1" >>confdefs.h
+
+fi
 
 # Do not permanently cache the result of flexdll.h
 unset ac_cv_header_flexdll_h

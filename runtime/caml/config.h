@@ -20,6 +20,11 @@
 #include "s.h"
 #include "compatibility.h"
 
+/* Use WinAPI under MinGW-w64 directly, rather than unistd.h emulation. */
+#if defined(HAVE_UNISTD_H) && defined(__MINGW32__)
+#undef HAVE_UNISTD_H
+#endif
+
 /* CAML_NAME_SPACE was introduced in OCaml 3.08 to declare compatibility with
    the newly caml_-prefixed names of C runtime functions and to disable the
    definition of compatibility macros for the un-prefixed names. The
@@ -31,11 +36,11 @@
 
 /* If supported, tell gcc that we can use 32-bit code addresses for
  * threaded code, unless we are compiled for a shared library (-fPIC option) */
-#ifdef HAS_ARCH_CODE32
+#ifdef HAVE_ARCH_CODE32
 #ifndef __PIC__
 #  define ARCH_CODE32
 #endif /* __PIC__ */
-#endif /* HAS_ARCH_CODE32 */
+#endif /* HAVE_ARCH_CODE32 */
 
 /* No longer used in the codebase, but kept because it was exported */
 #define INT64_LITERAL(s) s ## LL
@@ -106,7 +111,7 @@
     #define ARCH_INT64_TYPE long
     #define ARCH_UINT64_TYPE unsigned long
     #define ARCH_INT64_PRINTF_FORMAT "l"
-  #elif SIZEOF_LONGLONG == 8
+  #elif SIZEOF_LONG_LONG == 8
     #define ARCH_INT64_TYPE long long
     #define ARCH_UINT64_TYPE unsigned long long
     #define ARCH_INT64_PRINTF_FORMAT "ll"
@@ -115,17 +120,17 @@
   #endif
 #endif
 
-#if SIZEOF_PTR == SIZEOF_LONG
+#if SIZEOF_LONG_P == SIZEOF_LONG
 /* Standard models: ILP32 or I32LP64 */
 typedef long intnat;
 typedef unsigned long uintnat;
 #define ARCH_INTNAT_PRINTF_FORMAT "l"
-#elif SIZEOF_PTR == SIZEOF_INT
+#elif SIZEOF_LONG_P == SIZEOF_INT
 /* Hypothetical IP32L64 model */
 typedef int intnat;
 typedef unsigned int uintnat;
 #define ARCH_INTNAT_PRINTF_FORMAT ""
-#elif SIZEOF_PTR == 8
+#elif SIZEOF_LONG_P == 8
 /* Win64 model: IL32P64 */
 typedef int64_t intnat;
 typedef uint64_t uintnat;
@@ -150,7 +155,7 @@ typedef uint64_t uintnat;
 
 #if defined(__arm__) && !defined(__ARM_EABI__)
 #define ARCH_FLOAT_ENDIANNESS 0x45670123
-#elif defined(ARCH_BIG_ENDIAN)
+#elif defined(WORDS_BIGENDIAN)
 #define ARCH_FLOAT_ENDIANNESS 0x76543210
 #else
 #define ARCH_FLOAT_ENDIANNESS 0x01234567

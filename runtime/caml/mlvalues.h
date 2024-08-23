@@ -227,7 +227,7 @@ CAMLno_tsan_for_perf Caml_inline header_t Hd_val(value val)
 
 #define Reserved_val(val) (Reserved_hd (Hd_val (val)))
 
-#ifdef ARCH_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
 #define Tag_val(val) (((volatile unsigned char *) (val)) [-1])
                                                  /* Also an l-value. */
 #define Tag_hp(hp) (((volatile unsigned char *) (hp)) [sizeof(value)-1])

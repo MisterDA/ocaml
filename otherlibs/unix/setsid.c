@@ -16,13 +16,13 @@
 #include <caml/fail.h>
 #include <caml/mlvalues.h>
 #include "caml/unixsupport.h"
-#ifdef HAS_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
 CAMLprim value caml_unix_setsid(value unit)
 {
-#ifdef HAS_SETSID
+#ifdef HAVE_SETSID
   pid_t pid = setsid();
   if (pid == (pid_t)(-1)) caml_uerror("setsid", Nothing);
   return Val_long(pid);

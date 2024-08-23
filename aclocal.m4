@@ -95,18 +95,22 @@ AC_DEFUN([OCAML_SIGNAL_HANDLERS_SEMANTICS], [
 ])
 
 AC_DEFUN([OCAML_CC_SUPPORTS_TREE_VECTORIZE], [
-  AC_MSG_CHECKING(
- [whether the C compiler supports __attribute__((optimize("tree-vectorize")))])
-  saved_CFLAGS="$CFLAGS"
-  CFLAGS="-Werror $CFLAGS"
-  AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM(
-      [[__attribute__((optimize("tree-vectorize"))) void f(void) {}]],
-      [[f();]])],
-    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1])
-    AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no])])
-  CFLAGS="$saved_CFLAGS"
+  AC_CACHE_CHECK(m4_normalize([whether the C compiler supports
+      __attribute__((optimize("tree-vectorize")))]),
+    [ocaml_cv_prog_cc_optimize_tree_vectorize], [
+
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$warn_error_flag $CFLAGS"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+        [[__attribute__((optimize("tree-vectorize"))) void f(void) {}]],
+        [[f();]])],
+      [ocaml_cv_prog_cc_optimize_tree_vectorize=yes],
+      [ocaml_cv_prog_cc_optimize_tree_vectorize=no])
+    CFLAGS="$saved_CFLAGS"
+    ])
+  ])
+  AS_IF([test "x$ocaml_cv_prog_cc_tree_vectorize" = xyes],
+    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1])])
 ])
 
 # Save C compiler related variables
@@ -136,29 +140,26 @@ AC_DEFUN([OCAML_CC_RESTORE_VARIABLES], [
 ])
 
 AC_DEFUN([OCAML_AS_HAS_DEBUG_PREFIX_MAP], [
-  AC_MSG_CHECKING([whether the assembler supports --debug-prefix-map])
+  AC_CACHE_CHECK([whether the assembler supports --debug-prefix-map],
+    [ocaml_cv_prog_as_debug_prefix_map],
+    [OCAML_CC_SAVE_VARIABLES
 
-  OCAML_CC_SAVE_VARIABLES
+    # Modify C-compiler variables to use the assembler
+    CC="$AS"
+    CFLAGS="--debug-prefix-map old=new -o conftest.$ac_objext"
+    CPPFLAGS=""
+    ac_ext="S"
+    ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 
-  # Modify C-compiler variables to use the assembler
-  CC="$AS"
-  CFLAGS="--debug-prefix-map old=new -o conftest.$ac_objext"
-  CPPFLAGS=""
-  ac_ext="S"
-  ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-
-  AC_COMPILE_IFELSE(
-    [AC_LANG_SOURCE([
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 camlPervasives__loop_1128:
         .file   1       "pervasives.ml"
         .loc    1       193
     ])],
-    [as_has_debug_prefix_map=true
-    AC_MSG_RESULT([yes])],
-    [as_has_debug_prefix_map=false
-    AC_MSG_RESULT([no])])
+    [ocaml_cv_prog_as_debug_prefix_map=true],
+    [ocaml_cv_prog_as_debug_prefix_map=false])
 
-  OCAML_CC_RESTORE_VARIABLES
+    OCAML_CC_RESTORE_VARIABLES])
 ])
 
 AC_DEFUN([OCAML_AS_HAS_CFI_DIRECTIVES], [
@@ -217,9 +218,9 @@ camlPervasives__loop_1128:
   ])])
 
 AC_DEFUN([OCAML_MMAP_SUPPORTS_MAP_STACK], [
-  AC_MSG_CHECKING([whether mmap supports MAP_STACK])
-  AC_RUN_IFELSE(
-    [AC_LANG_PROGRAM([[
+  AC_CACHE_CHECK([whether mmap supports MAP_STACK],
+    [ocaml_cv_func_mmap_MAP_STACK],
+    [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -231,16 +232,15 @@ AC_DEFUN([OCAML_MMAP_SUPPORTS_MAP_STACK], [
   if (block == MAP_FAILED)
      return 1;
     ]])],
-    [has_mmap_map_stack=true
-    AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no])],
-    [AC_MSG_RESULT([no assumed])])
+      [ocaml_cv_func_mmap_MAP_STACK=yes],
+      [ocaml_cv_func_mmap_MAP_STACK=no],
+      [ocaml_cv_func_mmap_MAP_STACK='no assumed'])])
 ])
 
 AC_DEFUN([OCAML_MMAP_SUPPORTS_HUGE_PAGES], [
-  AC_MSG_CHECKING([whether mmap supports huge pages])
-  AC_RUN_IFELSE(
-    [AC_LANG_PROGRAM([[
+  AC_CACHE_CHECK([whether mmap supports huge pages],
+    [ocaml_cv_func_mmap_huge_pages],
+    [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -275,11 +275,13 @@ AC_DEFUN([OCAML_MMAP_SUPPORTS_HUGE_PAGES], [
     p[i] = (char) i;
   }
     ]])],
-    [AC_DEFINE([HAS_HUGE_PAGES], [1])
+      [ocaml_cv_func_mmap_huge_pages=yes],
+      [ocaml_cv_func_mmap_huge_pages=no],
+      [ocaml_cv_func_mmap_huge_pages='no assumed'])])
+  AS_IF([test "x$ocaml_cv_prog_cc_func_mmap_huge_pages" = xyes], [
+    AC_DEFINE([HAS_HUGE_PAGES], [1])
     AC_DEFINE_UNQUOTED([HUGE_PAGE_SIZE], [(4 * 1024 * 1024)])
-    AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no])],
-    [AC_MSG_RESULT([no assumed])])
+  ])
 ])
 
 AC_DEFUN([OCAML_CHECK_LIBUNWIND], [
@@ -502,7 +504,7 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
   opts=""
   AS_IF([test -n "$1"],[CFLAGS="$CFLAGS $1"; opts="$1"])
   AS_IF([test -n "$2"],[LIBS="$LIBS $2"; opts="${opts:+$opts }$2"])
-  AC_MSG_CHECKING(m4_normalize([if $CC supports _Atomic types with
+  AC_MSG_CHECKING(m4_normalize([if the C compiler supports _Atomic types with
     ${opts:-no additional options}]))
 
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
@@ -526,7 +528,8 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
 ])
 
 AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
-  AC_CACHE_CHECK([whether $CC supports the labels as values extension],
+  AC_CACHE_CHECK(m4_normalize([whether the C compiler supports the labels as
+      values extension]),
     [ocaml_cv_prog_cc_labels_as_values],
     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
   void *ptr;
@@ -538,8 +541,8 @@ AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
        [ocaml_cv_prog_cc_labels_as_values=yes],
        [ocaml_cv_prog_cc_labels_as_values=no])
   ])
-  if test "x$ocaml_cv_prog_cc_labels_as_values" = xyes; then
+  AS_IF([test "x$ocaml_cv_prog_cc_labels_as_values" = xyes], [
     AC_DEFINE([HAVE_LABELS_AS_VALUES], [1],
       [Define if the C compiler supports the labels as values extension.])
-  fi
+  ])
 ])

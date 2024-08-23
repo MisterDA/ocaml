@@ -20,14 +20,14 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/times.h>
-#ifdef HAS_GETRUSAGE
+#ifdef HAVE_GETRUSAGE
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
 
 CAMLprim value caml_unix_times(value unit)
 {
-#ifdef HAS_GETRUSAGE
+#ifdef HAVE_GETRUSAGE
 
   value res;
   struct rusage ru;
