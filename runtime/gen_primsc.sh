@@ -52,8 +52,8 @@ sed \
 
 # Generate the table of primitives
 echo
-echo 'const c_primitive caml_builtin_cprim[] = {'
-sed -e 's/.*/  (c_primitive) &,/' "$primitives"
+echo 'void * const caml_builtin_cprim[] = {'
+sed -e 's/.*/  (void *) &,/' "$primitives"
 echo '  0 };'
 
 # Generate the table of primitive names

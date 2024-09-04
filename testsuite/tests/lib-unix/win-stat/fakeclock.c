@@ -118,7 +118,7 @@ void ReplaceFunction(char* fn, char* module, void* pNew)
 
   /* Patching is permitted to fail (missing API, etc.) */
   if (!hModule) return;
-  pCode = GetProcAddress(hModule, fn);
+  pCode = (void *) GetProcAddress(hModule, fn);
   if (!pCode) return;
 
   /* Overwrite the code with a jump to our function */

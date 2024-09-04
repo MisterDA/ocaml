@@ -42,7 +42,7 @@ CAMLprim value caml_unix_link(value follow, value path1, value path2)
   }
   hModKernel32 = GetModuleHandle(L"KERNEL32.DLL");
   pCreateHardLink =
-    (tCreateHardLink) GetProcAddress(hModKernel32, "CreateHardLinkW");
+    (tCreateHardLink)(void *) GetProcAddress(hModKernel32, "CreateHardLinkW");
   if (pCreateHardLink == NULL)
     caml_invalid_argument("Unix.link not implemented");
   caml_unix_check_path(path1, "link");
