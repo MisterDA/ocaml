@@ -22,6 +22,13 @@ Working version
   `Thread.sigmask` using `Unix.sigprocmask`.
   (Xavier Leroy, review by Antonin Décimo, Gabriel Scherer, Miod Vallat)
 
+* #13435: On Windows, use system calls for `Filename.get_temp_dir_name` instead
+  of directly reading the environment, which in particular improves the security
+  of OCaml processes running in the SYSTEM security context by mitigating
+  privileged file operation attacks. For all other processes running with the
+  default environment (where `TEMP` is set), there is no discernible change.
+  (Antonin Décimo, review by Nicolás Ojeda Bär and David Allsopp)
+
 ### Tools:
 
 ### Manual and documentation:
