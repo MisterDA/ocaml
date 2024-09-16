@@ -50,6 +50,10 @@ Working version
   between domain exit and backup thread
   (Miod Vallat and Gabriel Scherer, report by Jan Midtgaard)
 
+- #?????: Fix Windows emulation of socketpair+PF_UNIX sockets
+  occasionally failing with EADDRINUSE.
+  (Antonin Décimo, review by ???, report by Vesa Karvonen)
+
 OCaml 5.3.0
 ___________
 
