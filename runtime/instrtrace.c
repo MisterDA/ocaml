@@ -42,9 +42,6 @@ void caml_stop_here (void)
 {
 }
 
-char * caml_instr_string (code_t pc);
-
-
 void
 caml_event_trace(code_t pc)
 {
