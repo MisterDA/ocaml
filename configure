@@ -20615,17 +20615,32 @@ test -n "$DIFF" || DIFF="none"
      ;;
 esac
   for flag in ${flags}; do
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $DIFF supports $flag" >&5
-printf %s "checking whether $DIFF supports $flag... " >&6; };
-    if $DIFF $DIFF_FLAGS $flag $0 $0 > /dev/null 2>&1
+
+  as_CACHEVAR=`printf "%s\n" "ocaml_cv_prog_diff_${DIFF_FLAGS:+$DIFF_FLAGS }_${flag}" | $as_tr_sh`
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $DIFF supports ${DIFF_FLAGS:+$DIFF_FLAGS }${flag}" >&5
+printf %s "checking whether $DIFF supports ${DIFF_FLAGS:+$DIFF_FLAGS }${flag}... " >&6; }
+if eval test \${$as_CACHEVAR+y}
 then :
-  DIFF_FLAGS="$DIFF_FLAGS $flag"
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+  printf %s "(cached) " >&6
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+
+    if "$DIFF" ${DIFF_FLAGS:+$DIFF_FLAGS }${flag} /dev/zero /dev/zero > /dev/null 2>&1
+then :
+  eval "$as_CACHEVAR=yes"
+else $as_nop
+  eval "$as_CACHEVAR=no"
 fi
+fi
+eval ac_res=\$$as_CACHEVAR
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+  if eval test \"x\$"$as_CACHEVAR"\" = x"yes"
+then :
+  DIFF_FLAGS="${DIFF_FLAGS:+$DIFF_FLAGS }$flag"
+else $as_nop
+  :
+fi
+
   done
 fi
 

@@ -2513,11 +2513,9 @@ AS_IF([$build_ocamltest],
     [none],
       [AC_MSG_ERROR([ocamltest requires a diff tool])])
   for flag in ${flags}; do
-    AC_MSG_CHECKING([whether $DIFF supports $flag]);
-    AS_IF([$DIFF $DIFF_FLAGS $flag $0 $0 > /dev/null 2>&1],
-      [DIFF_FLAGS="$DIFF_FLAGS $flag"
-      AC_MSG_RESULT([yes])],
-      [AC_MSG_RESULT([no])])
+    OCAML_CHECK_DIFF_FLAG([${flag}],
+      [DIFF_FLAGS="${DIFF_FLAGS:+$DIFF_FLAGS }$flag"], [],
+      [${DIFF_FLAGS:+$DIFF_FLAGS }])
   done])
 
 AS_IF([test x"$enable_flambda" = "xyes"],

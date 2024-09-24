@@ -563,3 +563,19 @@ AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
       [Define if the C compiler supports the labels as values extension.])
   ])
 ])
+
+dnl $1: flag
+dnl $2: action-success
+dnl $3: action-failure
+dnl $4: extra-flags
+AC_DEFUN([OCAML_CHECK_DIFF_FLAG], [
+  AS_VAR_PUSHDEF([CACHEVAR],[ocaml_cv_prog_diff_$4_$1])dnl
+  AC_CACHE_CHECK([whether $DIFF supports $4$1], CACHEVAR, [
+    AS_IF(["$DIFF" $4$1 /dev/zero /dev/zero > /dev/null 2>&1],
+      [AS_VAR_SET(CACHEVAR,[yes])],
+      [AS_VAR_SET(CACHEVAR,[no])])])
+  AS_VAR_IF(CACHEVAR,yes,
+    [m4_default([$2], :)],
+    [m4_default([$3], :)])
+  AS_VAR_POPDEF([CACHEVAR])dnl
+])dnl
