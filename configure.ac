@@ -125,7 +125,6 @@ AC_SUBST([CC])
 AC_SUBST([SAK_BUILD])
 AC_SUBST([SAK])
 AC_SUBST([encode_C_literal])
-AC_SUBST([DIFF_FLAGS])
 AC_SUBST([CSC])
 AC_SUBST([CSCFLAGS])
 # Note: This is present for the flexdll bootstrap where it exposed as the old
@@ -2630,20 +2629,20 @@ AS_IF([$build_ocamltest],
   AC_CONFIG_LINKS([
     ocamltest/ocamltest_unix.ml:${ocamltest_unix_mod}
   ])
-  AC_CHECK_PROGS([DIFF], [patdiff diff], [none])
-  DIFF_FLAGS=""
-  flags=""
-  AS_CASE([$DIFF],
-    [diff], [flags="--strip-trailing-cr -u"],
-    [none],
-      [AC_MSG_ERROR([ocamltest requires a diff tool])])
-  for flag in ${flags}; do
-    AC_MSG_CHECKING([whether $DIFF supports $flag]);
-    AS_IF([$DIFF $DIFF_FLAGS $flag $0 $0 > /dev/null 2>&1],
-      [DIFF_FLAGS="$DIFF_FLAGS $flag"
-      AC_MSG_RESULT([yes])],
-      [AC_MSG_RESULT([no])])
-  done])
+  AC_CHECK_PROGS([DIFF], [patdiff diff],
+    [AC_MSG_ERROR([ocamltest requires a diff tool])])
+  AS_CASE([$DIFF], [diff],
+    [AC_CACHE_CHECK([for extra $DIFF flags],
+      [ocaml_cv_prog_diff_flags],
+      [flags=""
+      for flag in -u --strip-trailing-cr; do
+        "$DIFF" $flag /dev/zero /dev/zero >/dev/null 2>&1 && \
+          flags="${flags:+$flags }$flag"
+      done
+      ocaml_cv_prog_diff_flags="${flags:-none needed}"])
+    AS_IF([test "x$ocaml_cv_prog_diff_flags" = x'none needed'],
+      [AC_SUBST([DIFF_FLAGS], [""])],
+      [AC_SUBST([DIFF_FLAGS], [$ocaml_cv_prog_diff_flags])])])])
 
 AS_IF([test x"$enable_flambda" = "xyes"],
   [flambda=true
