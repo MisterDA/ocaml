@@ -55,16 +55,18 @@
    exp2(), log2(), cbrt(), acosh(), asinh(), atanh(), erf(), erfc(),
    trunc(), round(), copysign(). */
 
-#undef HAS_WORKING_FMA
+#undef HAVE_WORKING_FMA
 
-/* Define HAS_WORKING_FMA if the fma function is correctly implemented. The
-   newlib library (intentionally) just has return x * y + z. This hatch is
-   also used for https://sourceforge.net/p/mingw-w64/bugs/848/ */
+/* Define HAVE_WORKING_FMA if the fma function is correctly implemented.
+   The newlib library (intentionally) just simply contains x * y + z.
+   This workaround is also used for
+   https://sourceforge.net/p/mingw-w64/bugs/848/ */
 
-#undef HAS_WORKING_ROUND
+#undef HAVE_WORKING_ROUND
 
-/* Define HAS_WORKING_ROUND is the round function is correctly implemented. This
-   hatch exists primarily for https://sourceforge.net/p/mingw-w64/bugs/573/ */
+/* Define HAVE_WORKING_ROUND if the round function is correctly implemented.
+   This workaround exists primarily for
+   https://sourceforge.net/p/mingw-w64/bugs/573/ */
 
 #undef HAS_GETENTROPY
 

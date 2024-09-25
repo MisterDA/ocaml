@@ -33,4 +33,12 @@
 #define HAS_UNISTD 1
 #endif
 
+#ifdef HAVE_WORKING_FMA
+#define HAS_WORKING_FMA 1
+#endif
+
+#ifdef HAVE_WORKING_ROUND
+#define HAS_WORKING_ROUND 1
+#endif
+
 #endif  /* CAML_COMPATIBILITY_H */

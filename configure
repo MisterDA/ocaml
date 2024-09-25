@@ -18877,8 +18877,14 @@ then :
 
   # Check whether round works (known bug in mingw-w64)
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether round works" >&5
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether round works" >&5
 printf %s "checking whether round works... " >&6; }
+if test ${ocaml_cv_func_round_works+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
 
   old_cross_compiling="$cross_compiling"
   if test "x$target_runnable" = 'xtrue'
@@ -18889,13 +18895,9 @@ fi
 then :
   case $target in #(
   x86_64-w64-mingw32*) :
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume not" >&5
-printf "%s\n" "cross-compiling; assume not" >&6; } ;; #(
+    ocaml_cv_func_round_works=no-cross-compiling ;; #(
   *) :
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume yes" >&5
-printf "%s\n" "cross-compiling; assume yes" >&6; }
-      printf "%s\n" "#define HAS_WORKING_ROUND 1" >>confdefs.h
- ;;
+    ocaml_cv_func_round_works=yes-cross-compiling ;;
 esac
 else $as_nop
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -18914,30 +18916,16 @@ main (void)
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    printf "%s\n" "#define HAS_WORKING_ROUND 1" >>confdefs.h
-
+  ocaml_cv_func_round_works=yes
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-    case $enable_imprecise_c99_float_ops,$target in #(
+  case $enable_imprecise_c99_float_ops,$target in #(
   no,*) :
-    hard_error=true ;; #(
-  yes,*) :
-    hard_error=false ;; #(
-  *,x86_64-w64-mingw32*) :
-    hard_error=false ;; #(
+    ocaml_cv_func_round_works=no-with-hard-error ;; #(
+  yes,*|*,x86_64-w64-mingw32*) :
+    ocaml_cv_func_round_works=no ;; #(
   *) :
-    hard_error=true ;;
+    ocaml_cv_func_round_works=no-with-hard-error ;;
 esac
-    if test x"$hard_error" = "xtrue"
-then :
-  as_fn_error $? "round does not work, enable emulation with --enable-imprecise-c99-float-ops" "$LINENO" 5
-else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: round does not work; emulation enabled" >&5
-printf "%s\n" "$as_me: WARNING: round does not work; emulation enabled" >&2;}
-fi
 fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
@@ -18945,12 +18933,42 @@ fi
 
   cross_compiling="$old_cross_compiling"
 
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_func_round_works" >&5
+printf "%s\n" "$ocaml_cv_func_round_works" >&6; }
+  case $ocaml_cv_func_round_works in #(
+  yes*) :
+
+printf "%s\n" "#define HAVE_WORKING_ROUND 1" >>confdefs.h
+
+      if test "x$ocaml_cv_func_round_works" = xyes-cross-compiling
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume yes" >&5
+printf "%s\n" "cross-compiling; assume yes" >&6; }
+fi ;; #(
+  no-with-hard-error) :
+    as_fn_error $? "round does not work, enable emulation with --enable-imprecise-c99-float-ops" "$LINENO" 5 ;; #(
+  no) :
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: round does not work; emulation enabled" >&5
+printf "%s\n" "$as_me: WARNING: round does not work; emulation enabled" >&2;} ;; #(
+  no-cross-compiling) :
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume not" >&5
+printf "%s\n" "cross-compiling; assume not" >&6; } ;; #(
+  *) :
+     ;;
+esac
 
   # Check whether fma works (regressed in mingw-w64 8.0.0; and present but
   # unimplemented in Cygwin64)
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether fma works" >&5
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether fma works" >&5
 printf %s "checking whether fma works... " >&6; }
+if test ${ocaml_cv_func_fma_works+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
 
   old_cross_compiling="$cross_compiling"
   if test "x$target_runnable" = 'xtrue'
@@ -18961,13 +18979,9 @@ fi
 then :
   case $target in #(
   x86_64-w64-mingw32*|x86_64-*-cygwin*) :
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume not" >&5
-printf "%s\n" "cross-compiling; assume not" >&6; } ;; #(
+    ocaml_cv_func_fma_works=no-cross-compiling ;; #(
   *) :
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume yes" >&5
-printf "%s\n" "cross-compiling; assume yes" >&6; }
-      printf "%s\n" "#define HAS_WORKING_FMA 1" >>confdefs.h
- ;;
+    ocaml_cv_func_fma_works=yes-cross-compiling ;;
 esac
 else $as_nop
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -19009,30 +19023,16 @@ main (void)
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    printf "%s\n" "#define HAS_WORKING_FMA 1" >>confdefs.h
-
+  ocaml_cv_func_fma_works=yes
 else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-    case $enable_imprecise_c99_float_ops,$target in #(
+  case $enable_imprecise_c99_float_ops,$target in #(
   no,*) :
-    hard_error=true ;; #(
-  yes,*) :
-    hard_error=false ;; #(
-  *,x86_64-w64-mingw32*|*,x86_64-*-cygwin*) :
-    hard_error=false ;; #(
+    ocaml_cv_func_fma_works=no-with-hard-error ;; #(
+  yes,*|*,x86_64-w64-mingw32*|*,x86_64-*-cygwin*) :
+    ocaml_cv_func_fma_works=no ;; #(
   *) :
-    hard_error=true ;;
+    ocaml_cv_func_fma_works=no-with-hard-error ;;
 esac
-    if test x"$hard_error" = "xtrue"
-then :
-  as_fn_error $? "fma does not work, enable emulation with --enable-imprecise-c99-float-ops" "$LINENO" 5
-else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: fma does not work; emulation enabled" >&5
-printf "%s\n" "$as_me: WARNING: fma does not work; emulation enabled" >&2;}
-fi
 fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
@@ -19040,6 +19040,30 @@ fi
 
   cross_compiling="$old_cross_compiling"
 
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_func_fma_works" >&5
+printf "%s\n" "$ocaml_cv_func_fma_works" >&6; }
+  case $ocaml_cv_func_fma_works in #(
+  yes*) :
+
+printf "%s\n" "#define HAVE_WORKING_FMA 1" >>confdefs.h
+
+      if test "x$ocaml_cv_func_fma_works" = xyes-cross-compiling
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume yes" >&5
+printf "%s\n" "cross-compiling; assume yes" >&6; }
+fi ;; #(
+  no-with-hard-error) :
+    as_fn_error $? "fma does not work, enable emulation with --enable-imprecise-c99-float-ops" "$LINENO" 5 ;; #(
+  no) :
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: fma does not work; emulation enabled" >&5
+printf "%s\n" "$as_me: WARNING: fma does not work; emulation enabled" >&2;} ;; #(
+  no-cross-compiling) :
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume not" >&5
+printf "%s\n" "cross-compiling; assume not" >&6; } ;; #(
+  *) :
+     ;;
+esac
 
 else $as_nop
   if test x"$enable_imprecise_c99_float_ops" != "xyes"
