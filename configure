@@ -20293,13 +20293,13 @@ printf "%s\n" "$ocaml_cv_prog_as_debug_prefix_map" >&6; }
   as_has_debug_prefix_map=$ocaml_cv_prog_as_debug_prefix_map
 
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the assembler supports CFI directives" >&5
+  if test "x$enable_cfi" = xyes; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the assembler supports CFI directives" >&5
 printf %s "checking whether the assembler supports CFI directives... " >&6; }
-
-  if test x"$enable_cfi" = "xno"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: disabled" >&5
-printf "%s\n" "disabled" >&6; }
-  else
+if test ${ocaml_cv_prog_asm_cfi_supported+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
 
   saved_CC="$CC"
   saved_CFLAGS="$CFLAGS"
@@ -20313,37 +20313,13 @@ printf "%s\n" "disabled" >&6; }
   touch confdefs.h
 
 
-    # Modify C-compiler variables to use the assembler
-    CC="$ASPP"
-    CFLAGS="-o conftest.$ac_objext"
-    CPPFLAGS=""
-    ac_ext="S"
-    ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-camlPervasives__loop_1128:
-        .file   1       "pervasives.ml"
-        .loc    1       193
-        .cfi_startproc
-        .cfi_adjust_cfa_offset 8
-        .cfi_endproc
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  aspp_ok=true
-else $as_nop
-  aspp_ok=false
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-
-    if test "$AS" = "$ASPP"; then
-      as_ok="$aspp_ok"
-    else
-      CC="$AS"
+      # Modify C-compiler variables to use the assembler
+      CC="$ASPP"
+      CFLAGS="-o conftest.$ac_objext"
+      CPPFLAGS=""
+      ac_ext="S"
       ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -20357,12 +20333,34 @@ camlPervasives__loop_1128:
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  as_ok=true
+  ocaml_cv_prog_asm_cfi_supported=true
 else $as_nop
-  as_ok=false
+  ocaml_cv_prog_asm_cfi_supported=false
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-    fi
+
+      if test "$AS" != "$ASPP"; then
+        CC="$AS"
+        ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+camlPervasives__loop_1128:
+        .file   1       "pervasives.ml"
+        .loc    1       193
+        .cfi_startproc
+        .cfi_adjust_cfa_offset 8
+        .cfi_endproc
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ocaml_cv_prog_asm_cfi_supported=true
+else $as_nop
+  ocaml_cv_prog_asm_cfi_supported=false
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+      fi
 
 
   # Restore the content of confdefs.h
@@ -20374,22 +20372,23 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
   CC="$saved_CC"
   LIBS="$saved_LIBS"
 
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_prog_asm_cfi_supported" >&5
+printf "%s\n" "$ocaml_cv_prog_asm_cfi_supported" >&6; }
 
-    if $aspp_ok && $as_ok; then
+    if $ocaml_cv_prog_asm_cfi_supported; then
       asm_cfi_supported=true
       printf "%s\n" "#define ASM_CFI_SUPPORTED 1" >>confdefs.h
 
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    elif test x"$enable_cfi" = "xyes"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: requested but not available" >&5
-printf "%s\n" "requested but not available" >&6; }
-      as_fn_error $? "exiting" "$LINENO" 5
     else
-      asm_cfi_supported=false
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+      as_fn_error $? "requested but not available" "$LINENO" 5
     fi
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the assembler supports CFI directives" >&5
+printf %s "checking whether the assembler supports CFI directives... " >&6; }
+    asm_cfi_supported=false
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: disabled" >&5
+printf "%s\n" "disabled" >&6; }
   fi
  ;;
 esac

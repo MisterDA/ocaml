@@ -164,22 +164,19 @@ camlPervasives__loop_1128:
 ])
 
 AC_DEFUN([OCAML_AS_HAS_CFI_DIRECTIVES], [
-  AC_MSG_CHECKING([whether the assembler supports CFI directives])
+  if test "x$enable_cfi" = xyes; then
+    AC_CACHE_CHECK([whether the assembler supports CFI directives],
+      [ocaml_cv_prog_asm_cfi_supported],
+      [OCAML_CC_SAVE_VARIABLES
 
-  if test x"$enable_cfi" = "xno"; then
-    AC_MSG_RESULT([disabled])
-  else
-    OCAML_CC_SAVE_VARIABLES
+      # Modify C-compiler variables to use the assembler
+      CC="$ASPP"
+      CFLAGS="-o conftest.$ac_objext"
+      CPPFLAGS=""
+      ac_ext="S"
+      ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 
-    # Modify C-compiler variables to use the assembler
-    CC="$ASPP"
-    CFLAGS="-o conftest.$ac_objext"
-    CPPFLAGS=""
-    ac_ext="S"
-    ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-
-    AC_COMPILE_IFELSE(
-      [AC_LANG_SOURCE([
+      AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 camlPervasives__loop_1128:
         .file   1       "pervasives.ml"
         .loc    1       193
@@ -187,40 +184,36 @@ camlPervasives__loop_1128:
         .cfi_adjust_cfa_offset 8
         .cfi_endproc
       ])],
-      [aspp_ok=true],
-      [aspp_ok=false])
+      [ocaml_cv_prog_asm_cfi_supported=true],
+      [ocaml_cv_prog_asm_cfi_supported=false])
 
-    if test "$AS" = "$ASPP"; then
-      as_ok="$aspp_ok"
-    else
-      CC="$AS"
-      ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-      AC_COMPILE_IFELSE(
-        [AC_LANG_SOURCE([
+      if test "$AS" != "$ASPP"; then
+        CC="$AS"
+        ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+        AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 camlPervasives__loop_1128:
         .file   1       "pervasives.ml"
         .loc    1       193
         .cfi_startproc
         .cfi_adjust_cfa_offset 8
         .cfi_endproc
-        ])],
-        [as_ok=true],
-        [as_ok=false])
-    fi
+          ])],
+          [ocaml_cv_prog_asm_cfi_supported=true],
+          [ocaml_cv_prog_asm_cfi_supported=false])
+      fi
 
-    OCAML_CC_RESTORE_VARIABLES
+      OCAML_CC_RESTORE_VARIABLES])
 
-    if $aspp_ok && $as_ok; then
+    if $ocaml_cv_prog_asm_cfi_supported; then
       asm_cfi_supported=true
       AC_DEFINE([ASM_CFI_SUPPORTED], [1])
-      AC_MSG_RESULT([yes])
-    elif test x"$enable_cfi" = "xyes"; then
-      AC_MSG_RESULT([requested but not available])
-      AC_MSG_ERROR([exiting])
     else
-      asm_cfi_supported=false
-      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([requested but not available])
     fi
+  else
+    AC_MSG_CHECKING([whether the assembler supports CFI directives])
+    asm_cfi_supported=false
+    AC_MSG_RESULT([disabled])
   fi
 ])
 
