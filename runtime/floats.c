@@ -495,7 +495,7 @@ CAMLprim value caml_trunc_float(value f)
 
 CAMLexport double caml_round(double f)
 {
-#ifdef HAS_WORKING_ROUND
+#ifdef HAVE_WORKING_ROUND
   return round(f);
 #else
   union { uint64_t i; double d; } u, pred_one_half; /* predecessor of 0.5 */
@@ -538,7 +538,7 @@ CAMLprim value caml_nextafter_float(value x, value y)
   return caml_copy_double(caml_nextafter(Double_val(x), Double_val(y)));
 }
 
-#ifndef HAS_WORKING_FMA
+#ifndef HAVE_WORKING_FMA
 union double_as_int64 { double d; uint64_t i; };
 #define IEEE754_DOUBLE_BIAS 0x3ff
 #define IEEE_EXPONENT(N) (((N) >> 52) & 0x7ff)
@@ -555,7 +555,7 @@ union double_as_int64 { double d; uint64_t i; };
 
 CAMLexport double caml_fma(double x, double y, double z)
 {
-#ifdef HAS_WORKING_FMA
+#ifdef HAVE_WORKING_FMA
   return fma(x, y, z);
 #else // Emulation of FMA, from S. Boldo and G. Melquiond, "Emulation
       // of a FMA and Correctly Rounded Sums: Proved Algorithms Using
