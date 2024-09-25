@@ -410,32 +410,37 @@ AC_DEFUN([OCAML_RUN_IFELSE], [
 ])
 
 AC_DEFUN([OCAML_C99_CHECK_ROUND], [
-  AC_MSG_CHECKING([whether round works])
-  OCAML_RUN_IFELSE(
-    [AC_LANG_PROGRAM([[#include <math.h>]],[[
+  AC_CACHE_CHECK([whether round works], [ocaml_cv_func_round_works], [
+    OCAML_RUN_IFELSE(
+      [AC_LANG_PROGRAM([[#include <math.h>]],[[
   static volatile double d = 0.49999999999999994449;
   if (fpclassify(round(d)) != FP_ZERO) return 1;
-    ]])],
-    [AC_MSG_RESULT([yes])
-    AC_DEFINE([HAS_WORKING_ROUND], [1])],
-    [AC_MSG_RESULT([no])
-    case $enable_imprecise_c99_float_ops,$target in
-      no,*)  hard_error=true ;;
-      yes,*) hard_error=false ;;
-      *,x86_64-w64-mingw32*) hard_error=false ;;
-      *)     hard_error=true ;;
-    esac
-    if test x"$hard_error" = "xtrue"; then
+      ]])],
+      [ocaml_cv_func_round_works=yes],
+      [case $enable_imprecise_c99_float_ops,$target in
+        no,*)  ocaml_cv_func_round_works=no-hard-error-true ;;
+        yes,*) ocaml_cv_func_round_works=no-hard-error-false ;;
+        *,x86_64-w64-mingw32*) ocaml_cv_func_round_works=no-hard-error-false ;;
+        *) ocaml_cv_func_round_works=no-hard-error-true ;;
+      esac],
+      [case $target in
+        x86_64-w64-mingw32*) ocaml_cv_func_round_works=no-cross-compiling ;;
+        *) ocaml_cv_func_round_works=yes ;;
+      esac])])
+  case $ocaml_cv_func_round_works in
+    yes*)
+      AC_DEFINE([HAS_WORKING_ROUND], [1])
+      dnl OCAML_RUN_IFELSE definition of cross compiling
+      if ! $host_runnable && test "x$cross_compiling" = xyes; then
+        AC_MSG_RESULT([cross-compiling; assume yes])
+      fi ;;
+    no-hard-error-true)
       AC_MSG_ERROR(m4_normalize([round does not work, enable emulation with
-        --enable-imprecise-c99-float-ops]))
-    else
-      AC_MSG_WARN(m4_normalize([round does not work; emulation enabled]))
-    fi],
-    [case $target in
-      x86_64-w64-mingw32*) AC_MSG_RESULT([cross-compiling; assume not]) ;;
-      *) AC_MSG_RESULT([cross-compiling; assume yes])
-         AC_DEFINE([HAS_WORKING_ROUND], [1]) ;;
-    esac])
+        --enable-imprecise-c99-float-ops])) ;;
+    no-hard-error-true)
+      AC_MSG_WARN([round does not work; emulation enabled]) ;;
+    no-cross-compiling) AC_MSG_RESULT([cross-compiling; assume not]) ;;
+  esac
 ])
 
 AC_DEFUN([OCAML_C99_CHECK_FMA], [
