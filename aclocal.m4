@@ -495,19 +495,24 @@ AC_DEFUN([OCAML_QUOTED_STRING_ID], [
   done
 ])
 
-AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
-  OCAML_CC_SAVE_VARIABLES
-
-  opts=""
-  if test -n "$1"; then CFLAGS="$CFLAGS $1"; opts="$1"; fi
-  if test -n "$2"; then LIBS="$LIBS $2"; opts="${opts:+$opts }$2"; fi
-  AC_MSG_CHECKING(m4_normalize([if the C compiler supports _Atomic types with
-    ${opts:-no additional options}]))
-
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+dnl $1: LIBS
+AC_DEFUN([OCAML_CC_C11_ATOMIC_CFLAGS], [
+  AC_CACHE_CHECK([for options needed to enable C11 atomics support],
+    [ocaml_cv_prog_cc_c11_atomic_cflags],
+    [ocaml_cv_prog_cc_c11_atomic_cflags='cannot detect'
+    for ocaml_arg in dnl
+        ''dnl
+        '-experimental:c11atomics'dnl
+        '-std:c11'dnl remove with Autoconf 2.73 as cl will default to C11
+        '-std:c11 -experimental:c11atomics'dnl idem
+    ; do
+      OCAML_CC_SAVE_VARIABLES
+      CFLAGS="$CFLAGS $ocaml_arg"
+      if test -n "$1"; then LIBS="$LIBS $1"; opts="$1"; fi
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <stdint.h>
 #include <stdatomic.h>
-    ]],[[
+      ]],[[
   _Atomic int64_t n;
   int m;
   int * _Atomic p = &m;
@@ -515,13 +520,23 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
   * atomic_exchange(&p, 0) = 45;
   if (atomic_load_explicit(&n, memory_order_acquire))
     return 1;
-  ]])],
-  [cc_supports_atomic=true
-   AC_MSG_RESULT([yes])],
-  [cc_supports_atomic=false
-   AC_MSG_RESULT([no])])
-
-  OCAML_CC_RESTORE_VARIABLES
+      ]])],
+      [if test x"$ocaml_arg" = x; then
+        ocaml_cv_prog_cc_c11_atomic_cflags='none needed'
+      else
+        ocaml_cv_prog_cc_c11_atomic_cflags="$ocaml_arg"
+      fi
+      OCAML_CC_RESTORE_VARIABLES
+      break])
+      OCAML_CC_RESTORE_VARIABLES
+    done])
+  case $ocaml_cv_prog_cc_c11_atomic_cflags in
+    'cannot detect')
+      AC_MSG_FAILURE(m4_normalize([C11 atomic support is required, use another
+        C compiler])) ;;
+    'none needed') : ;;
+    *) common_cflags="$common_cflags $ocaml_cv_prog_cc_c11_atomic_cflags" ;;
+  esac
 ])
 
 AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
