@@ -175,6 +175,27 @@ let extract_rootenv (Ast (stmts, subs)) =
   let (env, stmts) = split_env stmts in
   (env, Ast (stmts, subs))
 
+let ci =
+  let id k v = match Sys.safe_getenv k with v -> true | _ | (exception Not_found) -> false in
+  let github_actions = id "CI" "true" && id "GITHUB_ACTIONS" "true"
+  and appveyor = id "CI" "True" && "APPVEYOR" "True" in
+  match github_actions, appveyor with
+  | true, false -> Some `Github_actions
+  | false, true -> Some `Appveyor
+  | _ -> None
+
+let ci_set_error ?file ?line ?end_line ?title ?message () =
+  match ci with
+  | Some `Github_actions ->
+     let vars =
+       List.map (function
+           | k, Some v -> Printf.sprintf "%s=%s" k v | _, None -> "")
+         ["title", title; "endLine", end_line; "line", line; "file", file]
+       |> String.concat "," in
+     Printf.printf "::error %s::%s\n" vars
+       (Option.value ~default:"ERROR" message)
+  | _ -> ()
+
 let test_file test_filename =
   let start = if Options.show_timings then Unix.gettimeofday () else 0.0 in
   let skip_test = List.mem test_filename !tests_to_skip in
@@ -288,6 +309,7 @@ let test_file test_filename =
   if not Options.log_to_stderr then close_out log;
   begin match summary with
   | Some_failure ->
+      ci_set_error ();
       if not Options.log_to_stderr then
         Sys.dump_file stderr ~prefix:"> " log_filename
   | No_failure | All_skipped ->
