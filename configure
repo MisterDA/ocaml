@@ -746,7 +746,6 @@ STRIP
 ac_ct_AR
 DLLTOOL
 OBJDUMP
-LN_S
 NM
 ac_ct_DUMPBIN
 DUMPBIN
@@ -773,6 +772,7 @@ COMPILER_BYTECODE_CPPFLAGS
 COMPILER_BYTECODE_CFLAGS
 PARTIALLD
 csc
+LN_S
 target_os
 target_vendor
 target_cpu
@@ -911,6 +911,8 @@ libext
 OBJEXT
 exeext
 ac_tool_prefix
+MSYS
+CYGWIN
 CSCFLAGS
 CSC
 DIFF_FLAGS
@@ -3388,6 +3390,8 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 
 
 
+
+
 # Note: This is present for the flexdll bootstrap where it exposed as the old
 # TOOLPREF variable. It would be better if flexdll where updated to require
 # WINDRES instead.
@@ -3695,17 +3699,82 @@ test -n "$target_alias" &&
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
 
-# Ensure that AC_CONFIG_LINKS will either create symlinks which are compatible
-# with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated ones) or
-# use its fallback mechanisms. Native Windows versions of ocamlc/ocamlopt cannot
-# interpret either WSL or Cygwin-emulated symlinks.
-case $host in #(
+# Ensure that LN_S and AC_CONFIG_LINKS will either create symlinks which are
+# compatible with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated
+# ones) or use its fallback mechanisms. Native Windows versions of
+# ocamlc/ocamlopt cannot interpret either WSL or Cygwin-emulated symlinks.
+
+  case $host in #(
   *-pc-windows|*-w64-mingw32*) :
-    ac_config_commands="$ac_config_commands native-symlinks"
- ;; #(
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for options needed to enable Windows native symlinks" >&5
+printf %s "checking for options needed to enable Windows native symlinks... " >&6; }
+if test ${ocaml_cv_prog_ln_s_native+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ocaml_cv_prog_ln_s_native='cannot detect'
+        for ocaml_arg in           ''          'winsymlinks:nativestrict'          'winsymlinks:native'        ; do
+          saved_CYGWIN="$CYGWIN"
+          saved_MSYS="$MSYS"
+          if test "${CYGWIN#*winsymlinks}" = "$CYGWIN"; then
+            export CYGWIN="$CYGWIN${CYGWIN:+ }$ocaml_arg"
+          elif test "${MSYS#*winsymlinks}" = "$MSYS"; then
+            export MSYS="$MSYS${MSYS:+ }$ocaml_arg"
+          fi
+
+          # Inspired by _AS_LN_S_PREPARE.
+          # On MSYS, both `ln -s file dir' and `ln file dir' fail.
+          # but we don't care because we use `(cd dir && $(LN_S) file .)'.
+          rm -f conf$$
+          if (echo >conf$$.file) 2>/dev/null; then
+            if ln -s conf$$.file conf$$ 2>/dev/null; then
+              as_ln_s='ln -s'
+            elif ln conf$$.file conf$$ 2>/dev/null; then
+              as_ln_s=ln
+            else
+              as_ln_s='cp -pR'
+            fi
+          else
+            as_ln_s='cp -pR'
+          fi
+
+          if test "$as_ln_s" = "ln -s" && \
+              cmd /c dir conf$$ 2>/dev/null | grep -F SYMLINK >/dev/null; then
+            if test -z "$ocaml_arg"; then
+              ocaml_cv_prog_ln_s_native='none needed'
+            else
+              ocaml_cv_prog_ln_s_native="$ocaml_arg"
+            fi
+            CYGWIN="$saved_CYGWIN"
+            MSYS="$saved_MSYS"
+            rm -f conf$$ conf$$.file
+            break
+          fi
+          CYGWIN="$saved_CYGWIN"
+          MSYS="$saved_MSYS"
+          rm -f conf$$ conf$$.file
+          done
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_prog_ln_s_native" >&5
+printf "%s\n" "$ocaml_cv_prog_ln_s_native" >&6; }
+      if test "x$ocaml_cv_prog_ln_s_native" != "xcannot detect"; then
+        export CYGWIN="$CYGWIN${CYGWIN:+ }$ocaml_cv_prog_ln_s_native"
+        export MSYS="$MSYS${MSYS:+ }$ocaml_cv_prog_ln_s_native"
+      fi ;; #(
   *) :
-     ;;
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
+printf %s "checking whether ln -s works... " >&6; }
+LN_S=$as_ln_s
+if test "$LN_S" = "ln -s"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no, using $LN_S" >&5
+printf "%s\n" "no, using $LN_S" >&6; }
+fi
+ ;;
 esac
+
 
 # Systems that are known not to work, even in bytecode only.
 
@@ -4229,6 +4298,7 @@ else $as_nop
 fi
 
 # Initialization of libtool
+
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
 if test -n "$ac_tool_prefix"; then
@@ -4340,6 +4410,7 @@ esac
     LD=$ac_ct_LD
   fi
 fi
+
 
 # libtool expects host_os=mingw for native Windows
 # Also, it has been observed that, on some platforms (e.g. msvc) LT_INIT
@@ -6097,17 +6168,6 @@ else $as_nop
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $lt_cv_nm_interface" >&5
 printf "%s\n" "$lt_cv_nm_interface" >&6; }
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
-printf %s "checking whether ln -s works... " >&6; }
-LN_S=$as_ln_s
-if test "$LN_S" = "ln -s"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no, using $LN_S" >&5
-printf "%s\n" "no, using $LN_S" >&6; }
-fi
 
 # find the maximum length of command line arguments
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking the maximum length of command line arguments" >&5
@@ -13837,7 +13897,6 @@ case $host in #(
   ocamltest_libunix="Some true"
   ocamlyacc_wstr_module="" ;;
 esac
-as_ln_s="${as_ln_s}f"
 
 case $host in #(
   *-*-cygwin*|*-*-mingw32*|*-pc-windows) :
@@ -21810,8 +21869,6 @@ cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 #
 # INIT-COMMANDS
 #
-export CYGWIN="\$CYGWIN\${CYGWIN:+ }winsymlinks:nativestrict"
-      export MSYS="\$MSYS\${MSYS:+ }winsymlinks:nativestrict"
 
 
 # The HP-UX ksh and POSIX shell print the target directory to stdout
@@ -22126,7 +22183,6 @@ do
     "otherlibs/dynlink/META") CONFIG_FILES="$CONFIG_FILES otherlibs/dynlink/META" ;;
     "otherlibs/runtime_events/META") CONFIG_FILES="$CONFIG_FILES otherlibs/runtime_events/META" ;;
     "stdlib/META") CONFIG_FILES="$CONFIG_FILES stdlib/META" ;;
-    "native-symlinks") CONFIG_COMMANDS="$CONFIG_COMMANDS native-symlinks" ;;
     "ocamldoc/META") CONFIG_FILES="$CONFIG_FILES ocamldoc/META" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "$dldir/dynlink_cmo_format.mli") CONFIG_LINKS="$CONFIG_LINKS $dldir/dynlink_cmo_format.mli:file_formats/cmo_format.mli" ;;

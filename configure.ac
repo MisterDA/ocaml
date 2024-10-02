@@ -125,6 +125,8 @@ AC_SUBST([CC])
 AC_SUBST([DIFF_FLAGS])
 AC_SUBST([CSC])
 AC_SUBST([CSCFLAGS])
+AC_SUBST([CYGWIN])
+AC_SUBST([MSYS])
 # Note: This is present for the flexdll bootstrap where it exposed as the old
 # TOOLPREF variable. It would be better if flexdll where updated to require
 # WINDRES instead.
@@ -296,15 +298,11 @@ AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-# Ensure that AC_CONFIG_LINKS will either create symlinks which are compatible
-# with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated ones) or
-# use its fallback mechanisms. Native Windows versions of ocamlc/ocamlopt cannot
-# interpret either WSL or Cygwin-emulated symlinks.
-AS_CASE([$host],
-  [*-pc-windows|*-w64-mingw32*],
-    [AC_CONFIG_COMMANDS([native-symlinks], [],
-      [export CYGWIN="\$CYGWIN\${CYGWIN:+ }winsymlinks:nativestrict"
-      export MSYS="\$MSYS\${MSYS:+ }winsymlinks:nativestrict"])])
+# Ensure that LN_S and AC_CONFIG_LINKS will either create symlinks which are
+# compatible with native Windows (i.e. NTFS symlinks, not WSL or Cygwin-emulated
+# ones) or use its fallback mechanisms. Native Windows versions of
+# ocamlc/ocamlopt cannot interpret either WSL or Cygwin-emulated symlinks.
+OCAML_PROG_LN_S
 
 # Systems that are known not to work, even in bytecode only.
 
@@ -610,9 +608,11 @@ AS_IF([test x"$enable_ocamldoc" = "xno"],
   AC_CONFIG_FILES([ocamldoc/META])])
 
 # Initialization of libtool
+
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
 AC_CHECK_TOOLS([LD],[ld link])
+
 # libtool expects host_os=mingw for native Windows
 # Also, it has been observed that, on some platforms (e.g. msvc) LT_INIT
 # alters the CFLAGS variable, so we save its value before calling the macro
@@ -731,7 +731,6 @@ AS_CASE([$host],
   [unix_or_win32="unix"
   ocamltest_libunix="Some true"
   ocamlyacc_wstr_module=""])
-as_ln_s="${as_ln_s}f"
 
 AS_CASE([$host],
   [*-*-cygwin*|*-*-mingw32*|*-pc-windows],
