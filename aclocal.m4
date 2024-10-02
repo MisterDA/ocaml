@@ -543,3 +543,61 @@ AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
       [Define if the C compiler supports the labels as values extension.])
   fi
 ])
+
+AC_DEFUN([OCAML_PROG_LN_S], [
+  AS_CASE([$host],
+    [*-pc-windows|*-w64-mingw32*],
+      [AC_CACHE_CHECK([for options needed to enable Windows native symlinks],
+        [ocaml_cv_prog_ln_s_native],
+        [ocaml_cv_prog_ln_s_native='cannot detect'
+        for ocaml_arg in dnl
+          ''dnl
+          'winsymlinks:nativestrict'dnl
+          'winsymlinks:native'dnl
+        ; do
+          saved_CYGWIN="$CYGWIN"
+          saved_MSYS="$MSYS"
+          if test "${CYGWIN@%:@*winsymlinks}" = "$CYGWIN"; then
+            export CYGWIN="$CYGWIN${CYGWIN:+ }$ocaml_arg"
+          elif test "${MSYS@%:@*winsymlinks}" = "$MSYS"; then
+            export MSYS="$MSYS${MSYS:+ }$ocaml_arg"
+          fi
+
+          # Inspired by _AS_LN_S_PREPARE.
+          # On MSYS, both `ln -s file dir' and `ln file dir' fail.
+          # but we don't care because we use `(cd dir && $(LN_S) file .)'.
+          rm -f conf$$
+          if (echo >conf$$.file) 2>/dev/null; then
+            if ln -s conf$$.file conf$$ 2>/dev/null; then
+              as_ln_s='ln -s'
+            elif ln conf$$.file conf$$ 2>/dev/null; then
+              as_ln_s=ln
+            else
+              as_ln_s='cp -pR'
+            fi
+          else
+            as_ln_s='cp -pR'
+          fi
+
+          if test "$as_ln_s" = "ln -s" && \
+              cmd /c dir conf$$ 2>/dev/null | grep -F SYMLINK >/dev/null; then
+            if test -z "$ocaml_arg"; then
+              ocaml_cv_prog_ln_s_native='none needed'
+            else
+              ocaml_cv_prog_ln_s_native="$ocaml_arg"
+            fi
+            CYGWIN="$saved_CYGWIN"
+            MSYS="$saved_MSYS"
+            rm -f conf$$ conf$$.file
+            break
+          fi
+          CYGWIN="$saved_CYGWIN"
+          MSYS="$saved_MSYS"
+          rm -f conf$$ conf$$.file
+          done])
+      if test "x$ocaml_cv_prog_ln_s_native" != "xcannot detect"; then
+        export CYGWIN="$CYGWIN${CYGWIN:+ }$ocaml_cv_prog_ln_s_native"
+        export MSYS="$MSYS${MSYS:+ }$ocaml_cv_prog_ln_s_native"
+      fi],
+    [AC_PROG_LN_S])
+])
