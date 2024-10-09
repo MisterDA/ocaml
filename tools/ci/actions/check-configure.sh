@@ -61,21 +61,22 @@ PATHS=\
 # tip of a branch, $1 will be HEAD and $2 will be the range of commits in the
 # branch.
 CheckTree () {
-  RET=0
-  COMMIT="$1"
-  COMMITS_TO_SEARCH="$2"
+  local RET=0
+  local COMMIT="$1"
+  local COMMITS_TO_SEARCH="$2"
   if git diff-tree --diff-filter=d --no-commit-id --name-only -r \
        "$COMMITS_TO_SEARCH" | grep -qx "$PATHS\|$CI_SCRIPT"; then
     git checkout -qB return
     git checkout -q "$COMMIT"
     mv configure configure.ref
     make -s configure
-    if diff -q configure configure.ref >/dev/null ; then
+    diff -q configure.ref configure >/dev/null || RET=$?
+    if ((!RET)); then
       echo -e "$COMMIT: \e[32mconfigure.ac generates configure\e[0m"
     else
-      RET=1
       echo -e \
-        "$COMMIT: \e[${COLOR}mconfigure.ac doesn't generate configure\e[0m"
+         "$COMMIT: \e[${COLOR}mconfigure.ac doesn't generate configure\e[0m"
+      diff --color=always configure.ref configure
     fi
     mv configure.ref configure
     git checkout -q return
