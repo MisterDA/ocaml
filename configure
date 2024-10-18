@@ -13520,7 +13520,6 @@ case $host in #(
   *-pc-windows) :
 
       mkexe_via_cc_extra_cmd=' && $(call MERGEMANIFESTEXE,$(1))'
-      libext=lib
       AR=""
       if test "$host_cpu" = "x86_64"
 then :

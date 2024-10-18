@@ -655,7 +655,6 @@ AS_CASE([$host],
   [*-pc-windows],
     [
       mkexe_via_cc_extra_cmd=' && $(call MERGEMANIFESTEXE,$(1))'
-      libext=lib
       AR=""
       AS_IF([test "$host_cpu" = "x86_64" ],
         [machine="-machine:AMD64 "],
