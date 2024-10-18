@@ -37,10 +37,10 @@ or rebuilding it (or `touch`-ing it) if you want it used.), \
     ok)
 
 choose_best = $(strip $(if \
-   $(and $(USE_BEST_BINARIES),$(wildcard $(ROOTDIR)/$1.opt$(EXE)),$(strip \
-      $(call check_not_stale,$1$(EXE),$1.opt$(EXE)))), \
-    $(ROOTDIR)/$1.opt$(EXE), \
-    $(OCAMLRUN) $(ROOTDIR)/$1$(EXE)))
+   $(and $(USE_BEST_BINARIES),$(wildcard $(ROOTDIR)/$1.opt$(EXEEXT)),$(strip \
+      $(call check_not_stale,$1$(EXEEXT),$1.opt$(EXEEXT)))), \
+    $(ROOTDIR)/$1.opt$(EXEEXT), \
+    $(OCAMLRUN) $(ROOTDIR)/$1$(EXEEXT)))
 
 BEST_OCAMLC := $(call choose_best,ocamlc)
 BEST_OCAMLOPT := $(call choose_best,ocamlopt)
@@ -53,13 +53,13 @@ BEST_OCAMLLEX := $(call choose_best,lex/ocamllex)
 # bootstrap-compiler and host-compiler object files, as ocamldep only
 # produces text output.
 BEST_OCAMLDEP := $(strip $(if \
-   $(and $(USE_BEST_BINARIES),$(wildcard $(ROOTDIR)/ocamlc.opt$(EXE)),$(strip \
-      $(call check_not_stale,boot/ocamlc,ocamlc.opt$(EXE)))), \
-    $(ROOTDIR)/ocamlc.opt$(EXE) -depend, \
+   $(and $(USE_BEST_BINARIES),$(wildcard $(ROOTDIR)/ocamlc.opt$(EXEEXT)),\
+    $(strip $(call check_not_stale,boot/ocamlc,ocamlc.opt$(EXEEXT)))), \
+    $(ROOTDIR)/ocamlc.opt$(EXEEXT) -depend, \
     $(BOOT_OCAMLC) -depend))
 
-OCAMLDOC = $(ROOTDIR)/ocamldoc/ocamldoc$(EXE)
-OCAMLDOC_OPT = $(ROOTDIR)/ocamldoc/ocamldoc.opt$(EXE)
+OCAMLDOC = $(ROOTDIR)/ocamldoc/ocamldoc$(EXEEXT)
+OCAMLDOC_OPT = $(ROOTDIR)/ocamldoc/ocamldoc.opt$(EXEEXT)
 
 ifeq "$(TARGET)" "$(HOST)"
   ifeq "$(SUPPORTS_SHARED_LIBRARIES)" "true"

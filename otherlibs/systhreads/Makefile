@@ -26,7 +26,7 @@ LIBS = $(STDLIBFLAGS) -I $(ROOTDIR)/otherlibs/unix
 CAMLC=$(BEST_OCAMLC) $(LIBS)
 CAMLOPT=$(BEST_OCAMLOPT) $(LIBS)
 
-MKLIB=$(OCAMLRUN) $(ROOTDIR)/tools/ocamlmklib$(EXE)
+MKLIB=$(OCAMLRUN) $(ROOTDIR)/tools/ocamlmklib$(EXEEXT)
 COMPFLAGS=-w +33..39 -warn-error +A -g -bin-annot
 ifeq "$(FLAMBDA)" "true"
 OPTCOMPFLAGS += -O3

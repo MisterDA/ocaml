@@ -46,8 +46,8 @@ TESTLOG ?= _log
 ocamltest_directory := ../ocamltest
 
 ocamltest_program := $(or \
-  $(wildcard $(ocamltest_directory)/ocamltest.opt$(EXE)),\
-  $(wildcard $(ocamltest_directory)/ocamltest$(EXE)))
+  $(wildcard $(ocamltest_directory)/ocamltest.opt$(EXEEXT)),\
+  $(wildcard $(ocamltest_directory)/ocamltest$(EXEEXT)))
 
 ifeq "$(UNIX_OR_WIN32)" "unix"
   ifeq "$(SYSTEM)" "cygwin"

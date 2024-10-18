@@ -104,8 +104,8 @@ IN_COREBOOT_CYCLE ?= false
 # Boot/ocamlrun is the most frequently used in the build system, so
 # we use OCAMLRUN to designate it and keep NEW_OCAMLRUN to refer
 # to runtime/ocamlrun, because it's less frequently used.
-OCAMLRUN ?= $(ROOTDIR)/boot/ocamlrun$(EXE)
-NEW_OCAMLRUN ?= $(ROOTDIR)/runtime/ocamlrun$(EXE)
+OCAMLRUN ?= $(ROOTDIR)/boot/ocamlrun$(EXEEXT)
+NEW_OCAMLRUN ?= $(ROOTDIR)/runtime/ocamlrun$(EXEEXT)
 
 # Standard library flags
 STDLIBFLAGS ?= -nostdlib -I $(ROOTDIR)/stdlib
@@ -180,9 +180,9 @@ $(DEPDIR):
 # When executable files have an extension (e.g. ".exe"),
 # provide phony synonyms
 define PROGRAM_SYNONYM
-ifneq ($(EXE),)
+ifneq ($(EXEEXT),)
 .PHONY: $(1)
-$(1): $(1)$(EXE)
+$(1): $(1)$(EXEEXT)
 endif
 endef # PROGRAM_SYNONYM
 
@@ -216,14 +216,14 @@ OCAMLLEXFLAGS ?= -q
 
 # Parser generation
 
-OCAMLYACC ?= $(ROOTDIR)/yacc/ocamlyacc$(EXE)
+OCAMLYACC ?= $(ROOTDIR)/yacc/ocamlyacc$(EXEEXT)
 
 OCAMLYACCFLAGS ?= --strict -v
 
 %.ml %.mli: %.mly
 	$(V_OCAMLYACC)$(OCAMLYACC) $(OCAMLYACCFLAGS) $<
 
-SAK = $(ROOTDIR)/runtime/sak$(EXE)
+SAK = $(ROOTDIR)/runtime/sak$(EXEEXT)
 
 # Used with the Microsoft toolchain to merge generated manifest files into
 # executables
@@ -330,7 +330,7 @@ $(strip \
   $$($(basename $(notdir $(1)))_COMMON_LINKFLAGS) \
   $$($(basename $(notdir $(1)))_BYTECODE_LINKFLAGS))
 
-$(1)$(EXE): $$$$($(basename $(notdir $(1)))_BCOBJS)
+$(1)$(EXEEXT): $$$$($(basename $(notdir $(1)))_BCOBJS)
 	$$(V_LINKC)$$($(basename $(notdir $(1)))_BYTECODE_LINKCMD) -o $$@ \
 	  $$($(basename $(notdir $(1)))_BCOBJS)
 endef # _OCAML_BYTECODE_PROGRAM
@@ -363,7 +363,7 @@ $(strip \
   $$($(basename $(notdir $(1)))_COMMON_LINKFLAGS) \
   $$($(basename $(notdir $(1)))_NATIVE_LINKFLAGS))
 
-$(1)$(EXE): $$$$($(basename $(notdir $(1)))_NCOBJS)
+$(1)$(EXEEXT): $$$$($(basename $(notdir $(1)))_NCOBJS)
 	$$(V_LINKOPT)$$($(basename $(notdir $(1)))_NATIVE_LINKCMD) -o $$@ \
 	  $$($(basename $(notdir $(1)))_NCOBJS)
 endef # _OCAML_NATIVE_PROGRAM
