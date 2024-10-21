@@ -99,7 +99,7 @@ INSTALL_LIBDIR_LIBNAME = $(INSTALL_LIBDIR)/$(LIBNAME)
 
 install::
 	if test -f dll$(CLIBNAME_BYTECODE)$(EXT_DLL); then \
-	  $(INSTALL_PROG) \
+	  $(INSTALL_PROGRAM) \
 	    dll$(CLIBNAME_BYTECODE)$(EXT_DLL) "$(INSTALL_STUBLIBDIR)"; \
 	fi
 ifneq "$(STUBSLIB_BYTECODE)" ""
@@ -130,10 +130,10 @@ installopt:
 	   $(CAMLOBJS_NAT) $(LIBNAME).cmxa $(LIBNAME).$(A) \
 	   "$(INSTALL_LIBDIR_LIBNAME)/"
 	if test -f $(LIBNAME).cmxs; then \
-	  $(INSTALL_PROG) $(LIBNAME).cmxs "$(INSTALL_LIBDIR_LIBNAME)"; \
+	  $(INSTALL_PROGRAM) $(LIBNAME).cmxs "$(INSTALL_LIBDIR_LIBNAME)"; \
 	fi
 	if test -f dll$(CLIBNAME_NATIVE)$(EXT_DLL); then \
-	  $(INSTALL_PROG) \
+	  $(INSTALL_PROGRAM) \
 	    dll$(CLIBNAME_NATIVE)$(EXT_DLL) "$(INSTALL_STUBLIBDIR)"; \
 	fi
 ifneq "$(STUBSLIB_NATIVE)" ""

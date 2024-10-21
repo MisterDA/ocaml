@@ -2667,29 +2667,29 @@ install:
 	$(MKDIR) "$(INSTALL_DOCDIR)"
 	$(MKDIR) "$(INSTALL_INCDIR)"
 	$(MKDIR) "$(INSTALL_LIBDIR_PROFILING)"
-	$(INSTALL_PROG) $(runtime_PROGRAMS) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) $(runtime_PROGRAMS) "$(INSTALL_BINDIR)"
 	$(INSTALL_DATA) $(runtime_BYTECODE_STATIC_LIBRARIES) \
 	  "$(INSTALL_LIBDIR)"
 ifneq "$(runtime_BYTECODE_SHARED_LIBRARIES)" ""
-	$(INSTALL_PROG) $(runtime_BYTECODE_SHARED_LIBRARIES) \
+	$(INSTALL_PROGRAM) $(runtime_BYTECODE_SHARED_LIBRARIES) \
 	  "$(INSTALL_LIBDIR)"
 endif
 	$(INSTALL_DATA) runtime/caml/domain_state.tbl runtime/caml/*.h \
 	  "$(INSTALL_INCDIR)"
-	$(INSTALL_PROG) ocaml$(EXEEXT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) ocaml$(EXEEXT) "$(INSTALL_BINDIR)"
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	$(call INSTALL_STRIPPED_BYTE_PROG,\
                ocamlc$(EXEEXT),"$(INSTALL_BINDIR)/ocamlc.byte$(EXEEXT)")
 endif
 	$(MAKE) -C stdlib install
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
-	$(INSTALL_PROG) lex/ocamllex$(EXEEXT) \
+	$(INSTALL_PROGRAM) lex/ocamllex$(EXEEXT) \
 	  "$(INSTALL_BINDIR)/ocamllex.byte$(EXEEXT)"
 	for i in $(TOOLS_TO_INSTALL_NAT); \
 	do \
-	  $(INSTALL_PROG) "tools/$$i$(EXEEXT)" "$(INSTALL_BINDIR)/$$i.byte$(EXEEXT)";\
+	  $(INSTALL_PROGRAM) "tools/$$i$(EXEEXT)" "$(INSTALL_BINDIR)/$$i.byte$(EXEEXT)";\
 	  if test -f "tools/$$i".opt$(EXEEXT); then \
-	    $(INSTALL_PROG) "tools/$$i.opt$(EXEEXT)" "$(INSTALL_BINDIR)" && \
+	    $(INSTALL_PROGRAM) "tools/$$i.opt$(EXEEXT)" "$(INSTALL_BINDIR)" && \
 	    (cd "$(INSTALL_BINDIR)" && $(LN_S) "$$i.opt$(EXEEXT)" "$$i$(EXEEXT)"); \
 	  else \
 	    (cd "$(INSTALL_BINDIR)" && $(LN_S) "$$i.byte$(EXEEXT)" "$$i$(EXEEXT)"); \
@@ -2699,16 +2699,16 @@ else
 	for i in $(TOOLS_TO_INSTALL_NAT); \
 	do \
 	  if test -f "tools/$$i".opt$(EXEEXT); then \
-	    $(INSTALL_PROG) "tools/$$i.opt$(EXEEXT)" "$(INSTALL_BINDIR)"; \
+	    $(INSTALL_PROGRAM) "tools/$$i.opt$(EXEEXT)" "$(INSTALL_BINDIR)"; \
 	    (cd "$(INSTALL_BINDIR)" && $(LN_S) "$$i.opt$(EXEEXT)" "$$i$(EXEEXT)"); \
 	  fi; \
 	done
 endif
 	for i in $(TOOLS_TO_INSTALL_BYT); \
 	do \
-	  $(INSTALL_PROG) "tools/$$i$(EXEEXT)" "$(INSTALL_BINDIR)";\
+	  $(INSTALL_PROGRAM) "tools/$$i$(EXEEXT)" "$(INSTALL_BINDIR)";\
 	done
-	$(INSTALL_PROG) $(ocamlyacc_PROGRAM)$(EXEEXT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) $(ocamlyacc_PROGRAM)$(EXEEXT) "$(INSTALL_BINDIR)"
 	$(INSTALL_DATA) \
 	   utils/*.cmi \
 	   parsing/*.cmi \
@@ -2746,7 +2746,7 @@ endif
 	$(INSTALL_DATA) \
 	   $(ocamlc_CMO_FILES) $(ocaml_CMO_FILES) \
 	   "$(INSTALL_COMPLIBDIR)"
-	$(INSTALL_PROG) $(expunge) "$(INSTALL_LIBDIR)"
+	$(INSTALL_PROGRAM) $(expunge) "$(INSTALL_LIBDIR)"
 # If installing over a previous OCaml version, ensure some modules are removed
 # from the previous installation.
 	rm -f "$(INSTALL_LIBDIR)"/topdirs.cm* "$(INSTALL_LIBDIR)/topdirs.mli"
@@ -2777,7 +2777,7 @@ endif
 	done
 ifeq "$(build_ocamldoc)" "true"
 	$(MKDIR) "$(INSTALL_LIBDIR)/ocamldoc"
-	$(INSTALL_PROG) $(OCAMLDOC) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) $(OCAMLDOC) "$(INSTALL_BINDIR)"
 	$(INSTALL_DATA) \
 	  ocamldoc/ocamldoc.hva ocamldoc/*.cmi ocamldoc/odoc_info.cma \
 	  ocamldoc/META \
@@ -2795,7 +2795,7 @@ ifeq "$(build_libraries_manpages)" "true"
 	$(MAKE) -C api_docgen install
 endif
 	if test -n "$(WITH_DEBUGGER)"; then \
-	  $(INSTALL_PROG) debugger/ocamldebug$(EXEEXT) "$(INSTALL_BINDIR)"; \
+	  $(INSTALL_PROGRAM) debugger/ocamldebug$(EXEEXT) "$(INSTALL_BINDIR)"; \
 	fi
 ifeq "$(BOOTSTRAPPING_FLEXDLL)" "true"
 ifeq "$(TOOLCHAIN)" "msvc"
@@ -2803,7 +2803,7 @@ ifeq "$(TOOLCHAIN)" "msvc"
     "$(INSTALL_BINDIR)/"
 endif
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
-	$(INSTALL_PROG) \
+	$(INSTALL_PROGRAM) \
 	  flexlink.byte$(EXEEXT) "$(INSTALL_BINDIR)"
 endif # ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	$(MKDIR) "$(INSTALL_FLEXDLLDIR)"
@@ -2829,7 +2829,7 @@ endif
 installopt:
 	$(INSTALL_DATA) $(runtime_NATIVE_STATIC_LIBRARIES) "$(INSTALL_LIBDIR)"
 ifneq "$(runtime_NATIVE_SHARED_LIBRARIES)" ""
-	$(INSTALL_PROG) $(runtime_NATIVE_SHARED_LIBRARIES) "$(INSTALL_LIBDIR)"
+	$(INSTALL_PROGRAM) $(runtime_NATIVE_SHARED_LIBRARIES) "$(INSTALL_LIBDIR)"
 endif
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	$(call INSTALL_STRIPPED_BYTE_PROG,\
@@ -2879,7 +2879,7 @@ endif
 	    "$(INSTALL_COMPLIBDIR)"
 ifeq "$(build_ocamldoc)" "true"
 	$(MKDIR) "$(INSTALL_LIBDIR)/ocamldoc"
-	$(INSTALL_PROG) $(OCAMLDOC_OPT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) $(OCAMLDOC_OPT) "$(INSTALL_BINDIR)"
 	$(INSTALL_DATA) \
 	  $(OCAMLDOC_LIBCMIS) \
 	  "$(INSTALL_LIBDIR)/ocamldoc"
@@ -2920,15 +2920,15 @@ endif
 
 .PHONY: installoptopt
 installoptopt:
-	$(INSTALL_PROG) ocamlc.opt$(EXEEXT) "$(INSTALL_BINDIR)"
-	$(INSTALL_PROG) ocamlopt.opt$(EXEEXT) "$(INSTALL_BINDIR)"
-	$(INSTALL_PROG) lex/ocamllex.opt$(EXEEXT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) ocamlc.opt$(EXEEXT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) ocamlopt.opt$(EXEEXT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) lex/ocamllex.opt$(EXEEXT) "$(INSTALL_BINDIR)"
 	cd "$(INSTALL_BINDIR)" || exit; \
 	   $(LN_S) ocamlc.opt$(EXEEXT) ocamlc$(EXEEXT); \
 	   $(LN_S) ocamlopt.opt$(EXEEXT) ocamlopt$(EXEEXT); \
 	   $(LN_S) ocamllex.opt$(EXEEXT) ocamllex$(EXEEXT)
 ifeq "$(BOOTSTRAPPING_FLEXDLL)" "true"
-	$(INSTALL_PROG) flexlink.opt$(EXEEXT) "$(INSTALL_BINDIR)"
+	$(INSTALL_PROGRAM) flexlink.opt$(EXEEXT) "$(INSTALL_BINDIR)"
 	cd "$(INSTALL_BINDIR)" && $(LN_S) flexlink.opt$(EXEEXT) flexlink$(EXEEXT)
 endif
 	$(INSTALL_DATA) \
@@ -2951,7 +2951,7 @@ endif
 	   $(ocamlnat_CMX_FILES:.cmx=.$(O)) \
 	   "$(INSTALL_COMPLIBDIR)"
 ifeq "$(INSTALL_OCAMLNAT)" "true"
-	  $(INSTALL_PROG) ocamlnat$(EXEEXT) "$(INSTALL_BINDIR)"
+	  $(INSTALL_PROGRAM) ocamlnat$(EXEEXT) "$(INSTALL_BINDIR)"
 endif
 
 # Installation of the *.ml sources of compiler-libs
