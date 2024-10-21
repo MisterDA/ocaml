@@ -101,20 +101,20 @@ CAMLP_STREAMS_TAG = v5.0.1
 duniverse: dune/dune.exe re markup.ml uutf lambdasoup camlp-streams
 
 dune/dune.exe: dune
-	cd dune; ocaml bootstrap.ml
+	cd dune && ocaml bootstrap.ml
 
 GIT_CHECKOUT = git -c advice.detachedHead=false checkout
 
 dune:
 	git clone https://github.com/ocaml/dune.git -n -o upstream
-	cd dune; $(GIT_CHECKOUT) $(DUNE_TAG)
+	cd dune && $(GIT_CHECKOUT) $(DUNE_TAG)
 
 distclean::
 	rm -rf dune
 
 re:
 	git clone https://github.com/ocaml/ocaml-re.git -n -o upstream
-	cd ocaml-re; $(GIT_CHECKOUT) $(RE_TAG)
+	cd ocaml-re && $(GIT_CHECKOUT) $(RE_TAG)
 	sed -i.bak -e '/(libraries seq)/d' ocaml-re/lib/dune
 
 distclean::
@@ -122,22 +122,22 @@ distclean::
 
 lambdasoup:
 	git clone https://github.com/dra27/lambdasoup.git -n -o dra27
-	cd lambdasoup; $(GIT_CHECKOUT) $(LAMBDASOUP_TAG)
+	cd lambdasoup && $(GIT_CHECKOUT) $(LAMBDASOUP_TAG)
 
 distclean::
 	rm -rf lambdasoup
 
 markup.ml:
 	git clone https://github.com/aantron/markup.ml.git -n -o upstream
-	cd markup.ml; $(GIT_CHECKOUT) $(MARKUP_TAG)
+	cd markup.ml && $(GIT_CHECKOUT) $(MARKUP_TAG)
 
 distclean::
 	rm -rf markup.ml
 
 uutf:
 	git clone https://github.com/dbuenzli/uutf.git -n -o upstream
-	cd uutf; $(GIT_CHECKOUT) $(UUTF_TAG)
-	cd uutf; \
+	cd uutf && $(GIT_CHECKOUT) $(UUTF_TAG)
+	cd uutf && \
   mv opam uutf.opam; \
   echo '(lang dune 1.0)' > dune-project; \
   echo '(name uutf)' >> dune-project; \
@@ -148,7 +148,7 @@ distclean::
 
 camlp-streams:
 	git clone https://github.com/ocaml/camlp-streams.git -n -o upstream
-	cd camlp-streams; $(GIT_CHECKOUT) $(CAMLP_STREAMS_TAG)
+	cd camlp-streams && $(GIT_CHECKOUT) $(CAMLP_STREAMS_TAG)
 
 distclean::
 	rm -rf camlp-streams

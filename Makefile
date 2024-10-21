@@ -406,12 +406,12 @@ toplevel/native/%.cmi: toplevel/%.cmi
 	cp $< toplevel/$*.mli $(@D)
 
 beforedepend::
-	cd toplevel ; cp $(TOPLEVEL_SHARED_MLIS) byte/
-	cd toplevel ; cp $(TOPLEVEL_SHARED_MLIS) native/
+	cd toplevel && cp $(TOPLEVEL_SHARED_MLIS) byte/
+	cd toplevel && cp $(TOPLEVEL_SHARED_MLIS) native/
 
 partialclean::
-	cd toplevel/byte ; rm -f $(TOPLEVEL_SHARED_ARTEFACTS)
-	cd toplevel/native ; rm -f $(TOPLEVEL_SHARED_ARTEFACTS)
+	cd toplevel/byte && rm -f $(TOPLEVEL_SHARED_ARTEFACTS)
+	cd toplevel/native && rm -f $(TOPLEVEL_SHARED_ARTEFACTS)
 
 ALL_CONFIG_CMO = utils/config_main.cmo utils/config_boot.cmo
 
@@ -692,7 +692,7 @@ coldstart: boot/ocamlrun$(EXE) runtime/libcamlrun.$(A)
 	$(MAKE) -C stdlib OCAMLRUN='$$(ROOTDIR)/$<' USE_BOOT_OCAMLC=true all
 	rm -f $(addprefix boot/, libcamlrun.$(A) $(LIBFILES))
 	cp $(addprefix stdlib/, $(LIBFILES)) boot
-	cd boot; $(LN) ../runtime/libcamlrun.$(A) .
+	cd boot && $(LN) ../runtime/libcamlrun.$(A) .
 
 # Recompile the core system using the bootstrap compiler
 .PHONY: coreall
@@ -736,7 +736,7 @@ PROMOTE ?= cp
 promote-common:
 	$(PROMOTE) ocamlc$(EXE) boot/ocamlc
 	$(PROMOTE) lex/ocamllex$(EXE) boot/ocamllex
-	cd stdlib; cp $(LIBFILES) ../boot
+	cd stdlib && cp $(LIBFILES) ../boot
 
 # Promote the newly compiled system to the rank of cross compiler
 # (Runs on the old runtime, produces code for the new runtime)
@@ -884,7 +884,7 @@ flexlink.opt$(EXE): \
 	  OCAMLOPT='$(FLEXLINK_OCAMLOPT) -nostdlib -I ../stdlib' flexlink.exe
 	cp $(FLEXDLL_SOURCE_DIR)/flexlink.exe $@
 	rm -f $(OPT_BINDIR)/flexlink$(EXE)
-	cd $(OPT_BINDIR); $(LN) $(call ROOT_FROM, $(OPT_BINDIR))/$@ flexlink$(EXE)
+	cd $(OPT_BINDIR) && $(LN) $(call ROOT_FROM, $(OPT_BINDIR))/$@ flexlink$(EXE)
 	cp $(addprefix $(BYTE_BINDIR)/, $(FLEXDLL_OBJECTS)) $(OPT_BINDIR)
 
 else
@@ -937,7 +937,7 @@ clean::
 # (see manual/README.md)
 .PHONY: manual-pregen
 manual-pregen: opt.opt
-	cd manual; $(MAKE) clean && $(MAKE) pregen-etex
+	cd manual && $(MAKE) clean && $(MAKE) pregen-etex
 
 clean::
 	$(MAKE) -C manual clean
@@ -1071,7 +1071,7 @@ endif
 # to add otherlibs/dynlink/native to the search path as well
 
 otherlibs/dynlink/dynlink.cmx : otherlibs/dynlink/native/dynlink.cmx
-	cd otherlibs/dynlink; $(LN) native/dynlink.cmx .
+	cd otherlibs/dynlink && $(LN) native/dynlink.cmx .
 
 DYNLINK_DEPEND_DUMMY_FILES = \
   otherlibs/dynlink/dynlink.ml \
@@ -1116,28 +1116,28 @@ beforedepend:: lambda/runtimedef.ml
 # Choose the right machine-dependent files
 
 asmcomp/arch.mli: asmcomp/$(ARCH)/arch.mli
-	@cd asmcomp; $(LN) $(ARCH)/arch.mli .
+	@cd asmcomp && $(LN) $(ARCH)/arch.mli .
 
 asmcomp/arch.ml: asmcomp/$(ARCH)/arch.ml
-	@cd asmcomp; $(LN) $(ARCH)/arch.ml .
+	@cd asmcomp && $(LN) $(ARCH)/arch.ml .
 
 asmcomp/proc.ml: asmcomp/$(ARCH)/proc.ml
-	@cd asmcomp; $(LN) $(ARCH)/proc.ml .
+	@cd asmcomp && $(LN) $(ARCH)/proc.ml .
 
 asmcomp/selection.ml: asmcomp/$(ARCH)/selection.ml
-	@cd asmcomp; $(LN) $(ARCH)/selection.ml .
+	@cd asmcomp && $(LN) $(ARCH)/selection.ml .
 
 asmcomp/CSE.ml: asmcomp/$(ARCH)/CSE.ml
-	@cd asmcomp; $(LN) $(ARCH)/CSE.ml .
+	@cd asmcomp && $(LN) $(ARCH)/CSE.ml .
 
 asmcomp/reload.ml: asmcomp/$(ARCH)/reload.ml
-	@cd asmcomp; $(LN) $(ARCH)/reload.ml .
+	@cd asmcomp && $(LN) $(ARCH)/reload.ml .
 
 asmcomp/scheduling.ml: asmcomp/$(ARCH)/scheduling.ml
-	@cd asmcomp; $(LN) $(ARCH)/scheduling.ml .
+	@cd asmcomp && $(LN) $(ARCH)/scheduling.ml .
 
 asmcomp/stackframe.ml: asmcomp/$(ARCH)/stackframe.ml
-	@cd asmcomp; $(LN) $(ARCH)/stackframe.ml .
+	@cd asmcomp && $(LN) $(ARCH)/stackframe.ml .
 
 # Preprocess the code emitters
 cvt_emit = tools/cvt_emit$(EXE)
@@ -1610,7 +1610,7 @@ runtime: stdlib/libcamlrun.$(A)
 .PHONY: makeruntime
 makeruntime: runtime-all
 stdlib/libcamlrun.$(A): runtime-all
-	cd stdlib; $(LN) ../runtime/libcamlrun.$(A) .
+	cd stdlib && $(LN) ../runtime/libcamlrun.$(A) .
 clean::
 	rm -f $(addprefix runtime/, *.o *.obj *.a *.lib *.so *.dll ld.conf)
 	rm -f $(addprefix runtime/, ocamlrun ocamlrund ocamlruni ocamlruns sak)
@@ -1628,9 +1628,9 @@ runtimeopt: stdlib/libasmrun.$(A)
 .PHONY: makeruntimeopt
 makeruntimeopt: runtime-allopt
 stdlib/libasmrun.$(A): runtime-allopt
-	cd stdlib; $(LN) ../runtime/libasmrun.$(A) .
+	cd stdlib && $(LN) ../runtime/libasmrun.$(A) .
 stdlib/libcomprmarsh.$(A): runtime/libcomprmarsh.$(A)
-	cd stdlib; $(LN) ../runtime/libcomprmarsh.$(A) .
+	cd stdlib && $(LN) ../runtime/libcomprmarsh.$(A) .
 
 clean::
 	rm -f stdlib/libasmrun.a stdlib/libasmrun.lib
@@ -2813,7 +2813,7 @@ endif # ifeq "$(BOOTSTRAPPING_FLEXDLL)" "true"
 	$(INSTALL_DATA) $(DOC_FILES) "$(INSTALL_DOCDIR)"
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	if test -f ocamlopt$(EXE); then $(MAKE) installopt; else \
-	   cd "$(INSTALL_BINDIR)"; \
+	   cd "$(INSTALL_BINDIR)" || exit; \
 	   $(LN) ocamlc.byte$(EXE) ocamlc$(EXE); \
 	   $(LN) ocamllex.byte$(EXE) ocamllex$(EXE); \
 	   (test -f flexlink.byte$(EXE) && \
@@ -2903,7 +2903,7 @@ endif
 	done
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	if test -f ocamlopt.opt$(EXE); then $(MAKE) installoptopt; else \
-	   cd "$(INSTALL_BINDIR)"; \
+	   cd "$(INSTALL_BINDIR)" || exit; \
 	   $(LN) ocamlc.byte$(EXE) ocamlc$(EXE); \
 	   $(LN) ocamlopt.byte$(EXE) ocamlopt$(EXE); \
 	   $(LN) ocamllex.byte$(EXE) ocamllex$(EXE); \
@@ -2922,14 +2922,13 @@ installoptopt:
 	$(INSTALL_PROG) ocamlc.opt$(EXE) "$(INSTALL_BINDIR)"
 	$(INSTALL_PROG) ocamlopt.opt$(EXE) "$(INSTALL_BINDIR)"
 	$(INSTALL_PROG) lex/ocamllex.opt$(EXE) "$(INSTALL_BINDIR)"
-	cd "$(INSTALL_BINDIR)"; \
+	cd "$(INSTALL_BINDIR)" || exit; \
 	   $(LN) ocamlc.opt$(EXE) ocamlc$(EXE); \
 	   $(LN) ocamlopt.opt$(EXE) ocamlopt$(EXE); \
 	   $(LN) ocamllex.opt$(EXE) ocamllex$(EXE)
 ifeq "$(BOOTSTRAPPING_FLEXDLL)" "true"
 	$(INSTALL_PROG) flexlink.opt$(EXE) "$(INSTALL_BINDIR)"
-	cd "$(INSTALL_BINDIR)"; \
-	  $(LN) flexlink.opt$(EXE) flexlink$(EXE)
+	cd "$(INSTALL_BINDIR)" && $(LN) flexlink.opt$(EXE) flexlink$(EXE)
 endif
 	$(INSTALL_DATA) \
 	   utils/*.cmx parsing/*.cmx typing/*.cmx bytecomp/*.cmx \
