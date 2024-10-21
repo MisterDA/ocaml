@@ -2772,7 +2772,7 @@ ifeq "$(INSTALL_SOURCE_ARTIFACTS)" "true"
 	  "$(INSTALL_LIBDIR_DYNLINK)"
 endif
 	for i in $(OTHERLIBS); do \
-	  $(MAKE) -C otherlibs/$$i install || exit $$?; \
+	  $(MAKE) -C otherlibs/$$i install || exit; \
 	done
 ifeq "$(build_ocamldoc)" "true"
 	$(MKDIR) "$(INSTALL_LIBDIR)/ocamldoc"
@@ -2899,7 +2899,7 @@ ifeq "$(strip $(NATDYNLINK))" "true"
 	  "$(INSTALL_LIBDIR_DYNLINK)"
 endif
 	for i in $(OTHERLIBS); do \
-	  $(MAKE) -C otherlibs/$$i installopt || exit $$?; \
+	  $(MAKE) -C otherlibs/$$i installopt || exit; \
 	done
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	if test -f ocamlopt.opt$(EXE); then $(MAKE) installoptopt; else \
