@@ -24,7 +24,7 @@ jobs:
 # subsequent jobs.
   build:
     if: contains(github.event.pull_request.labels.*.name, 'run-thread-sanitizer')
-    runs-on: 'ubuntu-latest'
+    runs-on: 'ubuntu-24.04'
     outputs:
       manual_changed: ${{ steps.manual.outputs.manual_changed }}
     steps:
@@ -63,7 +63,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'run-thread-sanitizer')
     name: ${{ matrix.name }}
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:

@@ -15,7 +15,7 @@ concurrency:
 jobs:
   multicoretests:
     if: contains(github.event.pull_request.labels.*.name, 'run-multicoretests')
-    runs-on: 'ubuntu-latest'
+    runs-on: 'ubuntu-24.04'
     strategy:
       matrix:
         include:
