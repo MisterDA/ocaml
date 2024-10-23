@@ -1159,12 +1159,6 @@ AC_SEARCH_LIBS([cos], [m],
 
 # Checks for header files
 
-# Don't check for unistd.h on Windows
-AS_CASE([$host],
-  [*-*-mingw32*|*-pc-windows], [],
-  [AC_CHECK_HEADERS([unistd.h],[AC_DEFINE([HAS_UNISTD], [1])])])
-
-AC_CHECK_HEADER([math.h])
 AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H], [1])])
 AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT], [1])], [],
   [#include <sys/types.h>])
@@ -1261,18 +1255,7 @@ AS_IF([! $arch64],
 
 # Support for C11 atomic types
 
-OCAML_CC_SUPPORTS_ATOMIC([], [$cclibs])
-AS_CASE([$cc_supports_atomic,$ocaml_cc_vendor],
-  [false,msvc-*],
-    [OCAML_CC_SUPPORTS_ATOMIC([-std:c11])
-     AS_IF([$cc_supports_atomic],
-       [common_cflags="$common_cflags -std:c11"],
-       [OCAML_CC_SUPPORTS_ATOMIC([-std:c11 -experimental:c11atomics])
-        AS_IF([$cc_supports_atomic],
-          [common_cflags="$common_cflags -std:c11 -experimental:c11atomics"])
-])])
-AS_IF([! $cc_supports_atomic],
-  [AC_MSG_FAILURE([C11 atomic support is required, use another C compiler])])
+OCAML_CC_C11_ATOMIC_CFLAGS([$cclibs])
 
 # Full support for thread local storage
 # macOS and MinGW-w64 have problems with thread local storage accessed from DLLs
@@ -2519,11 +2502,9 @@ AS_IF([$build_ocamltest],
     [none],
       [AC_MSG_ERROR([ocamltest requires a diff tool])])
   for flag in ${flags}; do
-    AC_MSG_CHECKING([whether $DIFF supports $flag]);
-    AS_IF([$DIFF $DIFF_FLAGS $flag $0 $0 > /dev/null 2>&1],
-      [DIFF_FLAGS="$DIFF_FLAGS $flag"
-      AC_MSG_RESULT([yes])],
-      [AC_MSG_RESULT([no])])
+    OCAML_CHECK_DIFF_FLAG([${flag}],
+      [DIFF_FLAGS="${DIFF_FLAGS:+$DIFF_FLAGS }$flag"], [],
+      [${DIFF_FLAGS:+$DIFF_FLAGS }])
   done])
 
 AS_IF([test x"$enable_flambda" = "xyes"],
@@ -2551,21 +2532,17 @@ AS_IF([test x"$enable_flat_float_array" = "xno"],
 
 OCAML_MMAP_SUPPORTS_MAP_STACK
 AS_IF([test x"$enable_mmap_map_stack" = "xyes"],
-  [AS_IF([test x"$has_mmap_map_stack" = "xtrue"],
+  [AS_IF([test x"$ocaml_cv_func_mmap_MAP_STACK" = "xyes"],
     [AS_CASE([$target],
        [*-freebsd*],
-         [AC_MSG_ERROR([mmap MAP_STACK not supported on FreeBSD])],
-       [with_mmap_map_stack=true;
-        AC_DEFINE([USE_MMAP_MAP_STACK], [1])])],
-    [AC_MSG_ERROR([mmap MAP_STACK requested but not found on $target])])
-  ],
+         [AC_MSG_ERROR([mmap MAP_STACK is not supported on FreeBSD])])],
+    [AC_MSG_ERROR([mmap MAP_STACK requested but not found on $target])])],
   [AS_CASE([$target],
     [*-openbsd*],
-     [with_mmap_map_stack=true;
-      AC_DEFINE([USE_MMAP_MAP_STACK], [1])
-      AC_MSG_NOTICE([using MAP_STACK on OpenBSD due to stack checking])],
-    [with_mmap_map_stack=false])
-  ])
+      [ocaml_cv_func_mmap_MAP_STACK=yes
+      AC_MSG_NOTICE([Using MAP_STACK on OpenBSD due to stack checking])])])
+AS_IF([test x"$ocaml_cv_func_mmap_MAP_STACK" = "xyes"],
+  [AC_DEFINE([USE_MMAP_MAP_STACK], [1], [Define to use mmap MAP_STACK.])])
 
 oc_native_compflags=''
 
