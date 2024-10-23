@@ -80,6 +80,12 @@ Working version
   default environment (where `TEMP` is set), there is no discernible change.
   (Antonin Décimo, review by Nicolás Ojeda Bär and David Allsopp)
 
+- #13576: On Windows, prevent erroneously waiting for an unbounded time in
+  Unix.select if more than 64 file descriptors per lists are watched, or if
+  watching non-socket file descriptors, and a timeout longer than $2^{32}$
+  milliseconds is used. Cap the timeout to $2^{32}$ milliseconds.
+  (Antonin Décimo, review by Miod Vallat)
+
 ### Tools:
 
 - #12019: ocamlc: add `align_double` and `align_int64` to `ocamlc -config`
