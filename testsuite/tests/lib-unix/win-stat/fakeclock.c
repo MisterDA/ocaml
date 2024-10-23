@@ -16,13 +16,13 @@
 
 typedef union ufiletime_int64
 {
-  unsigned __int64 scalar;
+  uint64_t scalar;
   FILETIME ft;
 } filetime_int64;
 
 static filetime_int64 clk;
 static DWORD wall = 0;
-static unsigned __int64 bias = 0LL;
+static uint64_t bias = 0LL;
 
 BOOL WINAPI FakeConvert(const FILETIME* lpFileTime, LPFILETIME lpLocalFileTime)
 {
