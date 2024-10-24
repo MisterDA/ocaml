@@ -1082,24 +1082,72 @@ int caml_num_rows_fd(int fd)
   return -1;
 }
 
+#define NSEC_PER_USEC UINT64_C(1000)
+#define NSEC_PER_MSEC UINT64_C(1000000)
+#define NSEC_PER_SEC  UINT64_C(1000000000)
+
+#define SEC_PER_MSEC UINT64_C(1000)
+
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+HANDLE caml_win32_create_timer(void)
+{
+  return CreateWaitableTimerEx(NULL, NULL,
+                               CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+                               SYNCHRONIZE | TIMER_QUERY_STATE
+                               | TIMER_MODIFY_STATE);
+}
+
+void caml_win32_destroy_timer(HANDLE timer)
+{
+  if (timer != INVALID_HANDLE_VALUE)
+    CloseHandle(timer);
+}
+
+/* FIXME: error handling? */
+void caml_win32_nanosleep(uint64_t sec, uint64_t nsec)
+{
+  HANDLE timer = Caml_state->timer;
+  DWORD timeout_msec;
+
+  /* If the high-resolution timer is available, use it. Otherwise,
+   * fall-back to the low-resolution timer, which doesn't need a
+   * handle. */
+  if (timer != INVALID_HANDLE_VALUE) {
+    LARGE_INTEGER dt;
+    /* relative sleep (negative), 100ns units */
+    dt.QuadPart = -(int64_t)(sec * (NSEC_PER_SEC / 100) + nsec / 100);
+
+    SetWaitableTimer(timer, &dt, 0, NULL, NULL, FALSE);
+    timeout_msec = INFINITE;
+  } else {
+    uint64_t msec = sec * SEC_PER_MSEC + nsec / NSEC_PER_MSEC;
+    timeout_msec = msec < INFINITE ? (DWORD)msec : INFINITE - 1;
+  }
+
+  WaitForSingleObject(timer, timeout_ms);
+}
+
 /* UCRT clock function returns wall-clock time */
 CAMLexport clock_t caml_win32_clock(void)
 {
   FILETIME _creation, _exit;
-  CAML_ULONGLONG_FILETIME stime, utime;
-  ULONGLONG clocks_per_sec;
+  CAML_ULONGLONG_FILETIME kernel_time, user_time;
+  uint64_t cpu_time_100_nsec;
 
   if (!(GetProcessTimes(GetCurrentProcess(), &_creation, &_exit,
-                        &stime.ft, &utime.ft))) {
+                        &kernel_time.ft, &user_time.ft))) {
     return (clock_t)(-1);
   }
 
   /* total in 100-nanosecond intervals (1e7 / CLOCKS_PER_SEC) */
-  clocks_per_sec = 10000000ULL / (ULONGLONG)CLOCKS_PER_SEC;
-  return (clock_t)((stime.ul + utime.ul) / clocks_per_sec);
+  cpu_time_100_nsec = kernel_time.ul + user_time.ul;
+  return (clock_t)(cpu_time_100_nsec / (NSEC_PER_SEC / 100 / CLOCKS_PER_SEC));
 }
 
-static double clock_period = 0;
+static double clock_period_nsec = 0;
 
 void caml_init_os_params(void)
 {
@@ -1114,7 +1162,7 @@ void caml_init_os_params(void)
 
   /* Get the number of nanoseconds for each tick in QueryPerformanceCounter */
   QueryPerformanceFrequency(&frequency);
-  clock_period = (1000000000.0 / frequency.QuadPart);
+  clock_period_nsec = (double)NSEC_PER_SEC / frequency.QuadPart;
 }
 
 uint64_t caml_time_counter(void)
@@ -1122,7 +1170,7 @@ uint64_t caml_time_counter(void)
   LARGE_INTEGER now;
 
   QueryPerformanceCounter(&now);
-  return (uint64_t)(now.QuadPart * clock_period);
+  return (uint64_t)(now.QuadPart * clock_period_nsec);
 }
 
 void *caml_plat_mem_map(uintnat size, int reserve_only)

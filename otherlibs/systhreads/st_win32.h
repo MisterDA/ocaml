@@ -19,9 +19,14 @@
 #define _WIN32_WINNT 0x0400
 #include <windows.h>
 
+#define NSEC_PER_MSEC UINT64_C(1000000)
+
+/* from win32.c */
+extern void caml_win32_nanosleep(uint64_t sec, uint64_t nsec);
+
 Caml_inline void st_msleep(int msec)
 {
-  Sleep(msec);
+  caml_win32_nanosleep(msec / NSEC_PER_MSEC, msec % NSEC_PER_MSEC);
 }
 
 #include "st_pthreads.h"
