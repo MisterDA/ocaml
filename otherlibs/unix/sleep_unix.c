@@ -13,10 +13,13 @@
 /*                                                                        */
 /**************************************************************************/
 
+#define CAML_INTERNALS
+
 #include <caml/mlvalues.h>
 #include <caml/signals.h>
 #include "caml/unixsupport.h"
 
+#include <math.h>
 #include <errno.h>
 #include <time.h>
 #ifdef HAS_SELECT
@@ -27,16 +30,19 @@
 #endif
 #endif
 
-CAMLprim value caml_unix_sleep(value duration)
+
+CAMLprim value caml_unix_sleep(value duration_sec)
 {
-  double d = Double_val(duration);
-  if (d < 0.0) return Val_unit;
+  double sec = Double_val(duration_sec);
+  double int_sec, frac_sec;
+  if (sec < 0.0) return Val_unit;
 #if defined(HAS_NANOSLEEP)
   {
     struct timespec t;
     int ret;
-    t.tv_sec = (time_t) d;
-    t.tv_nsec = (d - t.tv_sec) * 1e9;
+    frac_sec = modf(sec, &int_sec);
+    t.tv_sec = int_sec;
+    t.tv_nsec = frac_sec * NSEC_PER_SEC;
     do {
       caml_enter_blocking_section();
       ret = nanosleep(&t, &t);
@@ -52,8 +58,9 @@ CAMLprim value caml_unix_sleep(value duration)
   {
     struct timeval t;
     int ret;
-    t.tv_sec = (time_t) d;
-    t.tv_usec = (d - t.tv_sec) * 1e6;
+    frac_sec = modf(sec, &int_sec);
+    t.tv_sec = int_sec;
+    t.tv_usec = frac_sec * USEC_PER_SEC;
     do {
       caml_enter_blocking_section();
       ret = select(0, NULL, NULL, NULL, &t);
@@ -68,7 +75,7 @@ CAMLprim value caml_unix_sleep(value duration)
      remaining time returned by sleep() is generally rounded up. */
   {
     caml_enter_blocking_section();
-    sleep ((unsigned int) d);
+    sleep((unsigned int) sec);
     caml_leave_blocking_section();
   }
 #endif

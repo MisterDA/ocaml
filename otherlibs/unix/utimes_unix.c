@@ -41,9 +41,9 @@ CAMLprim value caml_unix_utimes(value path, value atime, value mtime)
     t = (struct timeval *) NULL;
   } else {
     tv[0].tv_sec = at;
-    tv[0].tv_usec = (at - tv[0].tv_sec) * 1000000;
+    tv[0].tv_usec = (at - tv[0].tv_sec) * USEC_PER_SEC;
     tv[1].tv_sec = mt;
-    tv[1].tv_usec = (mt - tv[1].tv_sec) * 1000000;
+    tv[1].tv_usec = (mt - tv[1].tv_sec) * USEC_PER_SEC;
     t = tv;
   }
   p = caml_stat_strdup(String_val(path));
