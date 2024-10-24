@@ -24,6 +24,8 @@
 #include <math.h>
 #include <sys/time.h>
 
+#define USEC_PER_SEC UINT64_C(1000000)
+
 static void caml_unix_set_timeval(struct timeval * tv, double d)
 {
   double integr, frac;
@@ -31,8 +33,8 @@ static void caml_unix_set_timeval(struct timeval * tv, double d)
   /* Round time up so that if d is small but not 0, we end up with
      a non-0 timeval. */
   tv->tv_sec = integr;
-  tv->tv_usec = ceil(1e6 * frac);
-  if (tv->tv_usec >= 1000000) { tv->tv_sec++; tv->tv_usec = 0; }
+  tv->tv_usec = ceil(frac * USEC_PER_SEC);
+  if (tv->tv_usec >= USEC_PER_SEC) { tv->tv_sec++; tv->tv_usec = 0; }
 }
 
 static value caml_unix_convert_itimer(struct itimerval *tp)

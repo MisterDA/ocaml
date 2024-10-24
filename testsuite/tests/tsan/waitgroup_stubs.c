@@ -5,12 +5,12 @@
 #include <caml/mlvalues.h>
 #include <caml/tsan.h>
 
-#define POW10_3       1000
-#define POW10_7   10000000
-#define POW10_9 1000000000
+#define NSEC_PER_USEC UINT64_C(1000)
+#define NSEC_PER_MSEC UINT64_C(1000000)
+#define NSEC_PER_SEC  UINT64_C(1000000000)
 
 #define MAX_WAITGROUP   8
-#define SPIN_WAIT_NS    POW10_7 /* 10ms */
+#define SPIN_WAIT_NSEC  (10 /* msec */ * NSEC_PER_MSEC)
 
 /* waitgroup inspired by Golang's `sync.WaitGroup`. This version does *not*
  * allow to restart a waitgroup. */
@@ -58,11 +58,11 @@ CAMLno_tsan value wg_wait(value t)
   do {
 #ifdef HAS_NANOSLEEP
     const struct timespec ts = {
-      .tv_sec = SPIN_WAIT_NS / POW10_9,
-      .tv_nsec = SPIN_WAIT_NS % POW10_9 };
+      .tv_sec = SPIN_WAIT_NSEC / NSEC_PER_SEC,
+      .tv_nsec = SPIN_WAIT_NSEC % NSEC_PER_SEC };
     nanosleep(&ts, NULL);
 #else
-    usleep(SPIN_WAIT_NS / POW10_3);
+    usleep(SPIN_WAIT_NS / NSEC_PER_USEC);
 #endif
   }
   while (wg->count != wg->limit);

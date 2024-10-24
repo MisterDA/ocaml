@@ -1097,7 +1097,9 @@ val select :
    The result is composed of three sets of descriptors: those ready
    for reading (first component), ready for writing (second component),
    and over which an exceptional condition is pending (third
-   component). *)
+   component).
+
+   On Windows, the maximal timeout is of 2**32 milliseconds. *)
 
 (** {1 Locking} *)
 

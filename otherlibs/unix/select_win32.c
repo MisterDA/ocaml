@@ -964,8 +964,11 @@ static value fdset_to_fdlist(value fdlist, fd_set *fdset)
   CAMLreturn(res);
 }
 
+#define USEC_PER_SEC UINT64_C(1000000)
+#define MSEC_PER_SEC UINT64_C(1000)
+
 CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
-                           value timeout)
+                                value timeout_sec)
 {
   /* Event associated to handle */
   DWORD   nEventsCount;
@@ -986,7 +989,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   DWORD err;
 
   /* Time to wait */
-  DWORD milliseconds;
+  DWORD tm_msec;
 
   /* Is there static select data */
   BOOL  hasStaticData = FALSE;
@@ -1001,26 +1004,26 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   DWORD writefds_len;
   DWORD exceptfds_len;
 
-  CAMLparam4 (readfds, writefds, exceptfds, timeout);
+  CAMLparam4 (readfds, writefds, exceptfds, timeout_sec);
   CAMLlocal5 (read_list, write_list, except_list, res, l);
   CAMLlocal1 (fd);
 
   fd_set read, write, except;
-  double tm;
+  double tm_sec, tmint_sec, tmfrac_sec;
   struct timeval tv;
   struct timeval * tvp;
 
   DEBUG_PRINT("in select");
 
   err = 0;
-  tm = Double_val(timeout);
+  tm_sec = Double_val(timeout_sec);
   if (readfds == Val_emptylist
       && writefds == Val_emptylist
       && exceptfds == Val_emptylist) {
     DEBUG_PRINT("nothing to do");
-    if ( tm > 0.0 ) {
+    if ( tm_sec > 0.0 ) {
       caml_enter_blocking_section();
-      Sleep( (int)(tm * 1000));
+      Sleep( (DWORD)(tm_sec * MSEC_PER_SEC));
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1029,11 +1032,12 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
         && fdlist_to_fdset(writefds, &write)
         && fdlist_to_fdset(exceptfds, &except)) {
       DEBUG_PRINT("only sockets to select on, using classic select");
-      if (tm < 0.0) {
+      if (tm_sec < 0.0) {
         tvp = (struct timeval *) NULL;
       } else {
-        tv.tv_sec = (int) tm;
-        tv.tv_usec = (int) (1e6 * (tm - (int) tm));
+        tmfrac_sec = modf(tm_sec, &tmint_sec);
+        tv.tv_sec = (long) tmint_sec;
+        tv.tv_usec = (long) (tmfrac_sec * USEC_PER_SEC);
         tvp = &tv;
       }
       caml_enter_blocking_section();
@@ -1065,14 +1069,15 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
 
       hdsData = (HANDLE *)caml_stat_alloc(sizeof(HANDLE) * hdsMax);
 
-      if (tm >= 0.0)
+      if (tm_sec >= 0.0)
         {
-          milliseconds = (DWORD)(1000 * tm);
-          DEBUG_PRINT("Will wait %d ms", milliseconds);
+          double msec = tm_sec * MSEC_PER_SEC;
+          tm_msec = msec < INFINITE ? (DWORD)msec : INFINITE - 1;
+          DEBUG_PRINT("Will wait %d ms", tm_msec);
         }
       else
         {
-          milliseconds = INFINITE;
+          tm_msec = INFINITE;
         }
 
 
@@ -1184,7 +1189,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
             {
               DEBUG_PRINT("Waiting for one select worker to be done");
               switch (WaitForMultipleObjects(nEventsCount, lpEventsDone, FALSE,
-                                             milliseconds))
+                                             tm_msec))
                 {
                 case WAIT_FAILED:
                   err = GetLastError();
@@ -1228,7 +1233,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       /* Nothing to monitor but some time to wait. */
       else if (!hasStaticData)
         {
-          Sleep(milliseconds);
+          Sleep(tm_msec);
         }
       caml_leave_blocking_section();
 
