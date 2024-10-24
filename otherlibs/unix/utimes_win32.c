@@ -25,6 +25,8 @@
 
 #include <windows.h>
 
+#define NSEC_PER_SEC UINT64_C(1000000000)
+
 CAMLprim value caml_unix_utimes(value path, value atime, value mtime)
 {
   CAMLparam3(path, atime, mtime);
@@ -59,9 +61,9 @@ CAMLprim value caml_unix_utimes(value path, value atime, value mtime)
     lastModificationTime.ul = lastAccessTime.ul;
   } else {
     lastAccessTime.ul =
-      (ULONGLONG)(at * 10000000.0) + CAML_NT_EPOCH_100ns_TICKS;
+      (ULONGLONG)(at * (NSEC_PER_SEC / 100)) + CAML_NT_EPOCH_100ns_TICKS;
     lastModificationTime.ul =
-      (ULONGLONG)(mt * 10000000.0) + CAML_NT_EPOCH_100ns_TICKS;
+      (ULONGLONG)(mt * (NSEC_PER_SEC / 100)) + CAML_NT_EPOCH_100ns_TICKS;
   }
   caml_enter_blocking_section();
   res = SetFileTime(hFile, NULL, &lastAccessTime.ft, &lastModificationTime.ft);
