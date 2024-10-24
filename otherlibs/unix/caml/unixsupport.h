@@ -167,4 +167,32 @@ extern void caml_unix_clear_cloexec(int fd, const char * cmdname, value arg);
 #define EXECV_CAST
 #endif
 
+#ifdef CAML_INTERNALS
+#include <time.h>
+#include <math.h>
+#ifndef _WIN32
+#include <sys/time.h>
+#endif
+
+Caml_inline struct timespec caml_timespec_of_sec(double sec)
+{
+  double int_sec, frac_sec;
+  frac_sec = modf(sec, &int_sec);
+  return (struct timespec)
+    { .tv_sec = (time_t) int_sec, .tv_nsec = (long) (frac_sec * NSEC_PER_SEC) };
+}
+
+Caml_inline struct timeval caml_timeval_of_sec(double sec)
+{
+  double int_sec, frac_sec;
+  frac_sec = modf(sec, &int_sec);
+  return (struct timeval)
+#ifdef _WIN32
+    { .tv_sec = (long) int_sec, .tv_usec = (long) (frac_sec * USEC_PER_SEC) };
+#else
+    { .tv_sec = int_sec, .tv_usec = frac_sec * USEC_PER_SEC };
+#endif
+}
+#endif  /* CAML_INTERNALS */
+
 #endif /* CAML_UNIXSUPPORT_H */
