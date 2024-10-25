@@ -15,6 +15,8 @@
 
 #define CAML_INTERNALS
 
+#include "caml/config.h"
+
 /* Basic system calls */
 
 #include <errno.h>
@@ -27,12 +29,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef _WIN32
+#include "caml/winsupport.h"
 #include <direct.h> /* for _wchdir and _wgetcwd */
 #include <io.h> /* for _wopen and close */
+#include <bcrypt.h> /* for BCryptGenRandom */
 #else
 #include <sys/wait.h>
 #endif
-#include "caml/config.h"
 #ifdef HAS_UNISTD
 #include <unistd.h>
 #endif
@@ -598,66 +601,80 @@ CAMLprim value caml_sys_time(value unit)
   return caml_copy_double(caml_sys_time_unboxed(unit));
 }
 
-#ifdef _WIN32
-extern int caml_win32_random_seed (intnat data[16]);
-#else
-int caml_unix_random_seed(intnat data[16])
+/* Seeding of pseudo-random number generators */
+
+CAMLprim value caml_sys_random_seed (value unit)
 {
+  union {
+    intnat data[16];
+    unsigned char buffer[16 * sizeof(intnat)];
+  } u;
   int n = 0;
-  unsigned char buffer[12];
-  int nread = 0;
 
   /* Try kernel entropy first */
+#ifdef _WIN32
+  NTSTATUS st = BCryptGenRandom(NULL, u.buffer, 12,
+                                BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+  if (NT_SUCCESS(st))
+    n += 12;
+#else
 #ifdef HAS_GETENTROPY
-  if (getentropy(buffer, 12) != -1) {
-    nread = 12;
+  if (getentropy(u.buffer, 12) != -1) {
+    n += 12;
   } else
 #endif
   { int fd = open("/dev/urandom", O_RDONLY, 0);
     if (fd != -1) {
-      nread = read(fd, buffer, 12);
+      n += read(fd, u.buffer, 12);
       close(fd);
     }
   }
-  while (nread > 0) data[n++] = buffer[--nread];
+#endif
+
   /* If the kernel provided enough entropy, we now have 96 bits
      of good random data and can stop here. */
-  if (n >= 12) return n;
+  if (n >= 12) goto convert;
 
   /* Otherwise, complement whatever we got (probably nothing)
      with some not-very-random data. */
-  {
-#ifdef HAS_GETTIMEOFDAY
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    if (n < 16) data[n++] = tv.tv_usec;
-    if (n < 16) data[n++] = tv.tv_sec;
+  size_t len;
+#define append(t, init)                         \
+  len = sizeof(t);                              \
+  if (n + len < sizeof(u.buffer)) {             \
+    t var = init;                               \
+    memcpy(u.buffer + n, &var, len);            \
+    n += len;                                   \
+  }
+
+#if defined(_WIN32)
+  CAML_ULONGLONG_FILETIME t;
+  int64_t pc;
+  GetSystemTimeAsFileTime(&t.ft);
+  QueryPerformanceCounter((LARGE_INTEGER *)&pc);  /* PR#6032 */
+  append(ULONGLONG, t.ul);
+  append(DWORD, GetCurrentProcessId());
+  append(int64_t, pc);
+#elif defined(HAS_GETTIMEOFDAY)
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  append(time_t, tv.tv_usec);
+  append(suseconds_t, tv.tv_sec);
 #else
-    if (n < 16) data[n++] = time(NULL);
+  append(time_t, time(NULL));
 #endif
 #ifdef HAS_UNISTD
-    if (n < 16) data[n++] = getpid();
-    if (n < 16) data[n++] = getppid();
+  append(pid_t, getpid());
+  append(pid_t, getppid());
 #endif
-    return n;
-  }
-}
-#endif
+#undef append
 
-CAMLprim value caml_sys_random_seed (value unit)
-{
-  intnat data[16];
-  int n;
-  value res;
-#ifdef _WIN32
-  n = caml_win32_random_seed(data);
-#else
-  n = caml_unix_random_seed(data);
-#endif
+convert: {
   /* Convert to an OCaml array of ints */
-  res = caml_alloc_small(n, 0);
-  for (int i = 0; i < n; i++) Field(res, i) = Val_long(data[i]);
+  int ints = n / sizeof(intnat) + !!(n % sizeof(intnat)); /* ceil */
+  value res = caml_alloc_small(ints, 0);
+  for (int i = 0; i < ints; i++) Field(res, i) = Val_long(u.data[i]);
   return res;
+  }
 }
 
 CAMLprim value caml_sys_const_big_endian(value unit)
