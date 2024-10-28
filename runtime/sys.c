@@ -601,7 +601,7 @@ CAMLprim value caml_sys_time(value unit)
 #ifdef _WIN32
 extern int caml_win32_random_seed (intnat data[16]);
 #else
-int caml_unix_random_seed(intnat data[16])
+int caml_unix_random_seed(intnat data[static 16])
 {
   int n = 0;
   unsigned char buffer[12];
