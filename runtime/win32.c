@@ -29,6 +29,8 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <direct.h>
+#include <winternl.h> /* for NT_SUCCESS */
+#include <bcrypt.h>   /* for BCryptGenRandom */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -620,12 +622,22 @@ void caml_win32_unregister_overflow_detection(void)
 
 /* Seeding of pseudo-random number generators */
 
-int caml_win32_random_seed (intnat data[16])
+int caml_win32_random_seed(intnat data[16])
 {
-  /* For better randomness, consider:
-     http://msdn.microsoft.com/library/en-us/seccrypto/security/rtlgenrandom.asp
-     http://blogs.msdn.com/b/michael_howard/archive/2005/01/14/353379.aspx
-  */
+  unsigned char buffer[12];
+
+  /* Try kernel entropy first */
+  NTSTATUS st = BCryptGenRandom(NULL, buffer, sizeof(buffer),
+                                BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+  if (NT_SUCCESS(st)) {
+    /* If the kernel provided enough entropy, we now have 96 bits
+       of good random data and can stop here. */
+    unsigned n = 0, nread = sizeof(buffer);
+    while (nread > 0) data[n++] = buffer[--nread];
+    return n;
+  }
+
+  /* Otherwise, use some not-very-random data. */
   FILETIME t;
   LARGE_INTEGER pc;
   GetSystemTimeAsFileTime(&t);
