@@ -34,4 +34,4 @@ Caml_inline uintnat caml_atomic_refcount_incr(atomic_uintnat* refcount){
 
 #endif /* CAML_INTERNALS */
 
-#endif // CAML_ATOMIC_REFCOUNT_H
+#endif /* CAML_ATOMIC_REFCOUNT_H */
