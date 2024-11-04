@@ -53,6 +53,7 @@ META
 /config.log
 /config.status
 /configure~
+/runtime/caml/config.h.in~
 /flexlink.opt
 /libtool
 /ocamlc.opt
@@ -235,8 +236,7 @@ META
 
 /runtime/domain_state.inc
 /runtime/caml/jumptbl.h
-/runtime/caml/m.h
-/runtime/caml/s.h
+/runtime/caml/config.h
 /runtime/primitives
 /runtime/primitives*.new
 /runtime/prims.c

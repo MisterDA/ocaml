@@ -105,11 +105,11 @@ AC_SUBST([OCAML_VERSION_MINOR], [OCAML__VERSION_MINOR])
 AC_SUBST([OCAML_VERSION_PATCHLEVEL], [OCAML__VERSION_PATCHLEVEL])
 AC_SUBST([OCAML_VERSION_EXTRA], [OCAML__VERSION_EXTRA])
 AC_SUBST([OCAML_VERSION_SHORT], [OCAML__VERSION_SHORT])
-AC_DEFINE([MAGIC_NUMBER_PREFIX], ["][MAGIC_NUMBER__PREFIX]["])
-AC_DEFINE([MAGIC_NUMBER_VERSION], ["][MAGIC_NUMBER__VERSION]["])
-AC_DEFINE([EXEC_MAGIC_LENGTH], [MAGIC_NUMBER__LENGTH])
+AC_DEFINE([MAGIC_NUMBER_PREFIX], ["][MAGIC_NUMBER__PREFIX]["], [TODO])
+AC_DEFINE([MAGIC_NUMBER_VERSION], ["][MAGIC_NUMBER__VERSION]["], [TODO])
+AC_DEFINE([EXEC_MAGIC_LENGTH], [MAGIC_NUMBER__LENGTH], [TODO])
 AC_SUBST([MAGIC_LENGTH], [MAGIC_NUMBER__LENGTH])
-AC_DEFINE([EXEC_FORMAT], ["][EXEC__FORMAT]["])
+AC_DEFINE([EXEC_FORMAT], ["][EXEC__FORMAT]["], [TODO])
 AC_SUBST([EXEC_MAGIC_NUMBER], [EXEC__MAGIC_NUMBER])
 AC_SUBST([CMI_MAGIC_NUMBER], [CMI__MAGIC_NUMBER])
 AC_SUBST([CMO_MAGIC_NUMBER], [CMO__MAGIC_NUMBER])
@@ -273,9 +273,13 @@ AC_CONFIG_FILES([ocamltest/ocamltest_config.ml])
 AC_CONFIG_FILES([otherlibs/dynlink/dynlink_config.ml])
 AC_CONFIG_FILES([utils/config.common.ml])
 AC_CONFIG_FILES([utils/config.generated.ml])
+AC_CONFIG_HEADERS([runtime/caml/config.h])
+AH_TOP([[#ifndef CAML_CONFIG_H
+#define CAML_CONFIG_H]])
+AH_BOTTOM([[#include "conf_post.h"
+
+#endif /* CAML_CONFIG_H */]])
 AC_CONFIG_HEADERS([runtime/caml/exec.h])
-AC_CONFIG_HEADERS([runtime/caml/m.h])
-AC_CONFIG_HEADERS([runtime/caml/s.h])
 AC_CONFIG_HEADERS([runtime/caml/version.h])
 AC_CONFIG_FILES([compilerlibs/META])
 AC_CONFIG_FILES([otherlibs/dynlink/META])
@@ -283,14 +287,14 @@ AC_CONFIG_FILES([otherlibs/runtime_events/META])
 AC_CONFIG_FILES([stdlib/META])
 
 # Definitions related to the version of OCaml
-AC_DEFINE([OCAML_VERSION_MAJOR], [OCAML__VERSION_MAJOR])
-AC_DEFINE([OCAML_VERSION_MINOR], [OCAML__VERSION_MINOR])
-AC_DEFINE([OCAML_VERSION_PATCHLEVEL], [OCAML__VERSION_PATCHLEVEL])
+AC_DEFINE([OCAML_VERSION_MAJOR], [OCAML__VERSION_MAJOR], [TODO])
+AC_DEFINE([OCAML_VERSION_MINOR], [OCAML__VERSION_MINOR], [TODO])
+AC_DEFINE([OCAML_VERSION_PATCHLEVEL], [OCAML__VERSION_PATCHLEVEL], [TODO])
 m4_if([OCAML__VERSION_EXTRA],[], [],
-  [AC_DEFINE([OCAML_VERSION_ADDITIONAL], ["][OCAML__VERSION_EXTRA]["])
-  AC_DEFINE([OCAML_VERSION_EXTRA], ["][OCAML__VERSION_EXTRA]["])])
-AC_DEFINE([OCAML_VERSION], [OCAML__VERSION_NUMBER])
-AC_DEFINE([OCAML_VERSION_STRING], ["][OCAML__VERSION]["])
+  [AC_DEFINE([OCAML_VERSION_ADDITIONAL], ["][OCAML__VERSION_EXTRA]["], [TODO])
+  AC_DEFINE([OCAML_VERSION_EXTRA], ["][OCAML__VERSION_EXTRA]["], [TODO])])
+AC_DEFINE([OCAML_VERSION], [OCAML__VERSION_NUMBER], [TODO])
+AC_DEFINE([OCAML_VERSION_STRING], ["][OCAML__VERSION]["], [TODO])
 
 # Works out how many "o"s are needed in quoted strings
 AC_CONFIG_COMMANDS_PRE(OCAML_QUOTED_STRING_ID)
@@ -1254,7 +1258,7 @@ AS_IF(
     [bits=32; arch64=false],
   [test "x$ac_cv_sizeof_long_p" = "x8" ],
     [bits=64; arch64=true
-    AC_DEFINE([ARCH_SIXTYFOUR], [1])],
+    AC_DEFINE([ARCH_SIXTYFOUR], [1], [TODO])],
   [AC_MSG_ERROR([Neither 32 nor 64 bits architecture.])]
 )
 
@@ -1288,14 +1292,14 @@ AS_IF([! $arch64],
     [i686], [],
     [AS_IF([test "$ac_cv_alignof_double" -gt 4],
       [align_double=true
-       AC_DEFINE([ARCH_ALIGN_DOUBLE], [1])])
+      AC_DEFINE([ARCH_ALIGN_DOUBLE], [1], [TODO])])
      AS_IF([test "x$ac_cv_sizeof_long" = "x8" &&
             test "$ac_cv_alignof_long" -gt 4],
       [align_int64=true],
       [AS_IF([test "x$ac_cv_sizeof_long_long" = "x8" &&
               test "$ac_cv_alignof_long_long" -gt 4],
       [align_int64=true])])
-      AS_IF([$align_int64], [AC_DEFINE([ARCH_ALIGN_INT64], [1])])
+      AS_IF([$align_int64], [AC_DEFINE([ARCH_ALIGN_INT64], [1], [TODO])])
     ])])
 
 AC_CHECK_TYPES([max_align_t], [], [], [[#include <stddef.h>]])
@@ -1315,7 +1319,7 @@ OCAML_CC_C11_ATOMIC_CFLAGS([$cclibs])
 
 AS_CASE([$target],
   [*-apple-darwin*|*-w64-mingw32*|*-pc-windows], [],
-  [AC_DEFINE([HAS_FULL_THREAD_VARIABLES], [1])]
+  [AC_DEFINE([HAS_FULL_THREAD_VARIABLES], [1], [TODO])]
 )
 
 # Shared library support
@@ -1603,7 +1607,7 @@ AS_CASE([$enable_native_toplevel,$natdynlink],
     [install_ocamlnat=true],
   [install_ocamlnat=false])
 
-AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
+AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"], [TODO])
 target_os_type="$ostype"
 
 AS_IF([$cross_compiler],
@@ -1695,7 +1699,7 @@ AS_CASE([$as_target,$ocaml_cc_vendor],
 
 AS_IF([test "$with_pic"],
   [fpic=true
-  AC_DEFINE([CAML_WITH_FPIC], [1])
+  AC_DEFINE([CAML_WITH_FPIC], [1], [TODO])
   internal_cflags="$internal_cflags $sharedlib_cflags"
   default_aspp="$default_aspp $sharedlib_cflags"],
   [fpic=false])
@@ -1729,7 +1733,7 @@ AC_CHECK_FUNCS(m4_normalize([expm1 log1p hypot fma exp2 log2 cbrt acosh asinh
   atanh erf erfc trunc round copysign]), [], [has_c99_float_ops=false])
 
 AS_IF([$has_c99_float_ops],
-  [AC_DEFINE([HAS_C99_FLOAT_OPS], [1])
+[AC_DEFINE([HAS_C99_FLOAT_OPS], [1], [TODO])
   # Check whether round works (known bug in mingw-w64)
   OCAML_C99_CHECK_ROUND
   # Check whether fma works (regressed in mingw-w64 8.0.0; and present but
@@ -1752,7 +1756,7 @@ AS_CASE([$target],
     AC_CHECK_FUNCS([clock_gettime_nsec_np],
       [
         has_monotonic_clock=true
-        AC_DEFINE([HAS_CLOCK_GETTIME_NSEC_NP], [1])
+        AC_DEFINE([HAS_CLOCK_GETTIME_NSEC_NP], [1], [TODO])
       ],
       [has_monotonic_clock=false])],
   [AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
@@ -1765,7 +1769,7 @@ AS_CASE([$target],
     ]])],
     [
       has_monotonic_clock=true
-      AC_DEFINE([HAS_POSIX_MONOTONIC_CLOCK], [1])
+      AC_DEFINE([HAS_POSIX_MONOTONIC_CLOCK], [1], [TODO])
     ],
     [has_monotonic_clock=false])
   ]
@@ -2036,25 +2040,25 @@ AS_CASE([$target],
   [*-w64-mingw32*|*-pc-windows], [],
   [AC_CHECK_HEADER([sys/types.h],
     [AC_CHECK_HEADER([utime.h],
-      [AC_CHECK_FUNC([utime], [AC_DEFINE([HAS_UTIME], [1])])])])])
+      [AC_CHECK_FUNC([utime], [AC_DEFINE([HAS_UTIME], [1], [TODO])])])])])
 
 AC_CHECK_FUNC([fchmod],
-  [AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD], [1])])])
+  [AC_CHECK_FUNC([fchown], [AC_DEFINE([HAS_FCHMOD], [1], [TODO])])])
 
 AC_CHECK_FUNC([truncate],
-  [AC_CHECK_FUNC([ftruncate], [AC_DEFINE([HAS_TRUNCATE], [1])])])
+  [AC_CHECK_FUNC([ftruncate], [AC_DEFINE([HAS_TRUNCATE], [1], [TODO])])])
 
 ## select
 AC_CHECK_FUNC([select],
   [AC_CHECK_TYPE([fd_set],
-    [AC_DEFINE([HAS_SELECT], [1])], [], [
+    [AC_DEFINE([HAS_SELECT], [1], [TODO])], [], [
 #include <sys/types.h>
 #include <sys/select.h>
   ])])
 
 AC_CHECK_FUNC([symlink],
   [AC_CHECK_FUNC([readlink],
-    [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK], [1])])])])
+    [AC_CHECK_FUNC([lstat], [AC_DEFINE([HAS_SYMLINK], [1], [TODO])])])])
 
 ## termios
 
@@ -2063,7 +2067,7 @@ AC_CHECK_HEADER([termios.h],
     [AC_CHECK_FUNC([tcsetattr],
       [AC_CHECK_FUNC([tcsendbreak],
         [AC_CHECK_FUNC([tcflush],
-          [AC_CHECK_FUNC([tcflow], [AC_DEFINE([HAS_TERMIOS], [1])])])])])])])
+          [AC_CHECK_FUNC([tcflow], [AC_DEFINE([HAS_TERMIOS], [1], [TODO])])])])])])])
 
 ## gethostname
 AC_CHECK_FUNCS([gethostname])
@@ -2082,28 +2086,28 @@ AS_CASE([$target],
 ## setenv and unsetenv
 
 AC_CHECK_FUNC([setenv],
-  [AC_CHECK_FUNC([unsetenv], [AC_DEFINE([HAS_SETENV_UNSETENV], [1])])])
+  [AC_CHECK_FUNC([unsetenv], [AC_DEFINE([HAS_SETENV_UNSETENV], [1], [TODO])])])
 
 ## newlocale() and <locale.h>
 # Note: the detection fails on msvc so we hardcode the result
 # (should be debugged later)
 AS_CASE([$target],
-  [*-pc-windows], [AC_DEFINE([HAS_LOCALE_H], [1])],
+  [*-pc-windows], [AC_DEFINE([HAS_LOCALE_H], [1], [TODO])],
   [AC_CHECK_HEADER([locale.h],
     [AC_CHECK_FUNC([newlocale],
       [AC_CHECK_FUNC([freelocale],
-        [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_LOCALE_H], [1])])])])])])
+        [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_LOCALE_H], [1], [TODO])])])])])])
 
 AC_CHECK_HEADER([xlocale.h],
   [AC_CHECK_FUNC([newlocale],
     [AC_CHECK_FUNC([freelocale],
-      [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_XLOCALE_H], [1])])])])])
+      [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_XLOCALE_H], [1], [TODO])])])])])
 
 ## strtod_l
 # Note: not detected on MSVC so hardcoding the result
 # (should be debugged later)
 AS_CASE([$target],
-  [*-pc-windows], [AC_DEFINE([HAVE_STRTOD_L], [1])],
+  [*-pc-windows], [AC_DEFINE([HAVE_STRTOD_L], [1], [TODO])],
   [AC_CHECK_FUNCS([strtod_l])])
 
 ## shared library support
@@ -2120,14 +2124,14 @@ AS_IF([$supports_shared_libraries],
 
 AS_IF([$supports_shared_libraries],
   [AC_MSG_NOTICE([Dynamic loading of shared libraries is supported.])
-  AC_DEFINE([SUPPORT_DYNAMIC_LINKING], [1])],
+  AC_DEFINE([SUPPORT_DYNAMIC_LINKING], [1], [TODO])],
   [AC_MSG_NOTICE([Dynamic loading of shared libraries is not supported.])])
 
 ## mmap
 
 AC_CHECK_HEADER([sys/mman.h],
   [AC_CHECK_FUNC([mmap],
-    [AC_CHECK_FUNC([munmap], [AC_DEFINE([HAS_MMAP], [1])])])])
+    [AC_CHECK_FUNC([munmap], [AC_DEFINE([HAS_MMAP], [1], [TODO])])])])
 
 ## -fdebug-prefix-map support by the C compiler
 AS_CASE([$ocaml_cc_vendor,$target],
@@ -2156,8 +2160,8 @@ AS_IF([$stat_has_ns_precision],
 AX_FUNC_WHICH_GETHOSTBYNAME_R
 
 AS_CASE([$ac_cv_func_which_gethostbyname_r],
-  [six], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[6])],
-  [five], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[5])],
+  [six], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[6], [TODO])],
+  [five], [AC_DEFINE([HAS_GETHOSTBYNAME_R],[5], [TODO])],
   [three], [AC_MSG_WARN([OCaml does not support this variant])])
 
 # Number of arguments of gethostbyaddr_r
@@ -2165,8 +2169,8 @@ AS_CASE([$ac_cv_func_which_gethostbyname_r],
 AX_FUNC_WHICH_GETHOSTBYADDR_R
 
 AS_CASE([$ac_cv_func_which_gethostbyaddr_r],
-  [eight], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[8])],
-  [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7])])
+  [eight], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[8], [TODO])],
+  [seven], [AC_DEFINE([HAS_GETHOSTBYADDR_R],[7], [TODO])])
 
 ## shmat
 AC_CHECK_HEADERS([sys/shm.h], [AC_CHECK_FUNCS([shmat])])
@@ -2175,7 +2179,7 @@ AC_CHECK_HEADERS([sys/shm.h], [AC_CHECK_FUNCS([shmat])])
 
 AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
-    [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN], [1])])])])
+    [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN], [1], [TODO])])])])
 
 AS_IF([$cross_compiler],
   [AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])],
@@ -2247,7 +2251,7 @@ int main(void) {
 AS_IF([test x"$zstd_status" = "xok"],
   [AC_MSG_NOTICE([compressed compilation artefacts supported])
    internal_cppflags="$internal_cppflags $zstd_flags"
-   AC_DEFINE([HAS_ZSTD], [1])],
+   AC_DEFINE([HAS_ZSTD], [1], [TODO])],
   [AS_CASE(["$with_zstd"],
      [no],
        [],
@@ -2317,7 +2321,7 @@ AC_LINK_IFELSE(
       CPU_COUNT(&cs);
       pthread_getaffinity_np(pthread_self(), sizeof(cs), &cs);]])],
   [AC_MSG_RESULT([GNU])
-  AC_DEFINE([HAS_GNU_GETAFFINITY_NP], [1])],
+  AC_DEFINE([HAS_GNU_GETAFFINITY_NP], [1], [TODO])],
   [AC_LINK_IFELSE(
     [AC_LANG_PROGRAM(
       [[#include <pthread.h>
@@ -2329,7 +2333,7 @@ AC_LINK_IFELSE(
         CPU_COUNT(&cs);
         pthread_getaffinity_np(pthread_self(), sizeof(cs), &cs);]])],
     [AC_MSG_RESULT([BSD])
-    AC_DEFINE([HAS_BSD_GETAFFINITY_NP], [1])],
+    AC_DEFINE([HAS_BSD_GETAFFINITY_NP], [1], [TODO])],
     [AC_MSG_RESULT([pthread_getaffinity_np not found])])])
 
 ## SetThreadDescription
@@ -2375,7 +2379,7 @@ AS_IF([test x"$enable_frame_pointers" = "xyes"],
         [clang-*|gcc-*],
          [common_cflags="$common_cflags -g  -fno-omit-frame-pointer"
          frame_pointers=true
-         AC_DEFINE([WITH_FRAME_POINTERS], [1])
+         AC_DEFINE([WITH_FRAME_POINTERS], [1], [TODO])
          AC_MSG_NOTICE([using frame pointers])],
          [AC_MSG_ERROR([frame pointers not supported on this platform])]
       )],
@@ -2387,7 +2391,7 @@ AS_IF([test x"$enable_frame_pointers" = "xyes"],
 ## Check for mmap support for huge pages and contiguous heap
 OCAML_MMAP_SUPPORTS_HUGE_PAGES
 
-AC_DEFINE_UNQUOTED([HEADER_RESERVED_BITS], [$reserved_header_bits])
+AC_DEFINE_UNQUOTED([HEADER_RESERVED_BITS], [$reserved_header_bits], [TODO])
 
 AS_IF([test x"$enable_installing_bytecode_programs" = "xno"],
   [install_bytecode_programs=false],
@@ -2468,7 +2472,7 @@ AS_IF([test x"$enable_cmm_invariants" = "xyes"],
 
 AS_IF([test x"$enable_flat_float_array" = "xno"],
   [flat_float_array=false],
-  [AC_DEFINE([FLAT_FLOAT_ARRAY], [1])
+  [AC_DEFINE([FLAT_FLOAT_ARRAY], [1], [TODO])
   flat_float_array=true])
 
 OCAML_MMAP_SUPPORTS_MAP_STACK
@@ -2508,7 +2512,7 @@ AS_IF([test x"$enable_function_sections" = "xno"],
             [function_sections=true;
             oc_native_compflags='-function-sections'
             internal_cflags="$internal_cflags -ffunction-sections";
-            AC_DEFINE([FUNCTION_SECTIONS], [1])],
+            AC_DEFINE([FUNCTION_SECTIONS], [1], [TODO])],
           [function_sections=false;
           AC_MSG_NOTICE([Function sections are not supported by
           $ocaml_cc_vendor.])])])],
@@ -2591,9 +2595,8 @@ AS_CASE([$target],
     [have_broken_printf=true])
 
 AS_IF([${have_broken_printf}],
-  [AC_DEFINE([HAVE_BROKEN_PRINTF], [1],
-    [m4_normalize([Define if floats are printed as "Infinity" and "Inf" instead
-    of the expected "inf".])])])
+  [AC_DEFINE([HAVE_BROKEN_PRINTF], [1], [Define if floats are printed as
+    "Infinity" and "Inf" instead of the expected "inf".])])
 
 AS_IF([$have_ipv6],
   [AC_DEFINE([HAVE_IPV6], [1], [Define if IPv6 is supported.])])

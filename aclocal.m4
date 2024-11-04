@@ -88,7 +88,7 @@ AC_DEFUN([OCAML_SIGNAL_HANDLERS_SEMANTICS], [
   AC_CHECK_FUNC([sigaction], [has_sigaction=true], [has_sigaction=false])
   AC_CHECK_FUNC([sigprocmask], [has_sigprocmask=true], [has_sigprocmask=false])
   AS_IF([$has_sigaction && $has_sigprocmask],
-    [AC_DEFINE([POSIX_SIGNALS], [1])
+    [AC_DEFINE([POSIX_SIGNALS], [1], [TODO])
       AC_MSG_NOTICE([POSIX signal handling found.])],
     [AC_MSG_NOTICE([assuming signals have the System V semantics.])
     ]
@@ -112,7 +112,7 @@ AC_DEFUN([OCAML_CC_SUPPORTS_TREE_VECTORIZE], [
     ])
   ])
   AS_IF([test "x$ocaml_cv_prog_cc_tree_vectorize" = xyes],
-    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1])])
+    [AC_DEFINE([SUPPORTS_TREE_VECTORIZE], [1], [TODO])])
 ])
 
 # Save C compiler related variables
@@ -217,7 +217,7 @@ camlPervasives__loop_1128:
   AS_CASE([$ocaml_cv_prog_as_cfi_directives],
     [yes],
       [asm_cfi_supported=true
-      AC_DEFINE([ASM_CFI_SUPPORTED], [1])],
+      AC_DEFINE([ASM_CFI_SUPPORTED], [1], [TODO])],
     [no|disabled], [asm_cfi_supported=false],
     [AC_MSG_ERROR([exiting])])
 ])
@@ -284,8 +284,8 @@ AC_DEFUN([OCAML_MMAP_SUPPORTS_HUGE_PAGES], [
       [ocaml_cv_func_mmap_huge_pages=no],
       [ocaml_cv_func_mmap_huge_pages='no assumed'])])
   AS_IF([test "x$ocaml_cv_prog_cc_func_mmap_huge_pages" = xyes],
-    [AC_DEFINE([HAS_HUGE_PAGES], [1])
-    AC_DEFINE_UNQUOTED([HUGE_PAGE_SIZE], [(4 * 1024 * 1024)])])
+    [AC_DEFINE([HAS_HUGE_PAGES], [1], [TODO])
+    AC_DEFINE_UNQUOTED([HUGE_PAGE_SIZE], [(4 * 1024 * 1024)], [TODO])])
 ])
 
 AC_DEFUN([OCAML_CHECK_LIBUNWIND], [
@@ -294,7 +294,7 @@ AC_DEFUN([OCAML_CHECK_LIBUNWIND], [
   CPPFLAGS="$CPPFLAGS $libunwind_cppflags"
   LDFLAGS="$LDFLAGS $libunwind_ldflags"
   AC_CHECK_HEADER([libunwind.h],
-    [AC_DEFINE([HAS_LIBUNWIND], [1])
+    [AC_DEFINE([HAS_LIBUNWIND], [1], [TODO])
     libunwind_available=true],
     [libunwind_available=false])
   LDFLAGS="$SAVED_LDFLAGS"

@@ -3410,13 +3410,17 @@ OCAML_VERSION_EXTRA=dev0-2024-08-25
 
 OCAML_VERSION_SHORT=5.4
 
+
 printf "%s\n" "#define MAGIC_NUMBER_PREFIX \"Caml1999\"" >>confdefs.h
 
+
 printf "%s\n" "#define MAGIC_NUMBER_VERSION \"035\"" >>confdefs.h
+
 
 printf "%s\n" "#define EXEC_MAGIC_LENGTH 12" >>confdefs.h
 
 MAGIC_LENGTH=12
+
 
 printf "%s\n" "#define EXEC_FORMAT \"X\"" >>confdefs.h
 
@@ -3601,11 +3605,11 @@ ac_config_files="$ac_config_files utils/config.common.ml"
 
 ac_config_files="$ac_config_files utils/config.generated.ml"
 
+ac_config_headers="$ac_config_headers runtime/caml/config.h"
+
+
+
 ac_config_headers="$ac_config_headers runtime/caml/exec.h"
-
-ac_config_headers="$ac_config_headers runtime/caml/m.h"
-
-ac_config_headers="$ac_config_headers runtime/caml/s.h"
 
 ac_config_headers="$ac_config_headers runtime/caml/version.h"
 
@@ -3619,17 +3623,24 @@ ac_config_files="$ac_config_files stdlib/META"
 
 
 # Definitions related to the version of OCaml
+
 printf "%s\n" "#define OCAML_VERSION_MAJOR 5" >>confdefs.h
+
 
 printf "%s\n" "#define OCAML_VERSION_MINOR 4" >>confdefs.h
 
+
 printf "%s\n" "#define OCAML_VERSION_PATCHLEVEL 0" >>confdefs.h
+
 
 printf "%s\n" "#define OCAML_VERSION_ADDITIONAL \"dev0-2024-08-25\"" >>confdefs.h
 
-  printf "%s\n" "#define OCAML_VERSION_EXTRA \"dev0-2024-08-25\"" >>confdefs.h
+
+printf "%s\n" "#define OCAML_VERSION_EXTRA \"dev0-2024-08-25\"" >>confdefs.h
+
 
 printf "%s\n" "#define OCAML_VERSION 50400" >>confdefs.h
+
 
 printf "%s\n" "#define OCAML_VERSION_STRING \"5.4.0+dev0-2024-08-25\"" >>confdefs.h
 
@@ -16297,7 +16308,8 @@ then :
 elif test "x$ac_cv_sizeof_long_p" = "x8"
 then :
   bits=64; arch64=true
-    printf "%s\n" "#define ARCH_SIXTYFOUR 1" >>confdefs.h
+
+printf "%s\n" "#define ARCH_SIXTYFOUR 1" >>confdefs.h
 
 else $as_nop
   as_fn_error $? "Neither 32 nor 64 bits architecture." "$LINENO" 5
@@ -16662,7 +16674,8 @@ then :
     if test "$ac_cv_alignof_double" -gt 4
 then :
   align_double=true
-       printf "%s\n" "#define ARCH_ALIGN_DOUBLE 1" >>confdefs.h
+
+printf "%s\n" "#define ARCH_ALIGN_DOUBLE 1" >>confdefs.h
 
 fi
      if test "x$ac_cv_sizeof_long" = "x8" &&
@@ -16678,7 +16691,8 @@ fi
 fi
       if $align_int64
 then :
-  printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
+
+printf "%s\n" "#define ARCH_ALIGN_INT64 1" >>confdefs.h
 
 fi
      ;;
@@ -16814,7 +16828,8 @@ case $target in #(
   *-apple-darwin*|*-w64-mingw32*|*-pc-windows) :
      ;; #(
   *) :
-    printf "%s\n" "#define HAS_FULL_THREAD_VARIABLES 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_FULL_THREAD_VARIABLES 1" >>confdefs.h
 
  ;;
 esac
@@ -17305,6 +17320,7 @@ case $enable_native_toplevel,$natdynlink in #(
     install_ocamlnat=false ;;
 esac
 
+
 printf "%s\n" "#define OCAML_OS_TYPE \"$ostype\"" >>confdefs.h
 
 target_os_type="$ostype"
@@ -17626,7 +17642,8 @@ esac
 if test "$with_pic"
 then :
   fpic=true
-  printf "%s\n" "#define CAML_WITH_FPIC 1" >>confdefs.h
+
+printf "%s\n" "#define CAML_WITH_FPIC 1" >>confdefs.h
 
   internal_cflags="$internal_cflags $sharedlib_cflags"
   default_aspp="$default_aspp $sharedlib_cflags"
@@ -17769,7 +17786,8 @@ fi
 
   if $has_sigaction && $has_sigprocmask
 then :
-  printf "%s\n" "#define POSIX_SIGNALS 1" >>confdefs.h
+
+printf "%s\n" "#define POSIX_SIGNALS 1" >>confdefs.h
 
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: POSIX signal handling found." >&5
 printf "%s\n" "$as_me: POSIX signal handling found." >&6;}
@@ -17803,7 +17821,8 @@ done
 
 if $has_c99_float_ops
 then :
-  printf "%s\n" "#define HAS_C99_FLOAT_OPS 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_C99_FLOAT_OPS 1" >>confdefs.h
 
   # Check whether round works (known bug in mingw-w64)
 
@@ -18022,7 +18041,8 @@ then :
   printf "%s\n" "#define HAVE_CLOCK_GETTIME_NSEC_NP 1" >>confdefs.h
 
         has_monotonic_clock=true
-        printf "%s\n" "#define HAS_CLOCK_GETTIME_NSEC_NP 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_CLOCK_GETTIME_NSEC_NP 1" >>confdefs.h
 
 
 else $as_nop
@@ -18053,7 +18073,8 @@ if ac_fn_c_try_cpp "$LINENO"
 then :
 
       has_monotonic_clock=true
-      printf "%s\n" "#define HAS_POSIX_MONOTONIC_CLOCK 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_POSIX_MONOTONIC_CLOCK 1" >>confdefs.h
 
 
 else $as_nop
@@ -18421,7 +18442,8 @@ fi
   ac_fn_c_check_header_compile "$LINENO" "libunwind.h" "ac_cv_header_libunwind_h" "$ac_includes_default"
 if test "x$ac_cv_header_libunwind_h" = xyes
 then :
-  printf "%s\n" "#define HAS_LIBUNWIND 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_LIBUNWIND 1" >>confdefs.h
 
     libunwind_available=true
 else $as_nop
@@ -18915,7 +18937,8 @@ then :
   ac_fn_c_check_func "$LINENO" "utime" "ac_cv_func_utime"
 if test "x$ac_cv_func_utime" = xyes
 then :
-  printf "%s\n" "#define HAS_UTIME 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_UTIME 1" >>confdefs.h
 
 fi
 
@@ -18931,7 +18954,8 @@ then :
   ac_fn_c_check_func "$LINENO" "fchown" "ac_cv_func_fchown"
 if test "x$ac_cv_func_fchown" = xyes
 then :
-  printf "%s\n" "#define HAS_FCHMOD 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_FCHMOD 1" >>confdefs.h
 
 fi
 
@@ -18944,7 +18968,8 @@ then :
   ac_fn_c_check_func "$LINENO" "ftruncate" "ac_cv_func_ftruncate"
 if test "x$ac_cv_func_ftruncate" = xyes
 then :
-  printf "%s\n" "#define HAS_TRUNCATE 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_TRUNCATE 1" >>confdefs.h
 
 fi
 
@@ -18962,7 +18987,8 @@ then :
 "
 if test "x$ac_cv_type_fd_set" = xyes
 then :
-  printf "%s\n" "#define HAS_SELECT 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_SELECT 1" >>confdefs.h
 
 fi
 
@@ -18978,7 +19004,8 @@ then :
   ac_fn_c_check_func "$LINENO" "lstat" "ac_cv_func_lstat"
 if test "x$ac_cv_func_lstat" = xyes
 then :
-  printf "%s\n" "#define HAS_SYMLINK 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_SYMLINK 1" >>confdefs.h
 
 fi
 
@@ -19007,7 +19034,8 @@ then :
   ac_fn_c_check_func "$LINENO" "tcflow" "ac_cv_func_tcflow"
 if test "x$ac_cv_func_tcflow" = xyes
 then :
-  printf "%s\n" "#define HAS_TERMIOS 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_TERMIOS 1" >>confdefs.h
 
 fi
 
@@ -19069,7 +19097,8 @@ then :
   ac_fn_c_check_func "$LINENO" "unsetenv" "ac_cv_func_unsetenv"
 if test "x$ac_cv_func_unsetenv" = xyes
 then :
-  printf "%s\n" "#define HAS_SETENV_UNSETENV 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_SETENV_UNSETENV 1" >>confdefs.h
 
 fi
 
@@ -19081,7 +19110,8 @@ fi
 # (should be debugged later)
 case $target in #(
   *-pc-windows) :
-    printf "%s\n" "#define HAS_LOCALE_H 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_LOCALE_H 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_header_compile "$LINENO" "locale.h" "ac_cv_header_locale_h" "$ac_includes_default"
@@ -19096,7 +19126,8 @@ then :
   ac_fn_c_check_func "$LINENO" "uselocale" "ac_cv_func_uselocale"
 if test "x$ac_cv_func_uselocale" = xyes
 then :
-  printf "%s\n" "#define HAS_LOCALE_H 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_LOCALE_H 1" >>confdefs.h
 
 fi
 
@@ -19120,7 +19151,8 @@ then :
   ac_fn_c_check_func "$LINENO" "uselocale" "ac_cv_func_uselocale"
 if test "x$ac_cv_func_uselocale" = xyes
 then :
-  printf "%s\n" "#define HAS_XLOCALE_H 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_XLOCALE_H 1" >>confdefs.h
 
 fi
 
@@ -19136,7 +19168,8 @@ fi
 # (should be debugged later)
 case $target in #(
   *-pc-windows) :
-    printf "%s\n" "#define HAVE_STRTOD_L 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_STRTOD_L 1" >>confdefs.h
  ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "strtod_l" "ac_cv_func_strtod_l"
@@ -19213,7 +19246,8 @@ if $supports_shared_libraries
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Dynamic loading of shared libraries is supported." >&5
 printf "%s\n" "$as_me: Dynamic loading of shared libraries is supported." >&6;}
-  printf "%s\n" "#define SUPPORT_DYNAMIC_LINKING 1" >>confdefs.h
+
+printf "%s\n" "#define SUPPORT_DYNAMIC_LINKING 1" >>confdefs.h
 
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Dynamic loading of shared libraries is not supported." >&5
@@ -19231,7 +19265,8 @@ then :
   ac_fn_c_check_func "$LINENO" "munmap" "ac_cv_func_munmap"
 if test "x$ac_cv_func_munmap" = xyes
 then :
-  printf "%s\n" "#define HAS_MMAP 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_MMAP 1" >>confdefs.h
 
 fi
 
@@ -19552,10 +19587,12 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 case $ac_cv_func_which_gethostbyname_r in #(
   six) :
-    printf "%s\n" "#define HAS_GETHOSTBYNAME_R 6" >>confdefs.h
+
+printf "%s\n" "#define HAS_GETHOSTBYNAME_R 6" >>confdefs.h
  ;; #(
   five) :
-    printf "%s\n" "#define HAS_GETHOSTBYNAME_R 5" >>confdefs.h
+
+printf "%s\n" "#define HAS_GETHOSTBYNAME_R 5" >>confdefs.h
  ;; #(
   three) :
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: OCaml does not support this variant" >&5
@@ -19740,10 +19777,12 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 case $ac_cv_func_which_gethostbyaddr_r in #(
   eight) :
-    printf "%s\n" "#define HAS_GETHOSTBYADDR_R 8" >>confdefs.h
+
+printf "%s\n" "#define HAS_GETHOSTBYADDR_R 8" >>confdefs.h
  ;; #(
   seven) :
-    printf "%s\n" "#define HAS_GETHOSTBYADDR_R 7" >>confdefs.h
+
+printf "%s\n" "#define HAS_GETHOSTBYADDR_R 7" >>confdefs.h
  ;; #(
   *) :
      ;;
@@ -19778,7 +19817,8 @@ then :
   ac_fn_c_check_func "$LINENO" "posix_spawnp" "ac_cv_func_posix_spawnp"
 if test "x$ac_cv_func_posix_spawnp" = xyes
 then :
-  printf "%s\n" "#define HAS_POSIX_SPAWN 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_POSIX_SPAWN 1" >>confdefs.h
 
 fi
 
@@ -20246,7 +20286,8 @@ then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: compressed compilation artefacts supported" >&5
 printf "%s\n" "$as_me: compressed compilation artefacts supported" >&6;}
    internal_cppflags="$internal_cppflags $zstd_flags"
-   printf "%s\n" "#define HAS_ZSTD 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_ZSTD 1" >>confdefs.h
 
 else $as_nop
   case "$with_zstd" in #(
@@ -21146,7 +21187,8 @@ if ac_fn_c_try_link "$LINENO"
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: GNU" >&5
 printf "%s\n" "GNU" >&6; }
-  printf "%s\n" "#define HAS_GNU_GETAFFINITY_NP 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_GNU_GETAFFINITY_NP 1" >>confdefs.h
 
 else $as_nop
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -21170,7 +21212,8 @@ if ac_fn_c_try_link "$LINENO"
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
 printf "%s\n" "BSD" >&6; }
-    printf "%s\n" "#define HAS_BSD_GETAFFINITY_NP 1" >>confdefs.h
+
+printf "%s\n" "#define HAS_BSD_GETAFFINITY_NP 1" >>confdefs.h
 
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: pthread_getaffinity_np not found" >&5
@@ -21404,7 +21447,8 @@ printf "%s\n" "$ocaml_cv_prog_as_cfi_directives" >&6; }
   case $ocaml_cv_prog_as_cfi_directives in #(
   yes) :
     asm_cfi_supported=true
-      printf "%s\n" "#define ASM_CFI_SUPPORTED 1" >>confdefs.h
+
+printf "%s\n" "#define ASM_CFI_SUPPORTED 1" >>confdefs.h
  ;; #(
   no|disabled) :
     asm_cfi_supported=false ;; #(
@@ -21425,7 +21469,8 @@ then :
   clang-*|gcc-*) :
     common_cflags="$common_cflags -g  -fno-omit-frame-pointer"
          frame_pointers=true
-         printf "%s\n" "#define WITH_FRAME_POINTERS 1" >>confdefs.h
+
+printf "%s\n" "#define WITH_FRAME_POINTERS 1" >>confdefs.h
 
          { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using frame pointers" >&5
 printf "%s\n" "$as_me: using frame pointers" >&6;} ;; #(
@@ -21515,11 +21560,14 @@ fi
 printf "%s\n" "$ocaml_cv_func_mmap_huge_pages" >&6; }
   if test "x$ocaml_cv_prog_cc_func_mmap_huge_pages" = xyes
 then :
-  printf "%s\n" "#define HAS_HUGE_PAGES 1" >>confdefs.h
 
-    printf "%s\n" "#define HUGE_PAGE_SIZE (4 * 1024 * 1024)" >>confdefs.h
+printf "%s\n" "#define HAS_HUGE_PAGES 1" >>confdefs.h
+
+
+printf "%s\n" "#define HUGE_PAGE_SIZE (4 * 1024 * 1024)" >>confdefs.h
 
 fi
+
 
 
 printf "%s\n" "#define HEADER_RESERVED_BITS $reserved_header_bits" >>confdefs.h
@@ -21708,7 +21756,8 @@ if test x"$enable_flat_float_array" = "xno"
 then :
   flat_float_array=false
 else $as_nop
-  printf "%s\n" "#define FLAT_FLOAT_ARRAY 1" >>confdefs.h
+
+printf "%s\n" "#define FLAT_FLOAT_ARRAY 1" >>confdefs.h
 
   flat_float_array=true
 fi
@@ -21822,7 +21871,8 @@ printf "%s\n" "$as_me: Function sections are not supported
     function_sections=true;
             oc_native_compflags='-function-sections'
             internal_cflags="$internal_cflags -ffunction-sections";
-            printf "%s\n" "#define FUNCTION_SECTIONS 1" >>confdefs.h
+
+printf "%s\n" "#define FUNCTION_SECTIONS 1" >>confdefs.h
  ;; #(
   *) :
     function_sections=false;
@@ -23110,9 +23160,8 @@ do
     "otherlibs/dynlink/dynlink_config.ml") CONFIG_FILES="$CONFIG_FILES otherlibs/dynlink/dynlink_config.ml" ;;
     "utils/config.common.ml") CONFIG_FILES="$CONFIG_FILES utils/config.common.ml" ;;
     "utils/config.generated.ml") CONFIG_FILES="$CONFIG_FILES utils/config.generated.ml" ;;
+    "runtime/caml/config.h") CONFIG_HEADERS="$CONFIG_HEADERS runtime/caml/config.h" ;;
     "runtime/caml/exec.h") CONFIG_HEADERS="$CONFIG_HEADERS runtime/caml/exec.h" ;;
-    "runtime/caml/m.h") CONFIG_HEADERS="$CONFIG_HEADERS runtime/caml/m.h" ;;
-    "runtime/caml/s.h") CONFIG_HEADERS="$CONFIG_HEADERS runtime/caml/s.h" ;;
     "runtime/caml/version.h") CONFIG_HEADERS="$CONFIG_HEADERS runtime/caml/version.h" ;;
     "compilerlibs/META") CONFIG_FILES="$CONFIG_FILES compilerlibs/META" ;;
     "otherlibs/dynlink/META") CONFIG_FILES="$CONFIG_FILES otherlibs/dynlink/META" ;;

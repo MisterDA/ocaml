@@ -1,0 +1,543 @@
+/* runtime/caml/config.h.in.  Generated from configure.ac by autoheader.  */
+
+#ifndef CAML_CONFIG_H
+#define CAML_CONFIG_H
+
+/* The normal alignment of 'double', in bytes. */
+#undef ALIGNOF_DOUBLE
+
+/* The normal alignment of 'long', in bytes. */
+#undef ALIGNOF_LONG
+
+/* The normal alignment of 'long long', in bytes. */
+#undef ALIGNOF_LONG_LONG
+
+/* TODO */
+#undef ARCH_ALIGN_DOUBLE
+
+/* TODO */
+#undef ARCH_ALIGN_INT64
+
+/* TODO */
+#undef ARCH_SIXTYFOUR
+
+/* TODO */
+#undef ASM_CFI_SUPPORTED
+
+/* TODO */
+#undef CAML_WITH_FPIC
+
+/* TODO */
+#undef EXEC_FORMAT
+
+/* TODO */
+#undef EXEC_MAGIC_LENGTH
+
+/* TODO */
+#undef FLAT_FLOAT_ARRAY
+
+/* TODO */
+#undef FUNCTION_SECTIONS
+
+/* TODO */
+#undef HAS_BSD_GETAFFINITY_NP
+
+/* TODO */
+#undef HAS_C99_FLOAT_OPS
+
+/* TODO */
+#undef HAS_CLOCK_GETTIME_NSEC_NP
+
+/* TODO */
+#undef HAS_FCHMOD
+
+/* TODO */
+#undef HAS_FULL_THREAD_VARIABLES
+
+/* TODO */
+#undef HAS_GETHOSTBYADDR_R
+
+/* TODO */
+#undef HAS_GETHOSTBYNAME_R
+
+/* TODO */
+#undef HAS_GNU_GETAFFINITY_NP
+
+/* TODO */
+#undef HAS_HUGE_PAGES
+
+/* TODO */
+#undef HAS_LIBUNWIND
+
+/* TODO */
+#undef HAS_LOCALE_H
+
+/* TODO */
+#undef HAS_MMAP
+
+/* TODO */
+#undef HAS_POSIX_MONOTONIC_CLOCK
+
+/* TODO */
+#undef HAS_POSIX_SPAWN
+
+/* TODO */
+#undef HAS_SELECT
+
+/* TODO */
+#undef HAS_SETENV_UNSETENV
+
+/* TODO */
+#undef HAS_SYMLINK
+
+/* TODO */
+#undef HAS_TERMIOS
+
+/* TODO */
+#undef HAS_TRUNCATE
+
+/* TODO */
+#undef HAS_UTIME
+
+/* TODO */
+#undef HAS_XLOCALE_H
+
+/* TODO */
+#undef HAS_ZSTD
+
+/* Define to 1 if you have the 'accept' function. */
+#undef HAVE_ACCEPT
+
+/* Define to 1 if you have the 'accept4' function. */
+#undef HAVE_ACCEPT4
+
+/* Define to 1 if you have the 'acosh' function. */
+#undef HAVE_ACOSH
+
+/* Define to 1 if you have the <afunix.h> header file. */
+#undef HAVE_AFUNIX_H
+
+/* Define HAVE_ARCH_CODE32 if, on a 64-bit machine, code pointers fit in 32
+   bits, i.e. the code segment resides in the low 4G of the addressing space.
+   HAVE_ARCH_CODE32 is ignored on 32-bit machines. */
+#undef HAVE_ARCH_CODE32
+
+/* Define to 1 if you have the 'asinh' function. */
+#undef HAVE_ASINH
+
+/* Define to 1 if you have the 'atanh' function. */
+#undef HAVE_ATANH
+
+/* Define to 1 if you have the 'bind' function. */
+#undef HAVE_BIND
+
+/* Define if floats are printed as "Infinity" and "Inf" instead of the
+   expected "inf". */
+#undef HAVE_BROKEN_PRINTF
+
+/* Define to 1 if you have the 'cbrt' function. */
+#undef HAVE_CBRT
+
+/* Define to 1 if you have the 'clock_gettime_nsec_np' function. */
+#undef HAVE_CLOCK_GETTIME_NSEC_NP
+
+/* Define to 1 if you have the 'connect' function. */
+#undef HAVE_CONNECT
+
+/* Define to 1 if you have the 'copysign' function. */
+#undef HAVE_COPYSIGN
+
+/* Define to 1 if you have the declaration of 'SetThreadDescription', and to 0
+   if you don't. */
+#undef HAVE_DECL_SETTHREADDESCRIPTION
+
+/* Define to 1 if you have the <dirent.h> header file. */
+#undef HAVE_DIRENT_H
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the 'dup3' function. */
+#undef HAVE_DUP3
+
+/* Define to 1 if you have the 'erf' function. */
+#undef HAVE_ERF
+
+/* Define to 1 if you have the 'erfc' function. */
+#undef HAVE_ERFC
+
+/* Define to 1 if you have the 'execvpe' function. */
+#undef HAVE_EXECVPE
+
+/* Define to 1 if you have the 'exp2' function. */
+#undef HAVE_EXP2
+
+/* Define to 1 if you have the 'expm1' function. */
+#undef HAVE_EXPM1
+
+/* Define to 1 if you have the 'fma' function. */
+#undef HAVE_FMA
+
+/* Define to 1 if you have the seven-argument form of gethostbyaddr_r(). */
+#undef HAVE_FUNC_GETHOSTBYADDR_R_7
+
+/* Define to 1 if you have the eight-argument form of gethostbyaddr_r(). */
+#undef HAVE_FUNC_GETHOSTBYADDR_R_8
+
+/* Define to 1 if you have the three-argument form of gethostbyname_r(). */
+#undef HAVE_FUNC_GETHOSTBYNAME_R_3
+
+/* Define to 1 if you have the five-argument form of gethostbyname_r(). */
+#undef HAVE_FUNC_GETHOSTBYNAME_R_5
+
+/* Define to 1 if you have the six-argument form of gethostbyname_r(). */
+#undef HAVE_FUNC_GETHOSTBYNAME_R_6
+
+/* Define to 1 if you have the 'getaddrinfo' function. */
+#undef HAVE_GETADDRINFO
+
+/* Define to 1 if you have the 'getauxval' function. */
+#undef HAVE_GETAUXVAL
+
+/* Define to 1 if you have the 'getcwd' function. */
+#undef HAVE_GETCWD
+
+/* Define to 1 if you have the 'getentropy' function. */
+#undef HAVE_GETENTROPY
+
+/* Define to 1 if you have the 'getgroups' function. */
+#undef HAVE_GETGROUPS
+
+/* Define to 1 if you have some form of gethostbyaddr_r(). */
+#undef HAVE_GETHOSTBYADDR_R
+
+/* Define to 1 if you have some form of gethostbyname_r(). */
+#undef HAVE_GETHOSTBYNAME_R
+
+/* Define to 1 if you have the 'gethostname' function. */
+#undef HAVE_GETHOSTNAME
+
+/* Define to 1 if you have the 'getnameinfo' function. */
+#undef HAVE_GETNAMEINFO
+
+/* Define to 1 if you have the 'getrusage' function. */
+#undef HAVE_GETRUSAGE
+
+/* Define to 1 if you have the 'gettimeofday' function. */
+#undef HAVE_GETTIMEOFDAY
+
+/* Define to 1 if you have the 'hypot' function. */
+#undef HAVE_HYPOT
+
+/* Define to 1 if you have the 'inet_aton' function. */
+#undef HAVE_INET_ATON
+
+/* Define to 1 if you have the 'inet_ntop' function. */
+#undef HAVE_INET_NTOP
+
+/* Define to 1 if you have the 'inet_pton' function. */
+#undef HAVE_INET_PTON
+
+/* Define to 1 if you have the 'initgroups' function. */
+#undef HAVE_INITGROUPS
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define if IPv6 is supported. */
+#undef HAVE_IPV6
+
+/* Define to 1 if you have the 'issetugid' function. */
+#undef HAVE_ISSETUGID
+
+/* Define if the C compiler supports the labels as values extension. */
+#undef HAVE_LABELS_AS_VALUES
+
+/* Define to 1 if you have the <linux/futex.h> header file. */
+#undef HAVE_LINUX_FUTEX_H
+
+/* Define to 1 if you have the 'listen' function. */
+#undef HAVE_LISTEN
+
+/* Define to 1 if you have the 'lockf' function. */
+#undef HAVE_LOCKF
+
+/* Define to 1 if you have the 'log1p' function. */
+#undef HAVE_LOG1P
+
+/* Define to 1 if you have the 'log2' function. */
+#undef HAVE_LOG2
+
+/* Define to 1 if the system has the type 'max_align_t'. */
+#undef HAVE_MAX_ALIGN_T
+
+/* Define to 1 if you have the 'mkfifo' function. */
+#undef HAVE_MKFIFO
+
+/* Define to 1 if you have the 'mkstemp' function. */
+#undef HAVE_MKSTEMP
+
+/* Define to 1 if you have the 'mktime' function. */
+#undef HAVE_MKTIME
+
+/* Define to 1 if you have the 'nanosleep' function. */
+#undef HAVE_NANOSLEEP
+
+/* Define if you have nice(). */
+#undef HAVE_NICE
+
+/* Define to 1 if you have the 'pipe2' function. */
+#undef HAVE_PIPE2
+
+/* Define to 1 if you have the 'prctl' function. */
+#undef HAVE_PRCTL
+
+/* Define to 1 if you have the <pthread_np.h> header file. */
+#undef HAVE_PTHREAD_NP_H
+
+/* Have PTHREAD_PRIO_INHERIT. */
+#undef HAVE_PTHREAD_PRIO_INHERIT
+
+/* Define to 1 if you have the 'pthread_setname_np' function. */
+#undef HAVE_PTHREAD_SETNAME_NP
+
+/* Define to 1 if you have the 'pthread_set_name_np' function. */
+#undef HAVE_PTHREAD_SET_NAME_NP
+
+/* Define to 1 if you have the 'putenv' function. */
+#undef HAVE_PUTENV
+
+/* Define to 1 if you have the 'pwrite' function. */
+#undef HAVE_PWRITE
+
+/* Define to 1 if you have the 'realpath' function. */
+#undef HAVE_REALPATH
+
+/* Define to 1 if you have the 'rewinddir' function. */
+#undef HAVE_REWINDDIR
+
+/* Define to 1 if you have the 'round' function. */
+#undef HAVE_ROUND
+
+/* Define to 1 if you have the 'secure_getenv' function. */
+#undef HAVE_SECURE_GETENV
+
+/* Define to 1 if you have the 'setgroups' function. */
+#undef HAVE_SETGROUPS
+
+/* Define to 1 if you have the 'setitimer' function. */
+#undef HAVE_SETITIMER
+
+/* Define to 1 if you have the 'setsid' function. */
+#undef HAVE_SETSID
+
+/* Define to 1 if you have the 'SetThreadDescription' function. */
+#undef HAVE_SETTHREADDESCRIPTION
+
+/* Define to 1 if you have the 'shmat' function. */
+#undef HAVE_SHMAT
+
+/* Define to 1 if you have the 'socket' function. */
+#undef HAVE_SOCKET
+
+/* Define to 1 if you have the 'socketpair' function. */
+#undef HAVE_SOCKETPAIR
+
+/* Define if you have BSD sockets. */
+#undef HAVE_SOCKETS
+
+/* Define to 1 if the system has the type 'socklen_t'. */
+#undef HAVE_SOCKLEN_T
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the 'strtod_l' function. */
+#undef HAVE_STRTOD_L
+
+/* Define to 1 if 'st_atimensec' is a member of 'struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_ATIMENSEC
+
+/* Define to 1 if 'st_atimespec.tv_nsec' is a member of 'struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC
+
+/* Define to 1 if 'st_atim.tv_nsec' is a member of 'struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC
+
+/* Define to 1 if you have the 'system' function. */
+#undef HAVE_SYSTEM
+
+/* Define to 1 if you have the <sys/mman.h> header file. */
+#undef HAVE_SYS_MMAN_H
+
+/* Define to 1 if you have the <sys/select.h> header file. */
+#undef HAVE_SYS_SELECT_H
+
+/* Define to 1 if you have the <sys/shm.h> header file. */
+#undef HAVE_SYS_SHM_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the 'times' function. */
+#undef HAVE_TIMES
+
+/* Define to 1 if you have the 'trunc' function. */
+#undef HAVE_TRUNC
+
+/* Define to 1 if you have the 'uname' function. */
+#undef HAVE_UNAME
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the 'utimes' function. */
+#undef HAVE_UTIMES
+
+/* Define to 1 if you have the 'wait4' function. */
+#undef HAVE_WAIT4
+
+/* Define to 1 if you have the 'waitpid' function. */
+#undef HAVE_WAITPID
+
+/* Define to 1 if 'fma' works. The newlib library (intentionally) simply
+   contains return x * y + z. This workaround is also used for
+   https://sourceforge.net/p/mingw-w64/bugs/848/ */
+#undef HAVE_WORKING_FMA
+
+/* Define to 1 if 'round' works. This workaround exists primarily for
+   https://sourceforge.net/p/mingw-w64/bugs/573/ */
+#undef HAVE_WORKING_ROUND
+
+/* Define to 1 if you have the '__secure_getenv' function. */
+#undef HAVE___SECURE_GETENV
+
+/* TODO */
+#undef HEADER_RESERVED_BITS
+
+/* TODO */
+#undef HUGE_PAGE_SIZE
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
+
+/* TODO */
+#undef MAGIC_NUMBER_PREFIX
+
+/* TODO */
+#undef MAGIC_NUMBER_VERSION
+
+/* TODO */
+#undef OCAML_OS_TYPE
+
+/* TODO */
+#undef OCAML_VERSION
+
+/* TODO */
+#undef OCAML_VERSION_ADDITIONAL
+
+/* TODO */
+#undef OCAML_VERSION_EXTRA
+
+/* TODO */
+#undef OCAML_VERSION_MAJOR
+
+/* TODO */
+#undef OCAML_VERSION_MINOR
+
+/* TODO */
+#undef OCAML_VERSION_PATCHLEVEL
+
+/* TODO */
+#undef OCAML_VERSION_STRING
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* TODO */
+#undef POSIX_SIGNALS
+
+/* Define to necessary symbol if this constant uses a non-standard name on
+   your system. */
+#undef PTHREAD_CREATE_JOINABLE
+
+/* The size of 'int', as computed by sizeof. */
+#undef SIZEOF_INT
+
+/* The size of 'long', as computed by sizeof. */
+#undef SIZEOF_LONG
+
+/* The size of 'long long', as computed by sizeof. */
+#undef SIZEOF_LONG_LONG
+
+/* The size of 'long *', as computed by sizeof. */
+#undef SIZEOF_LONG_P
+
+/* The size of 'short', as computed by sizeof. */
+#undef SIZEOF_SHORT
+
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
+#undef STDC_HEADERS
+
+/* TODO */
+#undef SUPPORTS_TREE_VECTORIZE
+
+/* TODO */
+#undef SUPPORT_DYNAMIC_LINKING
+
+/* Define to use mmap MAP_STACK. */
+#undef USE_MMAP_MAP_STACK
+
+/* TODO */
+#undef WITH_FRAME_POINTERS
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
+
+/* Define to 'long int' if <sys/types.h> does not define. */
+#undef off_t
+
+#include "conf_post.h"
+
+#endif /* CAML_CONFIG_H */

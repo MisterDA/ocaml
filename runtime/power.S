@@ -13,7 +13,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-#include "caml/m.h"
+#include "caml/config.h"
 #include "caml/asm.h"
 
         .abiversion 2

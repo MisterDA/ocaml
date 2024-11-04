@@ -7,7 +7,6 @@
 #include <caml/finalise.h>
 #include <caml/memprof.h>
 #include <caml/version.h>
-#include <caml/s.h>
 #include <caml/hooks.h>
 #include <caml/skiplist.h>
 #include <caml/sync.h>
@@ -34,7 +33,6 @@
 #include <caml/addrmap.h>
 #include <caml/instrtrace.h>
 #include <caml/backtrace_prim.h>
-#include <caml/m.h>
 #include <caml/blake2.h>
 #include <caml/weak.h>
 #include <caml/globroots.h>

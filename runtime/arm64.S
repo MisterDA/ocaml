@@ -18,7 +18,7 @@
 /* Asm part of the runtime system, ARM processor, 64-bit mode */
 /* Must be preprocessed by cpp */
 
-#include "caml/m.h"
+#include "caml/config.h"
 #include "caml/asm.h"
 
 /* Special registers */

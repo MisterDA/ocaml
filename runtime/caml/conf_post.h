@@ -13,11 +13,6 @@
 /*                                                                        */
 /**************************************************************************/
 
-#ifndef CAML_CONFIG_H
-#define CAML_CONFIG_H
-
-#include "m.h"
-#include "s.h"
 #include "compatibility.h"
 
 /* CAML_NAME_SPACE was introduced in OCaml 3.08 to declare compatibility with
@@ -262,5 +257,3 @@ typedef uint64_t uintnat;
 #elif (!defined(NATIVE_CODE))
    #define Cache_line_bsize 64
 #endif
-
-#endif /* CAML_CONFIG_H */
