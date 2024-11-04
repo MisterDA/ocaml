@@ -141,6 +141,9 @@ Working version
   (Florian Angeletti, report by Nailen Matschke, review by Gabriel Scherer, and
   Leo White)
 
+- #13541, #?????: Fix headers for C++ inclusion.
+  (Antonin Décimo, review by ?, report by Kate Deplaix)
+
 OCaml 5.3.0
 ___________
 
