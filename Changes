@@ -165,6 +165,10 @@ Working version
 - #13606: Fix Numbers.Int_base.compare
   (Mark Shinwell, review by Vincent Laviron)
 
+- #?????: Use C99 stdint.h/inttypes.h fixed-width integer types and
+  macros to define OCaml integers.
+  (Antonin Décimo, review by ???)
+
 ### Build system:
 
 - #13431: Simplify github action responsible for flagging PRs with
