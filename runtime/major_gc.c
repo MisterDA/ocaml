@@ -383,13 +383,11 @@ static intnat ephe_mark (intnat budget, uintnat for_cycle,
     marked++;
   }
 
-  caml_gc_log
-  ("Mark Ephemeron: %s. Ephemeron cycle=%"ARCH_INTNAT_PRINTF_FORMAT"d "
-   "examined=%"ARCH_INTNAT_PRINTF_FORMAT"d "
-   "marked=%"ARCH_INTNAT_PRINTF_FORMAT"d",
-   domain_state->ephe_info->cursor.cycle == for_cycle ?
-     "Continued from cursor" : "Discarded cursor",
-   for_cycle, marked, made_live);
+  caml_gc_log("Mark Ephemeron: %s. Ephemeron cycle=%" CAML_PRIdNAT
+              " examined=%" CAML_PRIdNAT " marked=%" CAML_PRIdNAT,
+              domain_state->ephe_info->cursor.cycle == for_cycle ?
+                "Continued from cursor" : "Discarded cursor",
+              for_cycle, marked, made_live);
 
   domain_state->ephe_info->cursor.cycle = for_cycle;
   domain_state->ephe_info->cursor.todop = prev_linkp;
@@ -761,29 +759,21 @@ update_major_slice_work(intnat howmuch,
 
   extra_work = (intnat) (my_extra_count * (double) total_cycle_work);
 
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "heap_words = %" ARCH_INTNAT_PRINTF_FORMAT "u\n",
+  CAML_GC_MESSAGE(SLICESIZE, "heap_words = %" CAML_PRIuNAT "\n",
                   (uintnat)heap_words);
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "allocated_words = %" ARCH_INTNAT_PRINTF_FORMAT "u\n",
+  CAML_GC_MESSAGE(SLICESIZE, "allocated_words = %" CAML_PRIuNAT "\n",
                    my_alloc_count);
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "allocated_words_direct = %" ARCH_INTNAT_PRINTF_FORMAT "u\n",
+  CAML_GC_MESSAGE(SLICESIZE, "allocated_words_direct = %" CAML_PRIuNAT "\n",
                    my_alloc_direct_count);
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "alloc work-to-do = %" ARCH_INTNAT_PRINTF_FORMAT "d\n",
+  CAML_GC_MESSAGE(SLICESIZE, "alloc work-to-do = %" CAML_PRIdNAT "\n",
                    alloc_work);
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "dependent_words = %" ARCH_INTNAT_PRINTF_FORMAT "u\n",
+  CAML_GC_MESSAGE(SLICESIZE, "dependent_words = %" CAML_PRIuNAT "\n",
                    my_dependent_count);
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "dependent work-to-do = %" ARCH_INTNAT_PRINTF_FORMAT "d\n",
+  CAML_GC_MESSAGE(SLICESIZE, "dependent work-to-do = %" CAML_PRIdNAT "\n",
                   dependent_work);
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "extra_heap_resources = %" ARCH_INTNAT_PRINTF_FORMAT "uu\n",
+  CAML_GC_MESSAGE(SLICESIZE, "extra_heap_resources = %" CAML_PRIuNAT "u\n",
                   (uintnat) (my_extra_count * 1000000));
-  CAML_GC_MESSAGE(SLICESIZE,
-                  "extra work-to-do = %" ARCH_INTNAT_PRINTF_FORMAT "d\n",
+  CAML_GC_MESSAGE(SLICESIZE, "extra work-to-do = %" CAML_PRIdNAT "\n",
                   extra_work);
 
   new_work = max3 (alloc_work, dependent_work, extra_work);
@@ -801,15 +791,15 @@ update_major_slice_work(intnat howmuch,
   }
 
   caml_gc_log("Updated major work: [%c] "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "u heap_words, "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "u allocated, "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "d alloc_work, "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "d dependent_work, "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "d extra_work,  "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "u work counter %s,  "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "u alloc counter,  "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "u slice target,  "
-              " %"ARCH_INTNAT_PRINTF_FORMAT "d slice budget"
+              " %" CAML_PRIuNAT " heap_words, "
+              " %" CAML_PRIuNAT " allocated, "
+              " %" CAML_PRIdNAT " alloc_work, "
+              " %" CAML_PRIdNAT " dependent_work, "
+              " %" CAML_PRIdNAT " extra_work,  "
+              " %" CAML_PRIuNAT " work counter %s,  "
+              " %" CAML_PRIuNAT " alloc counter,  "
+              " %" CAML_PRIuNAT " slice target,  "
+              " %" CAML_PRIdNAT " slice budget"
               ,
               caml_gc_phase_char(may_access_gc_phase),
               (uintnat)heap_words, my_alloc_count,
@@ -861,8 +851,7 @@ static intnat get_major_slice_work(collection_slice_mode mode){
 static void commit_major_slice_work(intnat words_done) {
   caml_domain_state *dom_st = Caml_state;
 
-  caml_gc_log ("Commit major slice work: "
-               " %"ARCH_INTNAT_PRINTF_FORMAT"d words_done, ",
+  caml_gc_log ("Commit major slice work:  %" CAML_PRIdNAT " words_done, ",
                words_done);
 
   dom_st->slice_budget -= words_done;
@@ -974,7 +963,7 @@ static void mark_stack_prune(struct mark_stack* stk)
     ++old_compressed_entries;
   }
   if (old_compressed_entries > 0) {
-    caml_gc_log("Preserved %"ARCH_INTNAT_PRINTF_FORMAT "d compressed entries",
+    caml_gc_log("Preserved %" CAML_PRIdNAT " compressed entries",
                 old_compressed_entries);
   }
   caml_addrmap_clear(&stk->compressed_stack);
@@ -997,9 +986,9 @@ static void mark_stack_prune(struct mark_stack* stk)
     }
   }
 
-  caml_gc_log("Compressed %"ARCH_INTNAT_PRINTF_FORMAT "d mark stack words into "
-              "%"ARCH_INTNAT_PRINTF_FORMAT "d mark stack entries and "
-              "%"ARCH_INTNAT_PRINTF_FORMAT "d compressed entries",
+  caml_gc_log("Compressed %" CAML_PRIdNAT " mark stack words into "
+              "%" CAML_PRIdNAT " mark stack entries and "
+              "%" CAML_PRIdNAT " compressed entries",
               total_words, new_stk_count,
               compressed_entries+old_compressed_entries);
 
@@ -1032,8 +1021,8 @@ static void realloc_mark_stack (struct mark_stack* stk)
   if (mark_stack_bsize - mark_stack_large_bsize < local_heap_bsize / 32) {
     uintnat target_bsize = (mark_stack_bsize - mark_stack_large_bsize) * 2
                               + mark_stack_large_bsize;
-    caml_gc_log ("Growing mark stack to %"ARCH_INTNAT_PRINTF_FORMAT"uk bytes"
-                 "(large block %"ARCH_INTNAT_PRINTF_FORMAT"uk bytes)\n",
+    caml_gc_log ("Growing mark stack to %" CAML_PRIuNAT "k bytes"
+                 "(large block %" CAML_PRIuNAT "k bytes)\n",
                  target_bsize / 1024, mark_stack_large_bsize / 1024);
 
     new = (mark_entry*) caml_stat_resize_noexc ((char*) stk->stack,
@@ -1046,9 +1035,8 @@ static void realloc_mark_stack (struct mark_stack* stk)
     caml_gc_log ("No room for growing mark stack. Compressing..\n");
   }
 
-  caml_gc_log ("Mark stack size is %"ARCH_INTNAT_PRINTF_FORMAT"u "
-               "bytes (> major heap size of this domain %"
-               ARCH_INTNAT_PRINTF_FORMAT"u bytes / 32). Compressing..\n",
+  caml_gc_log ("Mark stack size is %" CAML_PRIuNAT " bytes (> major heap size "
+               "of this domain %" CAML_PRIuNAT " bytes / 32). Compressing...\n",
                mark_stack_bsize,
                local_heap_bsize);
   mark_stack_prune(stk);
@@ -1122,9 +1110,8 @@ void caml_shrink_mark_stack (void)
   intnat init_stack_bsize = MARK_STACK_INIT_SIZE * sizeof(mark_entry);
   mark_entry* shrunk_stack;
 
-  caml_gc_log ("Shrinking mark stack to %"
-                  ARCH_INTNAT_PRINTF_FORMAT "uk bytes\n",
-                  init_stack_bsize / 1024);
+  caml_gc_log ("Shrinking mark stack to %" CAML_PRIuNAT "k bytes\n",
+               init_stack_bsize / 1024);
 
   shrunk_stack = (mark_entry*) caml_stat_resize_noexc ((char*) stk->stack,
                                               init_stack_bsize);
@@ -1447,9 +1434,9 @@ static void cycle_major_heap_from_stw_single(
     not_garbage_words = s.heap_stats.pool_live_words
       + s.heap_stats.large_words;
     swept_words = domain->swept_words;
-    caml_gc_log ("heap_words: %"ARCH_INTNAT_PRINTF_FORMAT"d "
-                 "not_garbage_words %"ARCH_INTNAT_PRINTF_FORMAT"d "
-                 "swept_words %"ARCH_INTNAT_PRINTF_FORMAT"d",
+    caml_gc_log ("heap_words: %" CAML_PRIdNAT " "
+                 "not_garbage_words %" CAML_PRIdNAT " "
+                 "swept_words %" CAML_PRIdNAT,
                  heap_words, not_garbage_words, swept_words);
 
     static struct {

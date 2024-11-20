@@ -168,8 +168,7 @@ CAMLprim value caml_gc_set(value v)
 
   if (newpf != caml_percent_free){
     caml_percent_free = newpf;
-    CAML_GC_MESSAGE(PARAMS,
-                    "New space overhead: %" ARCH_INTNAT_PRINTF_FORMAT "u%%\n",
+    CAML_GC_MESSAGE(PARAMS, "New space overhead: %" CAML_PRIuNAT "%%\n",
                     caml_percent_free);
   }
 
@@ -179,20 +178,18 @@ CAMLprim value caml_gc_set(value v)
   if (Wosize_val (v) >= 11){
     if (new_custom_maj != caml_custom_major_ratio){
       caml_custom_major_ratio = new_custom_maj;
-      CAML_GC_MESSAGE(PARAMS, "New custom major ratio: %"
-                      ARCH_INTNAT_PRINTF_FORMAT "u%%\n",
+      CAML_GC_MESSAGE(PARAMS, "New custom major ratio: %" CAML_PRIuNAT "%%\n",
                       caml_custom_major_ratio);
     }
     if (new_custom_min != caml_custom_minor_ratio){
       caml_custom_minor_ratio = new_custom_min;
-      CAML_GC_MESSAGE(PARAMS, "New custom minor ratio: %"
-                      ARCH_INTNAT_PRINTF_FORMAT "u%%\n",
+      CAML_GC_MESSAGE(PARAMS, "New custom minor ratio: %" CAML_PRIuNAT "%%\n",
                       caml_custom_minor_ratio);
     }
     if (new_custom_sz != caml_custom_minor_max_bsz){
       caml_custom_minor_max_bsz = new_custom_sz;
-      CAML_GC_MESSAGE(PARAMS, "New custom minor size limit: %"
-                      ARCH_INTNAT_PRINTF_FORMAT "u%%\n",
+      CAML_GC_MESSAGE(PARAMS,
+                      "New custom minor size limit: %" CAML_PRIuNAT "%%\n",
                       caml_custom_minor_max_bsz);
     }
   }
@@ -200,22 +197,21 @@ CAMLprim value caml_gc_set(value v)
   /* Minor heap size comes last because it will trigger a minor collection
      (thus invalidating [v]) and it can raise [Out_of_memory]. */
   if (newminwsz != Caml_state->minor_heap_wsz) {
-    CAML_GC_MESSAGE(PARAMS, "New minor heap size: %"
-                    ARCH_INTNAT_PRINTF_FORMAT "uk words\n", newminwsz / 1024);
+    CAML_GC_MESSAGE(PARAMS, "New minor heap size: %" CAML_PRIuNAT "k words\n",
+                    newminwsz / 1024);
   }
 
   if (newminwsz > caml_minor_heap_max_wsz) {
-    caml_gc_log ("update minor heap max: %"
-                 ARCH_INTNAT_PRINTF_FORMAT "uk words", newminwsz / 1024);
+    caml_gc_log ("update minor heap max: %" CAML_PRIuNAT "k words",
+                 newminwsz / 1024);
     caml_update_minor_heap_max(newminwsz);
   }
   CAMLassert(newminwsz <= caml_minor_heap_max_wsz);
   if (newminwsz != Caml_state->minor_heap_wsz) {
-    caml_gc_log ("current minor heap size: %"
-                 ARCH_SIZET_PRINTF_FORMAT "uk words",
+    caml_gc_log ("current minor heap size: %" CAML_PRIuSZT "k words",
                  Caml_state->minor_heap_wsz / 1024);
-    caml_gc_log ("set minor heap size: %"
-                 ARCH_INTNAT_PRINTF_FORMAT "uk words", newminwsz / 1024);
+    caml_gc_log ("set minor heap size: %" CAML_PRIuNAT "k words",
+                 newminwsz / 1024);
     /* FIXME: when (newminwsz > caml_minor_heap_max_wsz) and
        (newminwsz != Caml_state->minor_heap_wsz) are both true,
        the current domain reallocates its own minor heap twice. */
@@ -332,8 +328,7 @@ void caml_init_gc (void)
   caml_max_stack_wsize = caml_params->init_max_stack_wsz;
   caml_fiber_wsz = (Stack_threshold * 2) / sizeof(value);
   caml_percent_free = norm_pfree (caml_params->init_percent_free);
-  caml_gc_log ("Initial stack limit: %"
-               ARCH_INTNAT_PRINTF_FORMAT "uk bytes",
+  caml_gc_log ("Initial stack limit: %" CAML_PRIuNAT "k bytes",
                caml_params->init_max_stack_wsz / 1024 * sizeof (value));
 
   caml_custom_major_ratio =
@@ -368,13 +363,13 @@ CAMLprim value caml_runtime_variant (value unit)
 
 CAMLprim value caml_runtime_parameters (value unit)
 {
-#define F_Z ARCH_INTNAT_PRINTF_FORMAT
-#define F_S ARCH_SIZET_PRINTF_FORMAT
+#define F_Z CAML_PRIuNAT
+#define F_S CAML_PRIuSZT
 
   CAMLassert (unit == Val_unit);
   return caml_alloc_sprintf
-      ("b=%d,c=%"F_Z"u,e=%"F_Z"u,l=%"F_Z"u,M=%"F_Z"u,m=%"F_Z"u,n=%"F_Z"u,"
-       "o=%"F_Z"u,p=%d,s=%"F_S"u,t=%"F_Z"u,v=%"F_Z"u,V=%"F_Z"u,W=%"F_Z"u",
+      ("b=%d,c=%"F_Z",e=%"F_Z",l=%"F_Z",M=%"F_Z",m=%"F_Z",n=%"F_Z","
+       "o=%"F_Z",p=%d,s=%"F_S",t=%"F_Z",v=%"F_Z",V=%"F_Z",W=%"F_Z"",
        /* b */ (int) Caml_state->backtrace_active,
        /* c */ caml_params->cleanup_on_exit,
        /* e */ caml_params->runtime_events_log_wsize,
