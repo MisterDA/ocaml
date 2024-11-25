@@ -166,59 +166,61 @@ camlPervasives__loop_1128:
 ])
 
 AC_DEFUN([OCAML_AS_HAS_CFI_DIRECTIVES], [
-  AC_MSG_CHECKING([whether the assembler supports CFI directives])
+  AC_CACHE_CHECK([whether the assembler supports CFI directives],
+    [ocaml_cv_prog_as_cfi_directives],
+    [AS_IF([test x"$enable_cfi" = "xno"],
+      [ocaml_cv_prog_as_cfi_directives='disabled'],
+      [OCAML_CC_SAVE_VARIABLES
 
-  AS_IF([test x"$enable_cfi" = "xno"],
-    [AC_MSG_RESULT([disabled])],
-    [OCAML_CC_SAVE_VARIABLES
-
-    # Modify C-compiler variables to use the assembler
-    CC="$ASPP"
-    CFLAGS="-o conftest.$ac_objext"
-    CPPFLAGS=""
-    ac_ext="S"
-    ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-
-    AC_COMPILE_IFELSE(
-      [AC_LANG_SOURCE([
-camlPervasives__loop_1128:
-        .file   1       "pervasives.ml"
-        .loc    1       193
-        .cfi_startproc
-        .cfi_adjust_cfa_offset 8
-        .cfi_endproc
-      ])],
-      [aspp_ok=true],
-      [aspp_ok=false])
-
-    AS_IF([test "$AS" = "$ASPP"],
-      [as_ok="$aspp_ok"],
-      [CC="$AS"
+      # Modify C-compiler variables to use the assembler
+      CC="$ASPP"
+      CFLAGS="-o conftest.$ac_objext"
+      CPPFLAGS=""
+      ac_ext="S"
       ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-      AC_COMPILE_IFELSE(
-        [AC_LANG_SOURCE([
+
+        AC_COMPILE_IFELSE(
+          [AC_LANG_SOURCE([
+  camlPervasives__loop_1128:
+          .file   1       "pervasives.ml"
+          .loc    1       193
+          .cfi_startproc
+          .cfi_adjust_cfa_offset 8
+          .cfi_endproc
+        ])],
+        [aspp_ok=true],
+        [aspp_ok=false])
+
+      AS_IF([test "$AS" = "$ASPP"],
+        [as_ok="$aspp_ok"],
+        [CC="$AS"
+        ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+        AC_COMPILE_IFELSE(
+          [AC_LANG_SOURCE([
 camlPervasives__loop_1128:
         .file   1       "pervasives.ml"
         .loc    1       193
         .cfi_startproc
         .cfi_adjust_cfa_offset 8
         .cfi_endproc
-        ])],
-        [as_ok=true],
-        [as_ok=false])])
+          ])],
+          [as_ok=true],
+          [as_ok=false])])
 
-    OCAML_CC_RESTORE_VARIABLES
+      OCAML_CC_RESTORE_VARIABLES
 
-    AS_IF([$aspp_ok && $as_ok],
+      AS_IF([$aspp_ok && $as_ok],
+        [ocaml_cv_prog_as_cfi_directives='yes'],
+        [AS_IF([test x"$enable_cfi" = "xyes"],
+          [ocaml_cv_prog_as_cfi_directives='requested but not available'],
+          [ocaml_cv_prog_as_cfi_directives='no'])])])])
+  AS_CASE([$ocaml_cv_prog_as_cfi_directives],
+    [yes],
       [asm_cfi_supported=true
-      AC_DEFINE([ASM_CFI_SUPPORTED], [1])
-      AC_MSG_RESULT([yes])],
-      [AS_IF([test x"$enable_cfi" = "xyes"],
-        [AC_MSG_RESULT([requested but not available
-        AC_MSG_ERROR([exiting])])],
-        [asm_cfi_supported=false
-        AC_MSG_RESULT([no])])])
-  ])])
+      AC_DEFINE([ASM_CFI_SUPPORTED], [1])],
+    [no|disabled], [asm_cfi_supported=false],
+    [AC_MSG_ERROR([exiting])])
+])
 
 AC_DEFUN([OCAML_MMAP_SUPPORTS_MAP_STACK], [
   AC_CACHE_CHECK([whether mmap supports MAP_STACK],
