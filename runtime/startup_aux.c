@@ -88,6 +88,7 @@ static void scanmult (char_os *opt, uintnat *var)
   }
 }
 
+/* To keep in sync with Compenv.validate_ocamlrunparam */
 void caml_parse_ocamlrunparam(void)
 {
   init_startup_params();

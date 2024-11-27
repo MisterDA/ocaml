@@ -43,6 +43,10 @@ let fatal err =
   prerr_endline err;
   raise (Exit_with_status 2)
 
+let fatalf fmt =
+  Printf.kfprintf (fun _oc -> prerr_newline (); raise (Exit_with_status 2))
+    stderr fmt
+
 let extract_output = function
   | Some s -> s
   | None ->
@@ -762,3 +766,59 @@ let parse_arguments ?(current=ref 0) argv f program =
         Printf.sprintf "Usage: %s <options> <files>\nOptions are:" program in
       Printf.printf "%s\n%s" help_msg err_msg;
       raise (Exit_with_status 0)
+
+let scanmult opt =
+  let val_mult v = function
+    | 'k' -> v * 1024
+    | 'M' -> v * 1024 * 1024
+    | 'G' -> v * 1024 * 1024 * 1024
+    | c -> fatalf "-set-runtime-default: could not parse multiplier %c." c
+  in
+  begin try Scanf.sscanf opt "0x%x%c%!" val_mult with _ ->
+  begin try Scanf.sscanf opt "0x%x%!" Fun.id with _ ->
+  begin try Scanf.sscanf opt "%u%c%!" val_mult with _ ->
+  begin try Scanf.sscanf opt "%u%!" Fun.id with _ ->
+  fatalf "-set-runtime-default: could not parse integer value %s." opt
+  end end end end
+
+(* To keep in sync with startup_aux.c *)
+let parse_runtime_parameter opt =
+  if opt = "" then fatal "Empty runtime parameter.";
+  let bool_opts = ["b"; "c"; "p"] in
+  let k, v =
+    if List.mem opt bool_opts then
+      opt, "1"
+    else
+      match Misc.cut_at opt '=' with
+      | k, (("0" | "1") as v) when List.mem k bool_opts -> k, v
+      | k, _ when List.mem k bool_opts ->
+         fatalf "-set-runtime-default: \
+                 option %s takes only 0 or 1 as its value." k
+      | ("d" as k), v ->
+         let max_domain_max = 4096 in
+         let max_domains = scanmult v in
+         if max_domains < 1 then
+           fatal "-set-runtime-default: max_domains(d) must be at least 1";
+         if max_domains > max_domain_max then
+           fatalf "-set-runtime-default: max_domains(d) is too large. \
+                   The maximum value is %d."
+             max_domain_max;
+         k, v
+      | (("e" | "l" | "M" | "m" | "n" | "o" | "R" | "s" | "t" | "v" | "V"
+          | "W") as k), v ->
+         ignore (scanmult v);
+         k, v
+      | k, _ -> fatalf "-set-runtime-default: \
+                        unrecognized runtime parameter %s." k
+      | exception Not_found ->
+         fatalf "-set-runtime-default: invalid runtime parameter %s. \
+                 Expected <name>[=<value>]." opt
+  in
+  Hashtbl.replace Clflags.runtime_parameters k v
+
+let prepare_caml_executable_ocamlrunparam () =
+  let str = Hashtbl.fold (fun k v acc -> k ^ "=" ^ v ^ "," ^ acc)
+              Clflags.runtime_parameters "" in
+  Clflags.global_string_constants :=
+    ("caml_executable_ocamlrunparam", str)
+    :: !Clflags.global_string_constants

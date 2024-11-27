@@ -783,6 +783,8 @@ let link objfiles output_name =
   Clflags.all_ccopts := !lib_ccopts @ !Clflags.all_ccopts;
                                                    (* put user's opts first *)
   Clflags.dllibs := !lib_dllibs @ !Clflags.dllibs; (* put user's DLLs first *)
+  if !Clflags.custom_runtime then
+    Compenv.prepare_caml_executable_ocamlrunparam ();
   if not !Clflags.custom_runtime then begin
     assert (!Clflags.global_string_constants = []);
     link_bytecode tolink output_name true

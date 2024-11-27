@@ -23,6 +23,7 @@ val print_version_and_library : string -> 'a
 val print_version_string : unit -> 'a
 val print_standard_library : unit -> 'a
 val fatal : string -> 'a
+val fatalf : ('a, out_channel, unit, 'b) format4 -> 'a
 
 val first_ccopts : string list ref
 val first_ppx : string list ref
@@ -76,3 +77,9 @@ val process_deferred_actions :
 *)
 val parse_arguments : ?current:(int ref)
       -> string array ref -> Arg.anon_fun -> string -> unit
+
+(** Validate a single [OCAMLRUNPARAM] parameter specification. *)
+val parse_runtime_parameter : string -> unit
+
+(** Add [caml_executable_ocamlparam] to the list of global string constants. *)
+val prepare_caml_executable_ocamlrunparam : unit -> unit
