@@ -372,6 +372,8 @@ CAMLprim value caml_runtime_variant (value unit)
 #endif
 }
 
+extern atomic_bool caml_hashtbl_randomized; /* from startup_aux.c */
+
 CAMLprim value caml_runtime_parameters (value unit)
 {
 #define F_Z ARCH_INTNAT_PRINTF_FORMAT
@@ -380,7 +382,7 @@ CAMLprim value caml_runtime_parameters (value unit)
   CAMLassert (unit == Val_unit);
   return caml_alloc_sprintf
       ("b=%d,c=%"F_Z"u,e=%"F_Z"u,l=%"F_Z"u,M=%"F_Z"u,m=%"F_Z"u,n=%"F_Z"u,"
-       "o=%"F_Z"u,p=%d,s=%"F_S"u,t=%"F_Z"u,v=%"F_Z"u,V=%"F_Z"u,W=%"F_Z"u",
+       "o=%"F_Z"u,p=%d,R=%u,s=%"F_S"u,t=%"F_Z"u,v=%"F_Z"u,V=%"F_Z"u,W=%"F_Z"u",
        /* b */ (int) Caml_state->backtrace_active,
        /* c */ caml_params->cleanup_on_exit,
        /* e */ caml_params->runtime_events_log_wsize,
@@ -390,7 +392,7 @@ CAMLprim value caml_runtime_parameters (value unit)
        /* n */ caml_custom_minor_max_bsz,
        /* o */ caml_percent_free,
        /* p */ Caml_state->parser_trace,
-       /* R */ /* missing */
+       /* R */ caml_hashtbl_randomized,
        /* s */ Caml_state->minor_heap_wsz,
        /* t */ caml_params->trace_level,
        /* v */ caml_verb_gc,

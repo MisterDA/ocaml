@@ -46,15 +46,23 @@ let flip_ongoing_traversal h =
 
 (* To pick random seeds if requested *)
 
-let randomized_default =
-  let params =
-    try Sys.getenv "OCAMLRUNPARAM" with Not_found ->
-    try Sys.getenv "CAMLRUNPARAM" with Not_found -> "" in
-  String.contains params 'R'
+external caml_hashtbl_randomize : unit -> unit
+  = "caml_hashtbl_randomize" [@@noalloc]
+external caml_hashtbl_is_randomized : unit -> bool
+  = "caml_hashtbl_is_randomized" [@@noalloc]
 
-let randomized = Atomic.make randomized_default
+let randomized = Atomic.make (caml_hashtbl_is_randomized ())
 
-let randomize () = Atomic.set randomized true
+let randomize () =
+  Atomic.set randomized true;
+  (* There is technically a race here where Hashtbl.create () creates randomized
+     hash tables, but Sys.runtime_parameters doesn't yet return R=1. We choose
+     not to care - Hashtbl.is_randomized will always return the correct value,
+     and making Sys.runtime_parameters always be in sync would either add a C
+     call to every Hashtbl.create call or would introduce a complicated
+     dependency cycle between Sys and Hashtbl *)
+  caml_hashtbl_randomize ()
+
 let is_randomized () = Atomic.get randomized
 
 let prng_key = Domain.DLS.new_key Random.State.make_self_init

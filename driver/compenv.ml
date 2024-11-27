@@ -784,7 +784,7 @@ let scanmult opt =
 (* To keep in sync with startup_aux.c *)
 let parse_runtime_parameter opt =
   if opt = "" then fatal "Empty runtime parameter.";
-  let bool_opts = ["b"; "c"; "p"] in
+  let bool_opts = ["b"; "c"; "p"; "R"] in
   let k, v =
     if List.mem opt bool_opts then
       opt, "1"
@@ -804,7 +804,7 @@ let parse_runtime_parameter opt =
                    The maximum value is %d."
              max_domain_max;
          k, v
-      | (("e" | "l" | "M" | "m" | "n" | "o" | "R" | "s" | "t" | "v" | "V"
+      | (("e" | "l" | "M" | "m" | "n" | "o" | "s" | "t" | "v" | "V"
           | "W") as k), v ->
          ignore (scanmult v);
          k, v

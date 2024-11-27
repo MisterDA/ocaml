@@ -33,6 +33,7 @@
 #include "caml/startup_aux.h"
 #include "caml/prims.h"
 #include "caml/signals.h"
+#include "caml/platform.h"
 
 #ifdef _WIN32
 extern void caml_win32_unregister_overflow_detection (void);
@@ -42,6 +43,7 @@ extern void caml_win32_unregister_overflow_detection (void);
 
 static struct caml_params params;
 const struct caml_params* const caml_params = &params;
+atomic_bool caml_hashtbl_randomized = false;
 
 static void init_startup_params(void)
 {
@@ -105,7 +107,10 @@ static void parse_ocamlrunparam(const char_os *opt)
       case 'n': scanmult (opt, &params.init_custom_minor_max_bsz); break;
       case 'o': scanmult (opt, &params.init_percent_free); break;
       case 'p': scanmult (opt, &params.parser_trace); break;
-      case 'R': break; /*  see stdlib/hashtbl.mli */
+      case 'R':
+        scanmult (opt, &val);
+        caml_hashtbl_randomized = !!val;
+        break;
       case 's': scanmult (opt, &params.init_minor_heap_wsz); break;
       case 't': scanmult (opt, &params.trace_level); break;
       case 'v':
@@ -145,6 +150,16 @@ void caml_parse_ocamlrunparam(void)
   parse_ocamlrunparam(opt);
 }
 
+CAMLprim value caml_hashtbl_randomize(value vunit)
+{
+  caml_hashtbl_randomized =  true;
+  return Val_unit;
+}
+
+CAMLprim value caml_hashtbl_is_randomized(value vunit)
+{
+  return Val_bool(caml_hashtbl_randomized);
+}
 
 /* The number of outstanding calls to caml_startup */
 static int startup_count = 0;
