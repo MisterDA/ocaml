@@ -10561,7 +10561,7 @@ testsuite/tools/parsecmm.cmo : \
     utils/config.cmi \
     asmcomp/cmm.cmi \
     parsing/asttypes.cmi \
-    asmcomp/arch.cmo \
+    asmcomp/arch.cmi \
     testsuite/tools/parsecmm.cmi
 testsuite/tools/parsecmm.cmx : \
     testsuite/tools/parsecmmaux.cmx \

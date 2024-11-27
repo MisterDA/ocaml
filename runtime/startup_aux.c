@@ -46,7 +46,7 @@ const struct caml_params* const caml_params = &params;
 static void init_startup_params(void)
 {
 #ifndef NATIVE_CODE
-  char_os * cds_file;
+  const char_os * cds_file;
 #endif
 
   params.init_percent_free = Percent_free_def;
@@ -74,7 +74,7 @@ static void init_startup_params(void)
   params.event_trace = 0;
 }
 
-static void scanmult (char_os *opt, uintnat *var)
+static void scanmult (const char_os *opt, uintnat *var)
 {
   char_os mult = ' ';
   unsigned int val = 1;
@@ -89,14 +89,9 @@ static void scanmult (char_os *opt, uintnat *var)
 }
 
 /* To keep in sync with Compenv.validate_ocamlrunparam */
-void caml_parse_ocamlrunparam(void)
+static void parse_ocamlrunparam(const char_os *opt)
 {
-  init_startup_params();
   uintnat val;
-
-  char_os *opt = caml_secure_getenv (T("OCAMLRUNPARAM"));
-  if (opt == NULL) opt = caml_secure_getenv (T("CAMLRUNPARAM"));
-
   if (opt != NULL){
     while (*opt != '\0'){
       switch (*opt++){
@@ -135,6 +130,19 @@ void caml_parse_ocamlrunparam(void)
     caml_fatal_error("OCAMLRUNPARAM: max_domains(d) is too large. "
                      "The maximum value is %d.", Max_domains_max);
   }
+}
+
+extern const char_os *caml_executable_ocamlrunparam;
+
+void caml_parse_ocamlrunparam(void)
+{
+  init_startup_params();
+
+  parse_ocamlrunparam(caml_executable_ocamlrunparam);
+
+  const char_os *opt = caml_secure_getenv (T("OCAMLRUNPARAM"));
+  if (opt == NULL) opt = caml_secure_getenv (T("CAMLRUNPARAM"));
+  parse_ocamlrunparam(opt);
 }
 
 
