@@ -736,7 +736,7 @@ AS_CASE([$host],
   ocamlyacc_wstr_module=""])
 
 AS_CASE([$host],
-  [*-pc-cygwin|*-w64-mingw32*|*-pc-windows],
+  [*-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows],
     [exeext=".exe"],
   [exeext=''])
 
@@ -781,7 +781,7 @@ shebangscripts=false
 launch_method='exe'
 AS_IF([test "x$interpval" = "xyes"],
   [AS_CASE([$host],
-    [*-pc-cygwin],
+    [*-pc-cygwin|*-pc-msys],
       [# Cygwin supports shebangs, which we use for the compiler itself, but
       # partially for legacy, and partially so that executables can be easily
       # run from outside Cygwin, the executables ocamlc and ocamlopt produce do
@@ -957,14 +957,14 @@ AS_IF([test x"$enable_shared" = "xno"],
 # Define flexlink chain and flags correctly for the different Windows ports
 flexlink_flags=''
 AS_CASE([$host],
-  [i686-*-cygwin],
+  [i686-pc-cygwin|i686-pc-msys],
     [flexdll_chain='cygwin'
     flexlink_flags='-merge-manifest -stack 16777216'],
-  [x86_64-*-cygwin],
+  [x86_64-pc-cygwin|x86_64-pc-msys],
     [flexdll_chain='cygwin64'
     flexlink_flags='-merge-manifest -stack 16777216'],
-  [*-*-cygwin*],
-    [AC_MSG_ERROR([unknown Cygwin variant])],
+  [*-*-cygwin*|*-*-msys*],
+    [AC_MSG_ERROR([unknown Cygwin/MSYS variant])],
   [i686-w64-mingw32*],
     [flexdll_chain='mingw'
     flexlink_flags='-stack 16777216'],
@@ -986,7 +986,7 @@ AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
     AC_MSG_RESULT([disabled])],
     [flexmsg=''
     AS_CASE([$target],
-      [*-pc-cygwin|*-w64-mingw32*|*-pc-windows],
+      [*-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows],
       [dnl When bootstrapping from the git submodule (flexdll directory), just
        dnl use that, however if another directory has been specified with
        dnl --with-flexdll=<path> then copy the contents of <path> to
@@ -1047,14 +1047,14 @@ AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
 ])
 
 AS_CASE([$have_flexdll_h,$supports_shared_libraries,$host],
- [no,true,*-pc-cygwin],
+ [no,true,*-pc-cygwin|*-pc-msys],
    [supports_shared_libraries=false
    AC_MSG_WARN([flexdll.h not found: shared library support disabled.])],
  [no,*,*-w64-mingw32*|no,*,*-pc-windows],
    [AC_MSG_ERROR([flexdll.h is required for native Win32])])
 
 AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$host],
-  [,true,,*-pc-cygwin],
+  [,true,,*-pc-cygwin|*-pc-msys],
     [supports_shared_libraries=false
     AC_MSG_WARN([flexlink not found: shared library support disabled.])],
   [,*,,*-w64-mingw32*|,*,,*-pc-windows],
@@ -1068,7 +1068,7 @@ AS_CASE([$ocaml_cc_vendor,$host],
     AC_DEFINE([HAS_ARCH_CODE32], [1])],
   [*,aarch64-*-darwin*|*,arm64-*-darwin*],
     AC_DEFINE([HAS_ARCH_CODE32], [1]),
-  [*,*-pc-cygwin],
+  [*,*-pc-cygwin|*-pc-msys],
     [common_cppflags="$common_cppflags -U_WIN32"
     AS_IF([$supports_shared_libraries],
       [mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
@@ -1295,7 +1295,7 @@ AS_IF([test x"$enable_shared" != "xno"],
     [aarch64-apple-darwin*|arm64-apple-darwin*],
       [mkdll_flags='-shared -undefined dynamic_lookup -Wl,-w'
       supports_shared_libraries=true],
-    [*-pc-cygwin|*-w64-mingw32*|*-pc-windows],
+    [*-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows],
       [mkdll_flags="-chain ${flexdll_chain} ${flexlink_flags}"
       mkdll_exp="flexlink ${mkdll_flags}"
       mkdll="flexlink ${mkdll_flags}"
@@ -1362,7 +1362,7 @@ natdynlink=false
 
 AS_IF([test x"$supports_shared_libraries" = 'xtrue'],
   [AS_CASE(["$host"],
-    [*-pc-cygwin], [natdynlink=true],
+    [*-pc-cygwin|*-pc-msys], [natdynlink=true],
     [*-w64-mingw32*], [natdynlink=true],
     [*-pc-windows], [natdynlink=true],
     [[i[3456]86-*-linux*]], [natdynlink=true],
@@ -1436,7 +1436,7 @@ AS_CASE([$host],
     [arch=i386; system=openbsd],
   [[i[3456]86-*-haiku*]],
     [arch=i386; system=beos],
-  [[i[3456]86-*-cygwin]],
+  [i[3456]86-pc-cygwin|i[3456]86-pc-msys],
     [arch=i386; system=cygwin],
   [[i[3456]86-w64-mingw32*]],
     [arch=i386; system=mingw],
@@ -1517,7 +1517,7 @@ AS_CASE([$host],
     [has_native_backend=yes; arch=arm64; system=openbsd],
   [aarch64-*-netbsd*],
     [has_native_backend=yes; arch=arm64; system=netbsd],
-  [x86_64-pc-cygwin],
+  [x86_64-pc-cygwin|x86_64-pc-msys],
     [has_native_backend=yes; arch=amd64; system=cygwin],
   [riscv64-*-linux*],
     [has_native_backend=yes; arch=riscv; model=riscv64; system=linux],
@@ -2124,7 +2124,7 @@ AC_CHECK_FUNC([mktime], [AC_DEFINE([HAS_MKTIME], [1])])
 ## setsid
 
 AS_CASE([$host],
-  [*-pc-cygwin|*-w64-mingw32*|*-pc-windows], [],
+  [*-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows], [],
   [AC_CHECK_FUNC([setsid], [AC_DEFINE([HAS_SETSID], [1])])])
 
 ## putenv
@@ -2161,7 +2161,7 @@ AS_CASE([$host],
 ## shared library support
 AS_IF([$supports_shared_libraries],
   [AS_CASE([$host],
-    [*-pc-cygwin|*-w64-mingw32*|*-pc-windows],
+    [*-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows],
       [DLLIBS=""],
     [AC_CHECK_FUNC([dlopen],
       [supports_shared_libraries=true DLLIBS=""],
@@ -2595,7 +2595,7 @@ AS_IF([test x"$enable_function_sections" = "xno"],
   [AS_CASE([$arch],
     [amd64|arm64|power|riscv|s390x], # not supported on arm32, see issue #9124.
      [AS_CASE([$target],
-        [*-pc-cygwin|*-w64-mingw32*|*-pc-windows|*-apple-darwin*],
+        [*-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows|*-apple-darwin*],
           [function_sections=false;
            AC_MSG_NOTICE([No support for function sections on $target.])],
         [AS_CASE([$ocaml_cc_vendor],
@@ -2676,7 +2676,8 @@ AS_IF([test x"$prefix" = "xNONE"],
   [AS_IF([test x"$unix_or_win32" = "xwin32" \
           && test "$host_vendor-$host_os" != "$build_vendor-$build_os" ],
     [AS_CASE([$build],
-      [*-pc-cygwin], [prefix="$(LC_ALL=C.UTF-8 cygpath -m "$prefix")"])])])
+      [*-pc-cygwin|*-pc-msys],
+        [prefix="$(LC_ALL=C.UTF-8 cygpath -m "$prefix")"])])])
 
 # Define a few macros that were defined in config/m-nt.h
 # but whose value is not guessed properly by configure

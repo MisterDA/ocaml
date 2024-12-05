@@ -14579,7 +14579,7 @@ case $host in #(
 esac
 
 case $host in #(
-  *-pc-cygwin|*-w64-mingw32*|*-pc-windows) :
+  *-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows) :
     exeext=".exe" ;; #(
   *) :
     exeext='' ;;
@@ -14651,7 +14651,7 @@ launch_method='exe'
 if test "x$interpval" = "xyes"
 then :
   case $host in #(
-  *-pc-cygwin) :
+  *-pc-cygwin|*-pc-msys) :
     # Cygwin supports shebangs, which we use for the compiler itself, but
       # partially for legacy, and partially so that executables can be easily
       # run from outside Cygwin, the executables ocamlc and ocamlopt produce do
@@ -14960,14 +14960,14 @@ fi
 # Define flexlink chain and flags correctly for the different Windows ports
 flexlink_flags=''
 case $host in #(
-  i686-*-cygwin) :
+  i686-pc-cygwin|i686-pc-msys) :
     flexdll_chain='cygwin'
     flexlink_flags='-merge-manifest -stack 16777216' ;; #(
-  x86_64-*-cygwin) :
+  x86_64-pc-cygwin|x86_64-pc-msys) :
     flexdll_chain='cygwin64'
     flexlink_flags='-merge-manifest -stack 16777216' ;; #(
-  *-*-cygwin*) :
-    as_fn_error $? "unknown Cygwin variant" "$LINENO" 5 ;; #(
+  *-*-cygwin*|*-*-msys*) :
+    as_fn_error $? "unknown Cygwin/MSYS variant" "$LINENO" 5 ;; #(
   i686-w64-mingw32*) :
     flexdll_chain='mingw'
     flexlink_flags='-stack 16777216' ;; #(
@@ -14997,7 +14997,7 @@ printf "%s\n" "disabled" >&6; }
 else $as_nop
   flexmsg=''
     case $target in #(
-  *-pc-cygwin|*-w64-mingw32*|*-pc-windows) :
+  *-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows) :
                                              if test x"$with_flexdll" = 'x' || test x"$with_flexdll" = 'xflexdll'
 then :
   if test -f 'flexdll/flexdll.h'
@@ -15119,7 +15119,7 @@ then :
     # flexlink can read anything).
     mv conftest.$ac_objext conftest1.$ac_objext
     case $host in #(
-  *-pc-cygwin) :
+  *-pc-cygwin|*-pc-msys) :
     ln -s conftest1.$ac_objext conftest2.$ac_objext ;; #(
   *) :
     cp conftest1.$ac_objext conftest2.$ac_objext ;;
@@ -15304,7 +15304,7 @@ fi
 fi
 
 case $have_flexdll_h,$supports_shared_libraries,$host in #(
-  no,true,*-pc-cygwin) :
+  no,true,*-pc-cygwin|*-pc-msys) :
     supports_shared_libraries=false
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: flexdll.h not found: shared library support disabled." >&5
 printf "%s\n" "$as_me: WARNING: flexdll.h not found: shared library support disabled." >&2;} ;; #(
@@ -15315,7 +15315,7 @@ printf "%s\n" "$as_me: WARNING: flexdll.h not found: shared library support disa
 esac
 
 case $flexdll_source_dir,$supports_shared_libraries,$flexlink,$host in #(
-  ,true,,*-pc-cygwin) :
+  ,true,,*-pc-cygwin|*-pc-msys) :
     supports_shared_libraries=false
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: flexlink not found: shared library support disabled." >&5
 printf "%s\n" "$as_me: WARNING: flexlink not found: shared library support disabled." >&2;} ;; #(
@@ -15335,7 +15335,7 @@ case $ocaml_cc_vendor,$host in #(
   *,aarch64-*-darwin*|*,arm64-*-darwin*) :
     printf "%s\n" "#define HAS_ARCH_CODE32 1" >>confdefs.h
  ;; #(
-  *,*-pc-cygwin) :
+  *,*-pc-cygwin|*-pc-msys) :
     common_cppflags="$common_cppflags -U_WIN32"
     if $supports_shared_libraries
 then :
@@ -16584,7 +16584,7 @@ then :
   aarch64-apple-darwin*|arm64-apple-darwin*) :
     mkdll_flags='-shared -undefined dynamic_lookup -Wl,-w'
       supports_shared_libraries=true ;; #(
-  *-pc-cygwin|*-w64-mingw32*|*-pc-windows) :
+  *-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows) :
     mkdll_flags="-chain ${flexdll_chain} ${flexlink_flags}"
       mkdll_exp="flexlink ${mkdll_flags}"
       mkdll="flexlink ${mkdll_flags}"
@@ -16673,7 +16673,7 @@ natdynlink=false
 if test x"$supports_shared_libraries" = 'xtrue'
 then :
   case "$host" in #(
-  *-pc-cygwin) :
+  *-pc-cygwin|*-pc-msys) :
     natdynlink=true ;; #(
   *-w64-mingw32*) :
     natdynlink=true ;; #(
@@ -16891,7 +16891,7 @@ case $host in #(
     arch=i386; system=openbsd ;; #(
   i[3456]86-*-haiku*) :
     arch=i386; system=beos ;; #(
-  i[3456]86-*-cygwin) :
+  i345686-pc-cygwin|i345686-pc-msys) :
     arch=i386; system=cygwin ;; #(
   i[3456]86-w64-mingw32*) :
     arch=i386; system=mingw ;; #(
@@ -16975,7 +16975,7 @@ fi ;; #(
     has_native_backend=yes; arch=arm64; system=openbsd ;; #(
   aarch64-*-netbsd*) :
     has_native_backend=yes; arch=arm64; system=netbsd ;; #(
-  x86_64-pc-cygwin) :
+  x86_64-pc-cygwin|x86_64-pc-msys) :
     has_native_backend=yes; arch=amd64; system=cygwin ;; #(
   riscv64-*-linux*) :
     has_native_backend=yes; arch=riscv; model=riscv64; system=linux ;; #(
@@ -17480,7 +17480,7 @@ fi
   if test "$cross_compiling" = yes
 then :
   case $target in #(
-  x86_64-pc-cygwin|x86_64-w64-mingw32*) :
+  x86_64-pc-cygwin|x86_64-pc-msys|x86_64-w64-mingw32*) :
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: cross-compiling; assume not" >&5
 printf "%s\n" "cross-compiling; assume not" >&6; } ;; #(
   *) :
@@ -17541,7 +17541,7 @@ printf "%s\n" "no" >&6; }
     hard_error=true ;; #(
   yes,*) :
     hard_error=false ;; #(
-  *,x86_64-pc-cygwin|*,x86_64-w64-mingw32*) :
+  *,x86_64-pc-cygwin|*,x86_64-pc-msys|*,x86_64-w64-mingw32*) :
     hard_error=false ;; #(
   *) :
     hard_error=true ;;
@@ -18854,7 +18854,7 @@ fi
 ## setsid
 
 case $host in #(
-  *-pc-cygwin|*-w64-mingw32*|*-pc-windows) :
+  *-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows) :
      ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "setsid" "ac_cv_func_setsid"
@@ -18967,7 +18967,7 @@ esac
 if $supports_shared_libraries
 then :
   case $host in #(
-  *-pc-cygwin|*-w64-mingw32*|*-pc-windows) :
+  *-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows) :
     DLLIBS="" ;; #(
   *) :
     ac_fn_c_check_func "$LINENO" "dlopen" "ac_cv_func_dlopen"
@@ -21594,7 +21594,7 @@ else $as_nop
   amd64|arm64|power|riscv|s390x) :
     # not supported on arm32, see issue #9124.
      case $target in #(
-  *-pc-cygwin|*-w64-mingw32*|*-pc-windows|*-apple-darwin*) :
+  *-pc-cygwin|*-pc-msys|*-w64-mingw32*|*-pc-windows|*-apple-darwin*) :
     function_sections=false;
            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No support for function sections on $target." >&5
 printf "%s\n" "$as_me: No support for function sections on $target." >&6;} ;; #(
@@ -21717,7 +21717,7 @@ else $as_nop
           && test "$host_vendor-$host_os" != "$build_vendor-$build_os"
 then :
   case $build in #(
-  *-pc-cygwin) :
+  *-pc-cygwin|*-pc-msys) :
     prefix="$(LC_ALL=C.UTF-8 cygpath -m "$prefix")" ;; #(
   *) :
      ;;

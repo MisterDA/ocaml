@@ -307,7 +307,7 @@ AC_DEFUN([OCAML_TEST_FLEXLINK], [
     # flexlink can cope. The reverse test is unnecessary (a Cygwin-compiled
     # flexlink can read anything).
     mv conftest.$ac_objext conftest1.$ac_objext
-    AS_CASE([$4],[*-pc-cygwin],
+    AS_CASE([$4],[*-pc-cygwin|*-pc-msys],
       [ln -s conftest1.$ac_objext conftest2.$ac_objext],
       [cp conftest1.$ac_objext conftest2.$ac_objext])
 
@@ -458,7 +458,8 @@ AC_DEFUN([OCAML_C99_CHECK_FMA], [
     AS_CASE([$enable_imprecise_c99_float_ops,$target],
       [no,*], [hard_error=true],
       [yes,*], [hard_error=false],
-      [*,x86_64-pc-cygwin|*,x86_64-w64-mingw32*], [hard_error=false],
+      [*,x86_64-pc-cygwin|*,x86_64-pc-msys|*,x86_64-w64-mingw32*],
+        [hard_error=false],
       [hard_error=true])
     AS_IF([test x"$hard_error" = "xtrue"],
       [AC_MSG_ERROR(m4_normalize([
@@ -467,7 +468,7 @@ AC_DEFUN([OCAML_C99_CHECK_FMA], [
       [AC_MSG_WARN(m4_normalize([
         fma does not work; emulation enabled]))])],
     [AS_CASE([$target],
-      [x86_64-pc-cygwin|x86_64-w64-mingw32*],
+      [x86_64-pc-cygwin|x86_64-pc-msys|x86_64-w64-mingw32*],
         [AC_MSG_RESULT([cross-compiling; assume not])],
       [AC_MSG_RESULT([cross-compiling; assume yes])
       AC_DEFINE([HAS_WORKING_FMA], [1])])])
