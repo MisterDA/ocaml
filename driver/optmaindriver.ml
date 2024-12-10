@@ -83,13 +83,6 @@ let main argv ppf =
           (String.concat "|"
              (P.available_pass_names ~filter:(fun _ -> true) ~native:true))
     end;
-    if !global_string_constants <> []
-       && (!make_archive
-          || !make_package
-          || !shared
-          || !output_c_object) then
-      Compenv.fatal "-set-global-string cannot be used with -pack, -a or \
-                     -shared";
     if !make_archive then begin
       Compmisc.init_path ();
       let target = Compenv.extract_output !output_name in
