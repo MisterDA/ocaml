@@ -24,6 +24,7 @@ module Name : sig
     | CODE (** bytecode *)
     | CRCS (** crcs for modules *)
     | DATA (** global data (constant) *)
+    | ORUN (** embedded runtime parameters *)
     | DBUG (** debug info *)
     | DLLS (** dll names *)
     | DLPT (** dll paths *)

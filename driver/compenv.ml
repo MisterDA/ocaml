@@ -816,9 +816,6 @@ let parse_runtime_parameter opt =
   in
   Hashtbl.replace Clflags.runtime_parameters k v
 
-let prepare_caml_executable_ocamlrunparam () =
-  let str = Hashtbl.fold (fun k v acc -> k ^ "=" ^ v ^ "," ^ acc)
-              Clflags.runtime_parameters "" in
-  Clflags.global_string_constants :=
-    ("caml_executable_ocamlrunparam", str)
-    :: !Clflags.global_string_constants
+let caml_executable_ocamlrunparam () =
+  Hashtbl.fold (fun k v acc -> k ^ "=" ^ v ^ "," ^ acc)
+    Clflags.runtime_parameters ""

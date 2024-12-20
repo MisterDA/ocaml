@@ -23,6 +23,7 @@ module Name = struct
     | CODE (** bytecode *)
     | CRCS (** crcs for modules *)
     | DATA (** global data (constant) *)
+    | ORUN (** embedded runtime parameters  *)
     | DBUG (** debug info *)
     | DLLS (** dll names *)
     | DLPT (** dll paths *)
@@ -37,6 +38,7 @@ module Name = struct
     | "DLPT" -> DLPT
     | "DLLS" -> DLLS
     | "DATA" -> DATA
+    | "ORUN" -> ORUN
     | "PRIM" -> PRIM
     | "SYMB" -> SYMB
     | "DBUG" -> DBUG
@@ -52,6 +54,7 @@ module Name = struct
     | DLPT -> "DLPT"
     | DLLS -> "DLLS"
     | DATA -> "DATA"
+    | ORUN -> "ORUN"
     | PRIM -> "PRIM"
     | SYMB -> "SYMB"
     | DBUG -> "DBUG"

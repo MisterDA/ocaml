@@ -81,5 +81,5 @@ val parse_arguments : ?current:(int ref)
 (** Validate a single [OCAMLRUNPARAM] parameter specification. *)
 val parse_runtime_parameter : string -> unit
 
-(** Add [caml_executable_ocamlparam] to the list of global string constants. *)
-val prepare_caml_executable_ocamlrunparam : unit -> unit
+(** Build the [caml_executable_ocamlparam] global string constant. *)
+val caml_executable_ocamlrunparam : unit -> string

@@ -520,6 +520,10 @@ let link_bytecode ?final_name tolink exec_name standalone =
          ~filename:final_name ~kind:"bytecode executable"
          outchan (Symtable.initial_global_table());
        Bytesections.record toc_writer DATA;
+       (* Embedded runtime defaults *)
+       let ocamlrunparam = Compenv.caml_executable_ocamlrunparam () in
+       output_string outchan (ocamlrunparam ^ "\000");
+       Bytesections.record toc_writer ORUN;
        (* The map of global identifiers *)
        Symtable.output_global_map outchan;
        Bytesections.record toc_writer SYMB;
@@ -783,8 +787,10 @@ let link objfiles output_name =
   Clflags.all_ccopts := !lib_ccopts @ !Clflags.all_ccopts;
                                                    (* put user's opts first *)
   Clflags.dllibs := !lib_dllibs @ !Clflags.dllibs; (* put user's DLLs first *)
-  if !Clflags.custom_runtime then
-    Compenv.prepare_caml_executable_ocamlrunparam ();
+  if !Clflags.custom_runtime then begin
+    let l = Clflags.global_string_constants in
+    l := ("caml_executable_ocamlrunparam",
+          Compenv.caml_executable_ocamlrunparam ()) :: !l end;
   if not !Clflags.custom_runtime then begin
     assert (!Clflags.global_string_constants = []);
     link_bytecode tolink output_name true

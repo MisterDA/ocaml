@@ -449,6 +449,8 @@ extern void caml_install_invalid_parameter_handler(void);
 
 #endif
 
+extern const char_os *caml_executable_ocamlrunparam;
+
 /* Main entry point when loading code from a file */
 
 CAMLexport void caml_main(char_os **argv)
@@ -461,11 +463,8 @@ CAMLexport void caml_main(char_os **argv)
   char_os * shared_lib_path, * shared_libs;
   char_os * exe_name, * proc_self_exe;
 
-  /* Determine options */
-  caml_parse_ocamlrunparam();
-
-  if (!caml_startup_aux(/* pooling */ caml_params->cleanup_on_exit))
-    return;
+  /* caml_stat_* allocated data won't be reachable with the pooling
+   * mode until caml_startup_aux is called. */
 
   caml_init_codefrag();
 
@@ -528,6 +527,16 @@ CAMLexport void caml_main(char_os **argv)
   }
   /* Read the table of contents (section descriptors) */
   caml_read_section_descriptors(fd, &trail);
+
+  /* Load the embedded runtime parameters */
+  caml_executable_ocamlrunparam = read_section_to_os(fd, &trail, "ORUN");
+
+  /* Determine options */
+  caml_parse_ocamlrunparam();
+
+  if (!caml_startup_aux(/* pooling */ caml_params->cleanup_on_exit))
+    return;
+
   /* Initialize the abstract machine */
   caml_init_gc ();
 

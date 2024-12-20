@@ -224,7 +224,9 @@ let make_startup_file ~ppf_dump units_list ~crc_interfaces =
   Array.iteri
     (fun i name -> compile_phrase (Cmm_helpers.predef_exception i name))
     Runtimedef.builtin_exceptions;
-  Compenv.prepare_caml_executable_ocamlrunparam ();
+  let l = Clflags.global_string_constants in
+  l := ("caml_executable_ocamlrunparam",
+        Compenv.caml_executable_ocamlrunparam ()) :: !l;
   List.iter
     (fun (name, value) ->
       compile_phrase (Cmm_helpers.emit_global_string_constant name value))
