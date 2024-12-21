@@ -80,7 +80,7 @@ static const struct socket_option sockopt_unix_error[] = {
   { SOL_SOCKET, SO_ERROR }
 };
 
-static const struct socket_option * sockopt_table[] = {
+static const struct socket_option * const sockopt_table[] = {
   sockopt_bool,
   sockopt_int,
   sockopt_linger,
@@ -88,7 +88,7 @@ static const struct socket_option * sockopt_table[] = {
   sockopt_unix_error
 };
 
-static const char * getsockopt_fun_name[] = {
+static const char * const getsockopt_fun_name[] = {
   "getsockopt",
   "getsockopt_int",
   "getsockopt_optint",
@@ -96,7 +96,7 @@ static const char * getsockopt_fun_name[] = {
   "getsockopt_error"
 };
 
-static const char * setsockopt_fun_name[] = {
+static const char * const setsockopt_fun_name[] = {
   "setsockopt",
   "setsockopt_int",
   "setsockopt_optint",
