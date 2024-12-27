@@ -206,6 +206,33 @@ jobs:
            bash -cxe "SHOW_TIMINGS=1 tools/ci/actions/runner.sh test_prefix $dir"; \
           done
 
+  cppcheck:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'run-cppcheck')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Packages
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y bear clang cppcheck
+      - name: configure tree
+        run: |
+          CONFIG_ARG='CC=clang' MAKE_ARG=-j bash -xe tools/ci/actions/runner.sh configure
+      - name: Build with compilation database
+        # https://clang.llvm.org/docs/JSONCompilationDatabase.html
+        # https://github.com/rizsotto/Bear
+        run: |
+          MAKE_ARG=-j bash -xe tools/ci/actions/runner.sh build-compilation-database
+      - name: cppcheck
+        run: |
+          mkdir _build
+          cppcheck --project=compile_commands.json --cppcheck-build-dir=_build \
+            -j$(nproc) --clang --check-level=exhaustive --enable=all \
+            -iyacc \
+            --library=posix.cfg
+
   i386:
     runs-on: ubuntu-latest
     container:
