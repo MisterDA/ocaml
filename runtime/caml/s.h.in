@@ -320,6 +320,9 @@
 
 #undef HAVE_MAX_ALIGN_T
 
+#undef HAVE_GETGRNAM_R
+#undef HAVE_GETGRGID_R
+
 /* 3. Language extensions. */
 
 #undef HAVE_LABELS_AS_VALUES

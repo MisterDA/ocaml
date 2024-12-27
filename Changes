@@ -126,6 +126,9 @@ Working version
 - #13504, #13625: Add `Thread.set_current_thread_name`.
   (Romain Beauxis, review by Gabriel Scherer and Antonin Décimo)
 
+- #?????: Use POSIX 2008 thread-safe `getgrnam_r` and `getgrgid_r`.
+  (Antonin Décimo, review by ???)
+
 ### Tools:
 
 - #12019: ocamlc: add `align_double` and `align_int64` to `ocamlc -config`

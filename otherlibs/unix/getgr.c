@@ -18,9 +18,12 @@
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include "caml/unixsupport.h"
-#include <errno.h>
-#include <stdio.h>
+#include <unistd.h>
 #include <grp.h>
+
+#if !defined(HAVE_GETGRNAM_R) || !defined(HAVE_GETGRID_R)
+#include <errno.h>
+#endif
 
 static value alloc_group_entry(struct group *entry)
 {
@@ -43,31 +46,77 @@ static value alloc_group_entry(struct group *entry)
 
 CAMLprim value caml_unix_getgrnam(value name)
 {
-  struct group * entry;
+  value res;
+  struct group *resultp;
   if (! caml_string_is_c_safe(name)) caml_raise_not_found();
-  errno = 0;
-  entry = getgrnam(String_val(name));
-  if (entry == NULL) {
-    if (errno == EINTR) {
-      caml_uerror("getgrnam", Nothing);
-    } else {
-      caml_raise_not_found();
-    }
+
+#ifdef HAVE_GETGRNAM_R
+  long int initlen = sysconf(_SC_GETGR_R_SIZE_MAX);
+  size_t len = initlen == -1 ? /* default */ 1024 : (size_t) initlen;
+  struct group result;
+  char *buffer = caml_stat_alloc(len);
+  int e;
+  while ((e = getgrnam_r(String_val(name), &result, buffer, len, &resultp))
+         == ERANGE) {
+    len *= 2;
+    buffer = caml_stat_resize(buffer, len);
   }
-  return alloc_group_entry(entry);
+#else
+  errno = 0;
+  resultp = getgrnam(String_val(name));
+#endif
+  if (resultp == NULL) {
+#if HAVE_GETGRNAM_R
+    caml_stat_free(buffer);
+    if (e == EINTR)
+      caml_unix_error(e, "getgrnam_r", Nothing);
+#else
+    if (errno == EINTR)
+      caml_uerror("getgrnam", Nothing);
+#endif
+    caml_raise_not_found();
+  }
+  res = alloc_group_entry(resultp);
+#if HAVE_GETGRNAM_R
+  caml_stat_free(buffer);
+#endif
+  return res;
 }
 
 CAMLprim value caml_unix_getgrgid(value gid)
 {
-  struct group * entry;
-  errno = 0;
-  entry = getgrgid(Int_val(gid));
-  if (entry == NULL) {
-    if (errno == EINTR) {
-      caml_uerror("getgrgid", Nothing);
-    } else {
-      caml_raise_not_found();
-    }
+  value res;
+  struct group *resultp;
+
+#ifdef HAVE_GETGRGID_R
+  long int initlen = sysconf(_SC_GETGR_R_SIZE_MAX);
+  size_t len = initlen == -1 ? /* default */ 1024 : (size_t) initlen;
+  struct group result;
+  char *buffer = caml_stat_alloc(len);
+  int e;
+  while ((e = getgrgid_r(Int_val(gid), &result, buffer, len, &resultp))
+         == ERANGE) {
+    len *= 2;
+    buffer = caml_stat_resize(buffer, len);
   }
-  return alloc_group_entry(entry);
+#else
+  errno = 0;
+  resultp = getgrgid(Int_val(gid));
+#endif
+  if (resultp == NULL) {
+#if HAVE_GETGRGID_R
+    caml_stat_free(buffer);
+    if (e == EINTR)
+      caml_unix_error(e, "getgrnam_r", Nothing);
+#else
+    if (errno == EINTR)
+      caml_uerror("getgrnam", Nothing);
+#endif
+    caml_raise_not_found();
+  }
+  res = alloc_group_entry(resultp);
+#if HAVE_GETGRGID_R
+  caml_stat_free(buffer);
+#endif
+  return res;
 }
