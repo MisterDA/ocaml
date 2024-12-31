@@ -24,8 +24,8 @@
 #  include <processthreadsapi.h>
 #  include "caml/osdeps.h"
 
-#  if defined(HAS_SETTHREADDESCRIPTION) && \
-      !defined(HAS_DECL_SETTHREADDESCRIPTION)
+#  if defined(HAVE_SETTHREADDESCRIPTION) && \
+      !defined(HAVE_DECL_SETTHREADDESCRIPTION)
 WINBASEAPI HRESULT WINAPI
 SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
 #  endif
@@ -985,7 +985,7 @@ CAMLprim value caml_set_current_thread_name(value name)
 {
 #if defined(_WIN32)
 
-#  if defined(HAS_SETTHREADDESCRIPTION)
+#  if defined(HAVE_SETTHREADDESCRIPTION)
   wchar_t *thread_name = caml_stat_strdup_to_utf16(String_val(name));
   SetThreadDescription(GetCurrentThread(), thread_name);
   caml_stat_free(thread_name);

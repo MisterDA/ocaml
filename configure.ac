@@ -2362,16 +2362,13 @@ AC_LINK_IFELSE(
     [AC_MSG_RESULT([pthread_getaffinity_np not found])])])
 
 ## SetThreadDescription
-AC_CHECK_FUNCS(
-  [SetThreadDescription],
-  [AC_DEFINE([HAS_SETTHREADDESCRIPTION], [1])
-  AC_CHECK_DECL(
-    [SetThreadDescription],
-    [AC_DEFINE([HAS_DECL_SETTHREADDESCRIPTION], [1])],
-    [],
-    [[#define WIN32_LEAN_AND_MEAN
-      #include <windows.h>
-      #include <processthreadsapi.h>]])])
+AS_CASE([$target],
+  [*-mingw*|*-windows],
+    [AC_CHECK_FUNCS([SetThreadDescription],
+      [AC_CHECK_DECLS([SetThreadDescription], [], [],
+[[#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <processthreadsapi.h>]])])])
 
 ## Activate the systhread library
 

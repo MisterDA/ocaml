@@ -22407,6 +22407,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 
 ## SetThreadDescription
+case $target in #(
+  *-mingw*|*-windows) :
 
   for ac_func in SetThreadDescription
 do :
@@ -22414,20 +22416,24 @@ do :
 if test "x$ac_cv_func_SetThreadDescription" = xyes
 then :
   printf "%s\n" "#define HAVE_SETTHREADDESCRIPTION 1" >>confdefs.h
- printf "%s\n" "#define HAS_SETTHREADDESCRIPTION 1" >>confdefs.h
-
-  ac_fn_check_decl "$LINENO" "SetThreadDescription" "ac_cv_have_decl_SetThreadDescription" "#define WIN32_LEAN_AND_MEAN
-      #include <windows.h>
-      #include <processthreadsapi.h>
+ ac_fn_check_decl "$LINENO" "SetThreadDescription" "ac_cv_have_decl_SetThreadDescription" "#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <processthreadsapi.h>
 " "$ac_c_undeclared_builtin_options" "CFLAGS"
 if test "x$ac_cv_have_decl_SetThreadDescription" = xyes
 then :
-  printf "%s\n" "#define HAS_DECL_SETTHREADDESCRIPTION 1" >>confdefs.h
+  ac_have_decl=1
+else $as_nop
+  ac_have_decl=0
+fi
+printf "%s\n" "#define HAVE_DECL_SETTHREADDESCRIPTION $ac_have_decl" >>confdefs.h
 
 fi
-fi
 
-done
+done ;; #(
+  *) :
+     ;;
+esac
 
 ## Activate the systhread library
 
