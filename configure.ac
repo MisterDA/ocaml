@@ -2759,14 +2759,9 @@ AS_IF([test x"$prefix" = "xNONE"],
 # but whose value is not guessed properly by configure
 # (all this should be understood and fixed)
 AS_CASE([$target],
-  [*-*-mingw32*],
+  [*-*-mingw32*|*-pc-windows],
     [AC_DEFINE([HAS_BROKEN_PRINTF], [1])
-    AC_DEFINE([HAS_IPV6], [1])
-    AC_DEFINE([HAS_NICE], [1])],
-  [*-pc-windows],
-    [AC_DEFINE([HAS_BROKEN_PRINTF], [1])
-    AC_DEFINE([HAS_IPV6], [1])
-    AC_DEFINE([HAS_NICE], [1])],
+    AC_DEFINE([HAS_IPV6], [1])],
   [*-*-solaris*],
     # This is required as otherwise floats are printed
     # as "Infinity" and "Inf" instead of the expected "inf"
