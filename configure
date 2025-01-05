@@ -20353,60 +20353,71 @@ fi
 fi
 
 
-## newlocale() and <locale.h>
-# Note: the detection fails on msvc so we hardcode the result
-# (should be debugged later)
+## locale
+have_locale=false
 case $target in #(
-  *-pc-windows) :
-    printf "%s\n" "#define HAS_LOCALE_H 1" >>confdefs.h
- ;; #(
-  *) :
-    ac_fn_c_check_header_compile "$LINENO" "locale.h" "ac_cv_header_locale_h" "$ac_includes_default"
+  *-*-mingw32*|*-pc-windows) :
+           for ac_header in locale.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "locale.h" "ac_cv_header_locale_h" "$ac_includes_default"
 if test "x$ac_cv_header_locale_h" = xyes
 then :
-  ac_fn_c_check_func "$LINENO" "newlocale" "ac_cv_func_newlocale"
-if test "x$ac_cv_func_newlocale" = xyes
+  printf "%s\n" "#define HAVE_LOCALE_H 1" >>confdefs.h
+
+  for ac_func in _create_locale _free_locale setlocale _configthreadlocale
+do :
+  as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"
 then :
-  ac_fn_c_check_func "$LINENO" "freelocale" "ac_cv_func_freelocale"
-if test "x$ac_cv_func_freelocale" = xyes
+  cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+ have_locale=true
+fi
+
+done
+fi
+
+done ;; #(
+  *) :
+           for ac_header in xlocale.h locale.h
+do :
+  as_ac_Header=`printf "%s\n" "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_compile "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"
 then :
-  ac_fn_c_check_func "$LINENO" "uselocale" "ac_cv_func_uselocale"
-if test "x$ac_cv_func_uselocale" = xyes
+  cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+  for ac_func in newlocale freelocale uselocale
+do :
+  as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"
 then :
-  printf "%s\n" "#define HAS_LOCALE_H 1" >>confdefs.h
-
+  cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+ have_locale=true
 fi
 
+done
+    if $have_locale
+then :
+  break
+fi
 fi
 
-fi
-
-fi
- ;;
+done ;;
 esac
+if $have_locale
+then :
 
-ac_fn_c_check_header_compile "$LINENO" "xlocale.h" "ac_cv_header_xlocale_h" "$ac_includes_default"
-if test "x$ac_cv_header_xlocale_h" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "newlocale" "ac_cv_func_newlocale"
-if test "x$ac_cv_func_newlocale" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "freelocale" "ac_cv_func_freelocale"
-if test "x$ac_cv_func_freelocale" = xyes
-then :
-  ac_fn_c_check_func "$LINENO" "uselocale" "ac_cv_func_uselocale"
-if test "x$ac_cv_func_uselocale" = xyes
-then :
-  printf "%s\n" "#define HAS_XLOCALE_H 1" >>confdefs.h
+printf "%s\n" "#define HAVE_LOCALE 1" >>confdefs.h
 
 fi
-
-fi
-
-fi
-
-fi
-
 
 ## strtod_l
 # Note: not detected on MSVC so hardcoding the result

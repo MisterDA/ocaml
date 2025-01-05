@@ -46,11 +46,6 @@
 
 #include <stddef.h>
 #include <limits.h>
-
-#if defined(HAS_LOCALE_H) || defined(HAS_XLOCALE_H)
-#define HAS_LOCALE
-#endif
-
 #include <stdint.h>
 
 /* Disable the mingw-w64 *printf shims */

@@ -2209,20 +2209,19 @@ AC_CHECK_FUNC([putenv], [AC_DEFINE([HAS_PUTENV], [1])])
 AC_CHECK_FUNC([setenv],
   [AC_CHECK_FUNC([unsetenv], [AC_DEFINE([HAS_SETENV_UNSETENV], [1])])])
 
-## newlocale() and <locale.h>
-# Note: the detection fails on msvc so we hardcode the result
-# (should be debugged later)
+## locale
+have_locale=false
 AS_CASE([$target],
-  [*-pc-windows], [AC_DEFINE([HAS_LOCALE_H], [1])],
-  [AC_CHECK_HEADER([locale.h],
-    [AC_CHECK_FUNC([newlocale],
-      [AC_CHECK_FUNC([freelocale],
-        [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_LOCALE_H], [1])])])])])])
-
-AC_CHECK_HEADER([xlocale.h],
-  [AC_CHECK_FUNC([newlocale],
-    [AC_CHECK_FUNC([freelocale],
-      [AC_CHECK_FUNC([uselocale], [AC_DEFINE([HAS_XLOCALE_H], [1])])])])])
+  [*-*-mingw32*|*-pc-windows],
+    [AC_CHECK_HEADERS([locale.h],
+      [AC_CHECK_FUNCS([_create_locale _free_locale setlocale
+                       _configthreadlocale], [have_locale=true])])],
+  [AC_CHECK_HEADERS([xlocale.h locale.h],
+    [AC_CHECK_FUNCS([newlocale freelocale uselocale], [have_locale=true])
+    AS_IF([$have_locale], [break])])])
+AS_IF([$have_locale],
+  [AC_DEFINE([HAVE_LOCALE], [1], [Define to 1 if you have the POSIX,
+    Windows, or extended locale header and functions.])])
 
 ## strtod_l
 # Note: not detected on MSVC so hardcoding the result

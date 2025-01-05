@@ -234,15 +234,18 @@
 
 /* Define HAS_SETENV_UNSETENV if you have setenv() and unsetenv(). */
 
-#undef HAS_LOCALE_H
+#undef HAVE_LOCALE_H
 
-/* Define HAS_LOCALE_H if you have the include file <locale.h> and the
-   uselocale() function. */
+/* Define to 1 if you have the <locale.h> header file. */
 
-#undef HAS_XLOCALE_H
+#undef HAVE_XLOCALE_H
 
-/* Define HAS_XLOCALE_H if you have the include file <xlocale.h> and the
-   uselocale() function. */
+/* Define to 1 if you have the <xlocale.h> header file. */
+
+#undef HAVE_LOCALE
+
+/* Define to 1 if you have the POSIX, Windows, or extended locale header and
+   functions. */
 
 #undef HAS_STRTOD_L
 

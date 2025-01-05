@@ -17,6 +17,15 @@
 #ifndef CAML_COMPATIBILITY_H
 #define CAML_COMPATIBILITY_H
 
+#if defined(HAVE_LOCALE)
+#define HAS_LOCALE 1
+#if defined(HAVE_LOCALE_H)
+#define HAS_LOCALE_H 1
+#elif defined(HAVE_XLOCALE_H)
+#define HAVE_XLOCALE_H 1
+#endif
+#endif
+
 #define HAS_STDINT_H 1 /* Deprecated since OCaml 5.3 */
 
 /* HAS_NANOSECOND_STAT is deprecated since OCaml 5.3 */
