@@ -33,4 +33,8 @@
 #define HAS_UNISTD 1
 #endif
 
+#ifdef HAVE_GETHOSTNAME
+#define HAS_GETHOSTNAME 1
+#endif
+
 #endif  /* CAML_COMPATIBILITY_H */
