@@ -42,4 +42,8 @@
 #define HAS_UNISTD 1
 #endif
 
+#if defined(HAVE_STRTOD_L) || defined(HAVE__STRTOD_L)
+#define HAS_STRTOD_L 1
+#endif
+
 #endif  /* CAML_COMPATIBILITY_H */

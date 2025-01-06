@@ -20420,21 +20420,20 @@ printf "%s\n" "#define HAVE_LOCALE 1" >>confdefs.h
 fi
 
 ## strtod_l
-# Note: not detected on MSVC so hardcoding the result
-# (should be debugged later)
-case $target in #(
-  *-pc-windows) :
-    printf "%s\n" "#define HAS_STRTOD_L 1" >>confdefs.h
- ;; #(
-  *) :
-    ac_fn_c_check_func "$LINENO" "strtod_l" "ac_cv_func_strtod_l"
-if test "x$ac_cv_func_strtod_l" = xyes
-then :
-  printf "%s\n" "#define HAS_STRTOD_L 1" >>confdefs.h
 
+  for ac_func in strtod_l _strtod_l
+do :
+  as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"
+then :
+  cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+ break
 fi
- ;;
-esac
+
+done
 
 ## shared library support
 if $supports_shared_libraries

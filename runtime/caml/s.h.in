@@ -247,9 +247,11 @@
 /* Define to 1 if you have the POSIX, Windows, or extended locale header and
    functions. */
 
-#undef HAS_STRTOD_L
+#undef HAVE_STRTOD_L
 
 /* Define HAS_STRTOD_L if you have strtod_l */
+
+#undef HAVE__STRTOD_L
 
 #undef HAS_MMAP
 

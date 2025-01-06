@@ -2224,11 +2224,7 @@ AS_IF([$have_locale],
     Windows, or extended locale header and functions.])])
 
 ## strtod_l
-# Note: not detected on MSVC so hardcoding the result
-# (should be debugged later)
-AS_CASE([$target],
-  [*-pc-windows], [AC_DEFINE([HAS_STRTOD_L], [1])],
-  [AC_CHECK_FUNC([strtod_l], [AC_DEFINE([HAS_STRTOD_L], [1])])])
+AC_CHECK_FUNCS([strtod_l _strtod_l], [break])
 
 ## shared library support
 AS_IF([$supports_shared_libraries],
