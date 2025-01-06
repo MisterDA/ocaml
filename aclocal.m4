@@ -545,3 +545,35 @@ AC_DEFUN([OCAML_CC_SUPPORTS_LABELS_AS_VALUES], [
       [Define if the C compiler supports the labels as values extension.])
   fi
 ])
+
+# OCAML_CL_SEARCH_LIBS(FUNCTION, SEARCH-LIBS,
+#                      [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND],
+#                      [OTHER-LIBRARIES])
+# --------------------------------------------------------
+# Search for a library defining FUNC, if it's not already available.
+AC_DEFUN([OCAML_CL_SEARCH_LIBS],
+[AS_VAR_PUSHDEF([ocaml_Search], [ocaml_cv_search_$1])dnl
+AC_CACHE_CHECK([for library containing $1], [ocaml_Search],
+[ocaml_func_search_save_LIBS=$LIBS
+AC_LANG_CONFTEST([AC_LANG_CALL([], [$1])])
+for ocaml_lib in '' $2
+do
+  if test -z "$ocaml_lib"; then
+    ocaml_res="none required"
+  else
+    ocaml_res=${ocaml_lib}.lib
+    LIBS="${ocaml_lib}.lib $5 $ocaml_func_search_save_LIBS"
+  fi
+  AC_LINK_IFELSE([], [AS_VAR_SET([ocaml_Search], [$ocaml_res])])
+  AS_VAR_SET_IF([ocaml_Search], [break])
+done
+AS_VAR_SET_IF([ocaml_Search], , [AS_VAR_SET([ocaml_Search], [no])])
+rm conftest.$ac_ext
+LIBS=$ocaml_func_search_save_LIBS])
+AS_VAR_COPY([ocaml_res], [ocaml_Search])
+AS_IF([test "$ocaml_res" != no],
+  [test "$ocaml_res" = "none required" || LIBS="$ocaml_res $LIBS"
+  $3],
+      [$4])
+AS_VAR_POPDEF([ocaml_Search])dnl
+])
