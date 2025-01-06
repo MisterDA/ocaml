@@ -2039,7 +2039,7 @@ AS_CASE([$target],
     AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
   [*-pc-windows],
     [cclibs="$cclibs ws2_32.lib"
-    AC_SEARCH_LIBS([socket], [ws2_32])
+    OCAML_CL_SEARCH_LIBS([socket], [ws2_32])
     AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
   [*-*-haiku],
     [cclibs="$cclibs -lnetwork"
@@ -2188,11 +2188,7 @@ AC_CHECK_FUNC([setitimer],
   [setitimer=false])
 
 ## gethostname
-# Note: detection fails on Windows so hardcoding the result
-# (should be debugged later)
-AS_CASE([$target],
-  [*-w64-mingw32*|*-pc-windows], [AC_DEFINE([HAS_GETHOSTNAME], [1])],
-  [AC_CHECK_FUNC([gethostname], [AC_DEFINE([HAS_GETHOSTNAME], [1])])])
+AC_CHECK_FUNCS([gethostname])
 
 ## uname
 

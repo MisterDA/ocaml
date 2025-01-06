@@ -206,9 +206,9 @@
 
 /* Define HAS_SETITIMER if you have setitimer(). */
 
-#undef HAS_GETHOSTNAME
+#undef HAVE_GETHOSTNAME
 
-/* Define HAS_GETHOSTNAME if you have gethostname(). */
+/* Define HAVE_GETHOSTNAME if you have gethostname(). */
 
 #undef HAS_UNAME
 
