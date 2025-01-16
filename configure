@@ -755,7 +755,6 @@ ac_ct_AR
 DLLTOOL
 OBJDUMP
 FILECMD
-LN_S
 NM
 ac_ct_DUMPBIN
 DUMPBIN
@@ -899,7 +898,7 @@ syslib
 outputobj
 outputexe
 ocamlyacc_wstr_module
-ln
+LN_S
 unix_or_win32
 ocamlsrcdir
 systhread_support
@@ -14733,9 +14732,9 @@ case $host in #(
 printf %s "checking for a workable solution for ln -sf... " >&6; }
   if MSYS=winsymlinks:nativestrict CYGWIN=winsymlinks:nativestrict ln -sf configure conftestLink 2>/dev/null
 then :
-  ln='ln -sf'
+  LN_S='ln -sf'
 else $as_nop
-  ln='cp -pf'
+  LN_S='cp -pRf'
 
 fi
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ln" >&5
@@ -14743,7 +14742,7 @@ printf "%s\n" "$ln" >&6; }
 
     ocamlsrcdir="$(LC_ALL=C.UTF-8 cygpath -w -- "$ocamlsrcdir")" ;; #(
   *) :
-    ln='ln -sf' ;;
+    LN_S='ln -sf' ;;
 esac
 
 # Whether ar supports @FILE arguments

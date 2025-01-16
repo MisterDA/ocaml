@@ -156,7 +156,7 @@ AC_SUBST([oc_native_cppflags])
 AC_SUBST([systhread_support])
 AC_SUBST([ocamlsrcdir])
 AC_SUBST([unix_or_win32])
-AC_SUBST([ln])
+AC_SUBST([LN_S])
 AC_SUBST([ocamlyacc_wstr_module])
 AC_SUBST([outputexe])
 AC_SUBST([outputobj])
@@ -770,7 +770,7 @@ AS_CASE([$host],
   [*-*-mingw32*|*-pc-windows],
     [OCAML_CHECK_LN_ON_WINDOWS
     ocamlsrcdir="$(LC_ALL=C.UTF-8 cygpath -w -- "$ocamlsrcdir")"],
-  [ln='ln -sf'])
+  [LN_S='ln -sf'])
 
 # Whether ar supports @FILE arguments
 
