@@ -179,7 +179,13 @@ Caml_inline struct timespec caml_timespec_of_sec(double sec)
   double int_sec, frac_sec;
   frac_sec = modf(sec, &int_sec);
   return (struct timespec)
-    { .tv_sec = (time_t) int_sec, .tv_nsec = (long) (frac_sec * NSEC_PER_SEC) };
+    { .tv_sec  = (time_t) int_sec,
+#if __STDC_VERSION__ >= 202311L
+      .tv_nsec = (typeof((struct timespec){0}.tv_nsec))
+#else
+      .tv_nsec = (long)
+#endif
+        (frac_sec * NSEC_PER_SEC) };
 }
 
 Caml_inline struct timeval caml_timeval_of_sec(double sec)
@@ -188,9 +194,11 @@ Caml_inline struct timeval caml_timeval_of_sec(double sec)
   frac_sec = modf(sec, &int_sec);
   return (struct timeval)
 #ifdef _WIN32
-    { .tv_sec = (long) int_sec, .tv_usec = (long) (frac_sec * USEC_PER_SEC) };
+    { .tv_sec  = (long) int_sec,
+      .tv_usec = (long) (frac_sec * USEC_PER_SEC) };
 #else
-    { .tv_sec = int_sec, .tv_usec = frac_sec * USEC_PER_SEC };
+    { .tv_sec  = (time_t) int_sec,
+      .tv_usec = (suseconds_t) (frac_sec * USEC_PER_SEC) };
 #endif
 }
 #endif  /* CAML_INTERNALS */

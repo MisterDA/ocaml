@@ -55,9 +55,7 @@ CAMLno_tsan value wg_wait(value t)
    * 'As if synchronized via sleep' section. */
   do {
 #ifdef HAS_NANOSLEEP
-    const struct timespec ts = {
-      .tv_sec = SPIN_WAIT_NSEC / NSEC_PER_SEC,
-      .tv_nsec = SPIN_WAIT_NSEC % NSEC_PER_SEC };
+    const struct timespec ts = caml_timespec_of_nsec(SPIN_WAIT_NSEC);
     nanosleep(&ts, NULL);
 #else
     usleep(SPIN_WAIT_NSEC / NSEC_PER_USEC);
