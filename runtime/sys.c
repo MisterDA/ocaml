@@ -567,17 +567,18 @@ double caml_sys_time_include_children_unboxed(value include_children)
     #endif
   #endif
   struct tms t;
-  clock_t acc = 0;
-  times(&t);
-  acc += t.tms_utime + t.tms_stime;
+  clock_t ticks = times(&t);
+  if (ticks == (clock_t) (-1)) return -1.;
+  ticks = t.tms_utime + t.tms_stime;
   if (Bool_val(include_children)) {
-    acc += t.tms_cutime + t.tms_cstime;
+    ticks += t.tms_cutime + t.tms_cstime;
   }
-  return (double)acc / CLK_TCK;
+  return (double) ticks / CLK_TCK;
 #else
   /* clock() is standard ANSI C. We have no way of getting
      subprocess times in this branch. */
-  return (double)clock_os() / CLOCKS_PER_SEC;
+  clock_t ticks = clock_os();
+  return ticks == (clock_t) (-1) ? -1. : (double) ticks / CLOCKS_PER_SEC;
 #endif
 }
 
