@@ -133,6 +133,7 @@ CAMLextern int caml_win32_isatty(int fd);
 CAMLextern void caml_expand_command_line (int *, wchar_t ***);
 
 CAMLextern clock_t caml_win32_clock(void);
+CAMLextern uint64_t caml_win32_clock_100nsec(void);
 
 CAMLextern value caml_win32_xdg_defaults(void);
 

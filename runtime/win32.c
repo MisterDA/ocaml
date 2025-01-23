@@ -1147,6 +1147,20 @@ CAMLexport clock_t caml_win32_clock(void)
   return ticks >= LONG_MAX ? (clock_t) (-1) : (clock_t) ticks;
 }
 
+CAMLexport uint64_t caml_win32_clock_100nsec(void)
+{
+  FILETIME _creation, _exit;
+  CAML_ULONGLONG_FILETIME stime, utime;
+
+  if (!(GetProcessTimes(GetCurrentProcess(), &_creation, &_exit,
+                        &stime.ft, &utime.ft))) {
+    return UINT64_MAX;
+  }
+
+  /* total in 100-nanosecond intervals */
+  return stime.ul + utime.ul;
+}
+
 static double clock_period_nsec = 0;
 
 void caml_init_os_params(void)

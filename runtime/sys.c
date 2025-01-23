@@ -574,9 +574,13 @@ double caml_sys_time_include_children_unboxed(value include_children)
     ticks += t.tms_cutime + t.tms_cstime;
   }
   return (double) ticks / CLK_TCK;
+#elif defined(_WIN32)
+  /* We have no way of getting subprocess times in this branch. */
+  uint64_t t = caml_win32_clock_100nsec();
+  return t == UINT64_MAX ? -1. : (double) t / (NSEC_PER_SEC / 100);
 #else
-  /* clock() is standard ANSI C. We have no way of getting
-     subprocess times in this branch. */
+  /* clock() is standard ANSI C. We have no way of getting subprocess
+     times in this branch. */
   clock_t ticks = clock_os();
   return ticks == (clock_t) (-1) ? -1. : (double) ticks / CLOCKS_PER_SEC;
 #endif
