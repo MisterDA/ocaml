@@ -543,7 +543,7 @@ CAMLprim value caml_sys_system_command(value command)
 
 double caml_sys_time_include_children_unboxed(value include_children)
 {
-#ifdef HAS_GETRUSAGE
+#if defined(HAS_GETRUSAGE)
   struct rusage ru;
   double sec = 0.;
 
@@ -558,28 +558,26 @@ double caml_sys_time_include_children_unboxed(value include_children)
   }
 
   return sec;
-#else
-  #ifdef HAS_TIMES
-    #ifndef CLK_TCK
-      #ifdef HZ
-        #define CLK_TCK HZ
-      #else
-        #define CLK_TCK 60
-      #endif
+#elif defined(HAS_TIMES)
+  #ifndef CLK_TCK
+    #ifdef HZ
+      #define CLK_TCK HZ
+    #else
+      #define CLK_TCK 60
     #endif
-    struct tms t;
-    clock_t acc = 0;
-    times(&t);
-    acc += t.tms_utime + t.tms_stime;
-    if (Bool_val(include_children)) {
-      acc += t.tms_cutime + t.tms_cstime;
-    }
-    return (double)acc / CLK_TCK;
-  #else
-    /* clock() is standard ANSI C. We have no way of getting
-       subprocess times in this branch. */
-    return (double)clock_os() / CLOCKS_PER_SEC;
   #endif
+  struct tms t;
+  clock_t acc = 0;
+  times(&t);
+  acc += t.tms_utime + t.tms_stime;
+  if (Bool_val(include_children)) {
+    acc += t.tms_cutime + t.tms_cstime;
+  }
+  return (double)acc / CLK_TCK;
+#else
+  /* clock() is standard ANSI C. We have no way of getting
+     subprocess times in this branch. */
+  return (double)clock_os() / CLOCKS_PER_SEC;
 #endif
 }
 
