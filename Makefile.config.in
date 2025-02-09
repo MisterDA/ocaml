@@ -80,9 +80,11 @@ ARCMD=@AR@
 ### Extension of object files
 O=@OBJEXT@
 EXT_OBJ=.@OBJEXT@
+BUILD_O=@BUILD_OBJEXT@
 
 ### How to tell the C compiler to output an object file
 OUTPUTOBJ=@outputobj@$(EMPTY)
+BUILD_OUTPUTOBJ=@build_outputobj@$(EMPTY)
 
 ### Extension of static libraries
 A=@libext@
@@ -167,7 +169,9 @@ BYTECODE_CPPFLAGS=@bytecode_cppflags@
 ZSTD_LIBS=@zstd_libs@
 BYTECCLIBS=@zstd_libs@ @cclibs@
 EXE=@EXEEXT@
+BUILD_EXE=@BUILD_EXEEXT@
 OUTPUTEXE=@outputexe@$(EMPTY)
+BUILD_OUTPUTEXE=@build_outputexe@$(EMPTY)
 SUPPORTS_SHARED_LIBRARIES=@supports_shared_libraries@
 MKSHAREDLIBRPATH=@mksharedlibrpath@
 DYNLINKOPTS=@DLLIBS@

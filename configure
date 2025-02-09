@@ -733,11 +733,11 @@ flexlink
 LDFLAGS_FOR_BUILD
 CPPFLAGS_FOR_BUILD
 CFLAGS_FOR_BUILD
-BUILD_OBJEXT
-BUILD_EXEEXT
 CPP_FOR_BUILD
 ac_ct_CC_FOR_BUILD
 CC_FOR_BUILD
+BUILD_OBJEXT
+BUILD_EXEEXT
 CPP
 ac_ct_DEP_CC
 DEP_CC
@@ -900,7 +900,9 @@ mkexe_exp
 mkexe
 fpic
 syslib
+build_outputobj
 outputobj
+build_outputexe
 outputexe
 ocamlyacc_wstr_module
 ln
@@ -3423,6 +3425,8 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 # Note: This is present for the flexdll bootstrap where it exposed as the old
 # TOOLPREF variable. It would be better if flexdll where updated to require
 # WINDRES instead.
+
+
 
 
 
@@ -15082,6 +15086,12 @@ then :
   SAK_CC='$(CC)'
   SAK_CFLAGS='$(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)'
   SAK_LINK='$(MKEXE_VIA_CC)'
+  BUILD_EXEEXT="$EXEEXT"
+
+  BUILD_OBJEXT="$OBJEXT"
+
+  build_outputexe="$outputexe"
+  build_outputobj="$outputobj"
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: detecting the C toolchain for build" >&5
 printf "%s\n" "$as_me: detecting the C toolchain for build" >&6;}
@@ -16264,10 +16274,13 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-  SAK_CC="$CC_FOR_BUILD"
-  SAK_CFLAGS="$CFLAGS_FOR_BUILD $CPPFLAGS_FOR_BUILD"
   # Note that *-pc-windows is not supported for _build_ so we can use '-o'
-  SAK_LINK='$(SAK_CC) $(SAK_CFLAGS) -o $(1) $(2)'
+  build_outputexe='-o '
+  build_outputobj='-o '
+  SAK_CC="$CC_FOR_BUILD"
+  SAK_CFLAGS="$CPPFLAGS_FOR_BUILD $CFLAGS_FOR_BUILD"
+  SAK_LINK=\
+"\$(SAK_CC) \$(SAK_CFLAGS) $LDFLAGS_FOR_BUILD ${build_outputexe}\$(1) \$(2)"
 fi
 
 # sak command to use to encode C literal strings

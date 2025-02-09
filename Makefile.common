@@ -223,7 +223,7 @@ OCAMLYACCFLAGS ?= --strict -v
 %.ml %.mli: %.mly
 	$(V_OCAMLYACC)$(OCAMLYACC) $(OCAMLYACCFLAGS) $<
 
-SAK = $(ROOTDIR)/runtime/sak$(EXE)
+SAK = $(ROOTDIR)/runtime/sak$(BUILD_EXE)
 
 # Used with the Microsoft toolchain to merge generated manifest files into
 # executables

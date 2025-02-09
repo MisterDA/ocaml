@@ -157,7 +157,9 @@ AC_SUBST([unix_or_win32])
 AC_SUBST([ln])
 AC_SUBST([ocamlyacc_wstr_module])
 AC_SUBST([outputexe])
+AC_SUBST([build_outputexe])
 AC_SUBST([outputobj])
+AC_SUBST([build_outputobj])
 AC_SUBST([syslib])
 AC_SUBST([fpic])
 AC_SUBST([mkexe])
@@ -893,13 +895,22 @@ dnl nefarious single quotes which may appear in any of the strings.
 AS_IF([test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
   [SAK_CC='$(CC)'
   SAK_CFLAGS='$(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)'
-  SAK_LINK='$(MKEXE_VIA_CC)'],
+  SAK_LINK='$(MKEXE_VIA_CC)'
+  BUILD_EXEEXT="$EXEEXT"
+  AC_SUBST([BUILD_EXEEXT])
+  BUILD_OBJEXT="$OBJEXT"
+  AC_SUBST([BUILD_OBJEXT])
+  build_outputexe="$outputexe"
+  build_outputobj="$outputobj"],
   [AC_MSG_NOTICE([detecting the C toolchain for build])
   AX_PROG_CC_FOR_BUILD
-  SAK_CC="$CC_FOR_BUILD"
-  SAK_CFLAGS="$CFLAGS_FOR_BUILD $CPPFLAGS_FOR_BUILD"
   # Note that *-pc-windows is not supported for _build_ so we can use '-o'
-  SAK_LINK='$(SAK_CC) $(SAK_CFLAGS) -o $(1) $(2)'])
+  build_outputexe='-o '
+  build_outputobj='-o '
+  SAK_CC="$CC_FOR_BUILD"
+  SAK_CFLAGS="$CPPFLAGS_FOR_BUILD $CFLAGS_FOR_BUILD"
+  SAK_LINK=\
+"\$(SAK_CC) \$(SAK_CFLAGS) $LDFLAGS_FOR_BUILD ${build_outputexe}\$(1) \$(2)"])
 
 # sak command to use to encode C literal strings
 
