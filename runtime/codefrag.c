@@ -156,7 +156,9 @@ unsigned char *caml_digest_of_code_fragment(struct code_fragment *cf) {
 }
 
 struct code_fragment *
-caml_find_code_fragment_by_digest(unsigned char digest[16]) {
+caml_find_code_fragment_by_digest(
+  unsigned char digest[STATIC_ARRAY_DECLARATOR 16])
+{
   FOREACH_LF_SKIPLIST_ELEMENT(e, &code_fragments_by_pc, {
     struct code_fragment *cf = (struct code_fragment *)e->data;
     const unsigned char *d = caml_digest_of_code_fragment(cf);

@@ -91,3 +91,8 @@
 
 /* Define WITH_NONEXECSTACK_NOTE when an explicit ".note.GNU-stack" section
    is to be added to indicate the stack should not be executable */
+
+#undef STATIC_ARRAY_DECLARATOR
+
+/* Define to 'static' if the C compiler supports the 'static' keyword appearing
+   within the [ and ] of array type derivations in function parameters. */

@@ -18448,6 +18448,46 @@ printf "%s\n" "#define HAVE_LABELS_AS_VALUES 1" >>confdefs.h
   fi
 
 
+# Check whether the C compiler supports the 'static' keyword appearing
+# within the [ and ] of array type derivations in function parameters.
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if $CC supports the static keyword in array declarators" >&5
+printf %s "checking if $CC supports the static keyword in array declarators... " >&6; }
+if test ${ocaml_cv_prog_cc_static_array_declarator+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ocaml_cv_prog_cc_static_array_declarator=no
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+static void f(int array[static 16]) { }
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ocaml_cv_prog_cc_static_array_declarator=yes
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ocaml_cv_prog_cc_static_array_declarator" >&5
+printf "%s\n" "$ocaml_cv_prog_cc_static_array_declarator" >&6; }
+  if test "x$ocaml_cv_prog_cc_static_array_declarator" = xyes
+then :
+  ocaml_keyword='static'
+else $as_nop
+  ocaml_keyword=''
+fi
+
+printf "%s\n" "#define STATIC_ARRAY_DECLARATOR $ocaml_keyword" >>confdefs.h
+
+
+
 # Configure the native-code compiler
 
 arch=none
