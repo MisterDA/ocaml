@@ -79,7 +79,7 @@ CAMLprim value caml_md5_chan(value vchan, value len)
    CAMLreturn (caml_md5_channel(Channel(vchan), Long_val(len)));
 }
 
-CAMLexport void caml_md5_block(unsigned char digest[16],
+CAMLexport void caml_md5_block(unsigned char digest[STATIC_ARRAY_DECLARATOR 16],
                                void * data, uintnat len)
 {
   struct MD5Context ctx;

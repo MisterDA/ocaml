@@ -78,7 +78,8 @@ extern struct code_fragment * caml_find_code_fragment_by_num(int fragnum);
 /* Find the code fragment whose digest is equal to the given digest.
    Returns NULL if none exists. */
 extern struct code_fragment *
-   caml_find_code_fragment_by_digest(unsigned char digest[16]);
+caml_find_code_fragment_by_digest(
+  unsigned char digest[STATIC_ARRAY_DECLARATOR 16]);
 
 /* Return the digest of the given code fragment.
    If the code fragment was registered in [DIGEST_LATER] mode

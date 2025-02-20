@@ -527,6 +527,21 @@ AC_DEFUN([OCAML_CC_SUPPORTS_ATOMIC], [
   OCAML_CC_RESTORE_VARIABLES
 ])
 
+AC_DEFUN([OCAML_CC_SUPPORTS_STATIC_ARRAY_DECLARATOR],
+  [AC_CACHE_CHECK([if $CC supports the static keyword in array declarators],
+    [ocaml_cv_prog_cc_static_array_declarator],
+    [ocaml_cv_prog_cc_static_array_declarator=no
+    AC_LINK_IFELSE([AC_LANG_PROGRAM(
+      [[static void f(int array[static 16]) { }]], [[]])],
+      [ocaml_cv_prog_cc_static_array_declarator=yes])])
+  AS_IF([test "x$ocaml_cv_prog_cc_static_array_declarator" = xyes],
+    [ocaml_keyword='static'], [ocaml_keyword=''])
+  AC_DEFINE_UNQUOTED([STATIC_ARRAY_DECLARATOR], [$ocaml_keyword],
+    [Define to 'static' (unquoted) if the C compiler supports the 'static'
+    keyword appearing within the [ and ] of array type derivations in function
+    parameters.])
+])
+
 # Detects whether the C compiler generates an explicit .note.GNU-stack section
 # to mark the stack as non-executable, so that we can follow suit
 AC_DEFUN([OCAML_WITH_NONEXECSTACK_NOTE],

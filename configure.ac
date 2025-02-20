@@ -1495,6 +1495,10 @@ OCAML_CC_SUPPORTS_TREE_VECTORIZE([$warn_error_flag])
 # Check whether the C compiler supports the labels as values extension.
 OCAML_CC_SUPPORTS_LABELS_AS_VALUES
 
+# Check whether the C compiler supports the 'static' keyword appearing
+# within the [ and ] of array type derivations in function parameters.
+OCAML_CC_SUPPORTS_STATIC_ARRAY_DECLARATOR
+
 # Configure the native-code compiler
 
 arch=none

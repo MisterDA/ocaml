@@ -23,7 +23,7 @@
 #include "mlvalues.h"
 #include "io.h"
 
-CAMLextern void caml_md5_block(unsigned char digest[16],
+CAMLextern void caml_md5_block(unsigned char digest[STATIC_ARRAY_DECLARATOR 16],
                                void * data, uintnat len);
 
 CAMLextern value caml_md5_channel(struct channel *chan, intnat toread);

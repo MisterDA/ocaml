@@ -620,7 +620,7 @@ void caml_win32_unregister_overflow_detection(void)
 
 /* Seeding of pseudo-random number generators */
 
-int caml_win32_random_seed (intnat data[16])
+int caml_win32_random_seed (intnat data[STATIC_ARRAY_DECLARATOR 16])
 {
   /* For better randomness, consider:
      http://msdn.microsoft.com/library/en-us/seccrypto/security/rtlgenrandom.asp
