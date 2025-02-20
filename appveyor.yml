@@ -41,15 +41,12 @@ environment:
   matrix:
     - PORT: mingw64
       BOOTSTRAP_FLEXDLL: true
-# OCaml 5.0 does not yet support MSVC
-#    - PORT: msvc64
-#      BOOTSTRAP_FLEXDLL: false
-#      BUILD_MODE: steps
-#    - PORT: msvc32
-#      BOOTSTRAP_FLEXDLL: false
-#      BUILD_MODE: C
-#      SDK: |-
-#        "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86
+    # - PORT: msvc64
+    #   BOOTSTRAP_FLEXDLL: false
+    #   BUILD_MODE: steps
+    # - PORT: msvc32
+    #   BOOTSTRAP_FLEXDLL: false
+    #   BUILD_MODE: C
 
 matrix:
   fast_finish: true
