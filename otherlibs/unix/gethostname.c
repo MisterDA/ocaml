@@ -21,7 +21,7 @@
 #endif
 #include "caml/unixsupport.h"
 
-#ifdef HAS_GETHOSTNAME
+#ifdef HAVE_GETHOSTNAME
 
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 256
