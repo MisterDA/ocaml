@@ -27,7 +27,7 @@
 #include "caml/lf_skiplist.h"
 #include "caml/misc.h"
 #include "caml/signals.h"
-#ifdef HAS_SYS_MMAN_H
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
 #ifdef _WIN32

@@ -55,8 +55,8 @@ From the top directory, do:
 
         ./configure
 
-This generates the three configuration files `Makefile.config`,
-`runtime/caml/m.h` and `runtime/caml/s.h`.
+This generates the two configuration files `Makefile.config`,
+`runtime/caml/config.h`.
 
 The `configure` script accepts options that can be discovered by running:
 
@@ -95,8 +95,7 @@ files cause errors later on, then look at the template files:
 
         Makefile.config.in
         Makefile.build_config.in
-        runtime/caml/m.h.in
-        runtime/caml/s.h.in
+        runtime/caml/config.h.in
 +
 for guidance on how to edit the generated files by hand.
 

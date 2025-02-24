@@ -37,7 +37,7 @@
 int caml_debugger_in_use = 0;
 uintnat caml_event_count;
 int caml_debugger_fork_mode = 1; /* parent by default */
-#if !defined(HAS_SOCKETS) || defined(NATIVE_CODE)
+#if !defined(HAVE_SOCKETS) || defined(NATIVE_CODE)
 
 void caml_debugger_init(void)
 {
@@ -83,14 +83,14 @@ CAMLexport void caml_debugger_cleanup_fork(void)
 #undef ATOM
 /* Code duplication with otherlibs/unix/socketaddr.h is inevitable
  * because pulling winsock2.h creates many naming conflicts. */
-#ifdef HAS_AFUNIX_H
+#ifdef HAVE_AFUNIX_H
 #include <afunix.h>
 #else
 struct sockaddr_un {
   ADDRESS_FAMILY sun_family;
   char sun_path[108];
 };
-#endif /* HAS_AFUNIX_H */
+#endif /* HAVE_AFUNIX_H */
 #include <process.h>
 #endif /* _WIN32 */
 

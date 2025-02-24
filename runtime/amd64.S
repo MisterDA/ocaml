@@ -18,7 +18,7 @@
 
 /* PIC mode support based on contribution by Paul Stravers (see PR#4795) */
 
-#include "caml/m.h"
+#include "caml/config.h"
 #include "caml/asm.h"
 
 #if defined(SYS_macosx)

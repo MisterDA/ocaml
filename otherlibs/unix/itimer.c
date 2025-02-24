@@ -20,7 +20,7 @@
 #include <caml/memory.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SETITIMER
+#ifdef HAVE_SETITIMER
 
 #include <math.h>
 #include <sys/time.h>

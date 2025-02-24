@@ -16,7 +16,7 @@
 /* Asm part of the runtime system, RISC-V processor, 64-bit mode */
 /* Must be preprocessed by cpp */
 
-#include "caml/m.h"
+#include "caml/config.h"
 #include "caml/asm.h"
 
 #define DOMAIN_STATE_PTR s11

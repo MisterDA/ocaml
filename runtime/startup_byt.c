@@ -89,7 +89,7 @@ static void error(const char *msg, ...)
 
 static void fixup_endianness_trailer(uint32_t * p)
 {
-#ifndef ARCH_BIG_ENDIAN
+#ifndef WORDS_BIGENDIAN
   Reverse_32(p, p);
 #endif
 }
@@ -399,7 +399,7 @@ static void do_print_config(void)
          "false");
 #endif
   printf("supports_afl: %s\n",
-#ifdef HAS_SYS_SHM_H
+#ifdef HAVE_SYS_SHM_H
          "true");
 #else
          "false");

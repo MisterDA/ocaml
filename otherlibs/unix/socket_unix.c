@@ -18,14 +18,14 @@
 #include <caml/mlvalues.h>
 #include "caml/unixsupport.h"
 
-#ifdef HAS_SOCKETS
+#ifdef HAVE_SOCKETS
 
 #include <sys/types.h>
 #include <sys/socket.h>
 
 const int caml_unix_socket_domain_table[] = {
   PF_UNIX, PF_INET,
-#if defined(HAS_IPV6)
+#if defined(HAVE_IPV6)
   PF_INET6
 #elif defined(PF_UNSPEC)
   PF_UNSPEC

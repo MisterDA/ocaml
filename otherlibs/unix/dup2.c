@@ -30,7 +30,7 @@ CAMLprim value caml_unix_dup2(value cloexec, value fd1, value fd2)
         caml_unix_clear_cloexec(Int_val(fd2), "dup2", Nothing);
     }
   } else {
-#ifdef HAS_DUP3
+#ifdef HAVE_DUP3
     if (dup3(Int_val(fd1), Int_val(fd2),
              caml_unix_cloexec_p(cloexec) ? O_CLOEXEC : 0) == -1)
       caml_uerror("dup2", Nothing);
