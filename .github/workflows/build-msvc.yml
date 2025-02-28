@@ -60,6 +60,8 @@ jobs:
 
       - name: Install Cygwin
         uses: cygwin/cygwin-install-action@v3
+        env:
+          CYGWIN: winsymlinks:nativestrict
         with:
           packages: make,bash,mingw64-x86_64-gcc-core
           install-dir: 'D:\cygwin'
