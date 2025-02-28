@@ -108,7 +108,7 @@ jobs:
               || failed=$?
             if ((failed)) ; then cat config.log ; exit $failed ; fi
           fi
-          make -j || failed=$?
+          make -j$(nproc) || failed=$?
           if ((failed)) ; then make -j1 V=1 ; exit $failed ; fi
           runtime/ocamlrun ocamlc -config
 
@@ -138,8 +138,8 @@ jobs:
         shell: bash -eo pipefail -o igncr {0}
         run: |
           eval $(tools/msvs-promote-path)
-          make -j tests
+          make -j$(nproc) tests
 
       - name: Install the compiler
         shell: bash
-        run: make install
+        run: make -j$(nproc) install

@@ -52,8 +52,8 @@ jobs:
               --disable-ocamltest --disable-stdlib-manpages \
               --disable-dependency-generation --prefix="$PREFIX" || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
-          make -j
-          make install
+          make -j$(nproc)
+          make -j$(nproc) install
           cd "$HOME"
           tar caf /tmp/ocaml.tar.zst .local
       - name: Upload Artifact
@@ -90,8 +90,8 @@ jobs:
           ./configure --prefix="$HOME/cross" --target=x86_64-w64-mingw32 \
               TARGET_LIBDIR="$TESTDIR" || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
-          make crossopt -j$(nproc)
-          make installcross
+          make -j$(nproc) crossopt
+          make -j$(nproc) installcross
           ln -sr "$HOME/cross/bin/flexlink.opt.exe" "$HOME/.local/bin/flexlink"
       - name: Show opt.opt configuration
         run: |
@@ -159,8 +159,8 @@ jobs:
           ./configure --prefix="$HOME/cross" --target=aarch64-linux-gnu \
               || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
-          make crossopt -j
-          make installcross
+          make -j$(nproc) crossopt
+          make -j$(nproc) installcross
       - name: Show opt.opt configuration
         run: |
           set -x
@@ -246,8 +246,8 @@ jobs:
               RANLIB="$DIR/llvm-ranlib" \
               STRIP="$DIR/llvm-strip" || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
-          make crossopt -j
-          make installcross
+          make -j$(nproc) crossopt
+          make -j$(nproc) installcross
       - name: Show opt.opt configuration
         run: |
           set -x
