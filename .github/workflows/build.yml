@@ -17,7 +17,7 @@ env:
   # in the runtime system.
   PARALLEL_TESTS: parallel callback gc-roots weak-ephe-final
   # Fully print commands executed by Make
-  # MAKEFLAGS: V=1
+  MAKEFLAGS: V=1
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#concurrency
 # Concurrent workflows are grouped by the PR or branch that triggered them
@@ -192,6 +192,13 @@ jobs:
       - name: configure tree
         run: |
           CONFIG_ARG='--enable-codegen-invariants ${{ matrix.config_arg }}' MAKE_ARG=-j bash -xe tools/ci/actions/runner.sh configure
+          echo
+          echo "::group::Makefile.config"
+          cat Makefile.config
+          echo "::endgroup"
+          echo "::group::Makefile.build_config"
+          cat Makefile.build_config
+          echo "::endgroup"
       - name: Build
         run: |
           MAKE_ARG=-j bash -xe tools/ci/actions/runner.sh build
