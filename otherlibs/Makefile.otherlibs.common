@@ -164,7 +164,7 @@ distclean:: clean
 	$(V_CC)$(CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS) \
 	  $(OUTPUTOBJ)$@ -c $<
 
-%.n.$(O): OC_CFLAGS += $(OC_NATIVE_CFLAGS)
+%.n.$(O): OC_CFLAGS = $(OC_NATIVE_CFLAGS)
 
 %.n.$(O): %.c $(REQUIRED_HEADERS)
 	$(V_CC)$(CC) $(OC_CFLAGS) $(CFLAGS) \
