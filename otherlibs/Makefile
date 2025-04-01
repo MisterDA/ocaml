@@ -14,12 +14,12 @@
 #**************************************************************************
 
 ROOTDIR=..
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 
-# Although the OTHERLIBS variable is defined in ../Makefile.config,
+# Although the OTHERLIBS variable is defined in ../config.mk,
 # its following conditional definition needs to be kept because,
 # at the moment, the clean targets depend on this variable but
-# when they are invoked ../Makefile.config is not included, so that
+# when they are invoked ../config.mk is not included, so that
 # OTHERLIBS would be empty and the clean target would thus not work.
 OTHERLIBS ?= str systhreads unix runtime_events
 

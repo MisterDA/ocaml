@@ -16,8 +16,8 @@
 # Common Makefile for otherlibs
 
 ROOTDIR=../..
-include $(ROOTDIR)/Makefile.common
-include $(ROOTDIR)/Makefile.best_binaries
+include $(ROOTDIR)/common.mk
+include $(ROOTDIR)/best_binaries.mk
 
 CAMLC := $(BEST_OCAMLC) $(STDLIBFLAGS)
 CAMLOPT := $(BEST_OCAMLOPT) $(STDLIBFLAGS)

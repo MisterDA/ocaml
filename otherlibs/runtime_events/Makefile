@@ -21,7 +21,7 @@ CAMLOBJS=runtime_events.cmo
 C_SOURCES=runtime_events_consumer.c
 HEADERS=caml/runtime_events_consumer.h
 
-include ../Makefile.otherlibs.common
+include ../otherlibs.common.mk
 runtime_events.cmo: runtime_events.cmi
 runtime_events.cmx: runtime_events.cmi
 

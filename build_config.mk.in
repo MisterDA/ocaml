@@ -14,17 +14,17 @@
 #*                                                                        *
 #**************************************************************************
 
-# This Makefile contains configuration gleaned by configure but which should not
-# be installed in Makefile.config. The file is designed to be included in
-# OCaml's build system and so itself includes Makefile.config. It assumes that
-# $(ROOTDIR) has been defined.
+# This Makefile contains configuration gleaned by configure but which
+# should not be installed in config.mk. The file is designed to be
+# included in OCaml's build system and so itself includes config.mk. It
+# assumes that $(ROOTDIR) has been defined.
 
 # This variable is added to prevent double-inclusion of this Makefile by
-# Makefile.config_if_required. override is used as this has highest $(origin )
+# config_if_required.mk. override is used as this has highest $(origin )
 # priority (including over make BUILD_CONFIG_INCLUDED)
 override BUILD_CONFIG_INCLUDED =
 
-include $(ROOTDIR)/Makefile.config
+include $(ROOTDIR)/config.mk
 INSTALL ?= @INSTALL@ -p
 INSTALL_DATA ?= @INSTALL_DATA@
 INSTALL_PROG ?= @INSTALL_PROGRAM@
@@ -55,7 +55,7 @@ lib_unix = @lib_unix@
 
 # The following variable is added to keep track of which other libraries
 # have to be built by the recursive makefiles (not to be confused with
-# the OTHERLIBRARIES variable defined in Makefile.config.in and which
+# the OTHERLIBRARIES variable defined in config.mk and which
 # lists all the other libraries that get built, no matter how).
 # This variable is expected to disappear once all the makefiles under
 # otherlibs/ have been merged into the root Makefile

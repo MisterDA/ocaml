@@ -15,8 +15,8 @@
 
 ROOTDIR=../..
 
-include $(ROOTDIR)/Makefile.common
-include $(ROOTDIR)/Makefile.best_binaries
+include $(ROOTDIR)/common.mk
+include $(ROOTDIR)/best_binaries.mk
 
 OC_BYTECODE_CFLAGS += $(SHAREDLIB_CFLAGS)
 OC_NATIVE_CFLAGS += $(SHAREDLIB_CFLAGS)

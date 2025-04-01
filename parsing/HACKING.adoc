@@ -22,7 +22,7 @@ in the `boot/menhir` subdirectory.
 
 If you change link:parser.mly[], you need to run the `promote-menhir`
 target of the root Makefile to rebuild the compiler parser. See
-link:../Makefile.menhir[] for the details of the various
+link:../menhir.mk[] for the details of the various
 Menhir-related targets and their use.
 
 ==== Testing the grammar

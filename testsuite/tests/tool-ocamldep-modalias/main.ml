@@ -1,5 +1,5 @@
 (* TEST
- readonly_files = "A.ml B.ml C.ml D.ml lib_impl.ml lib.mli Makefile.build Makefile.build2";
+ readonly_files = "A.ml B.ml C.ml D.ml lib_impl.ml lib.mli build.mk build2.mk";
  set sources = "A.ml B.ml C.ml D.ml";
  set links = "LibA.ml LibB.ml LibC.ml LibD.ml";
  set stdlib = "-nostdlib -I ${ocamlsrcdir}/stdlib";
@@ -33,10 +33,10 @@
    hasunix;
    script = "rm -f ${links}";
    script;
-   script = "${MAKE} -f Makefile.build byte";
+   script = "${MAKE} -f build.mk byte";
    script;
    native-compiler;
-   script = "${MAKE} -f Makefile.build opt";
+   script = "${MAKE} -f build.mk opt";
    script;
  }{
    compiler_directory_suffix = ".depend.mk2";
@@ -61,10 +61,10 @@
    hasunix;
    script = "rm -f ${links}";
    script;
-   script = "${MAKE} -f Makefile.build2 byte";
+   script = "${MAKE} -f build2.mk byte";
    script;
    native-compiler;
-   script = "${MAKE} -f Makefile.build2 opt";
+   script = "${MAKE} -f build2.mk opt";
    script;
  }{
    compiler_directory_suffix = ".depend.mod";

@@ -1,5 +1,5 @@
 ROOTDIR = ../../..
-include $(ROOTDIR)/Makefile.config_if_required
+include $(ROOTDIR)/config_if_required.mk
 
 DUNE_CMD := $(if $(wildcard dune/dune.exe),dune/dune.exe,dune)
 DUNE ?= $(DUNE_CMD)

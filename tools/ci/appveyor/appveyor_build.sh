@@ -91,8 +91,8 @@ function set_configuration {
     if ((failed)) ; then cat config.log ; exit $failed ; fi
   fi
 
-#  FILE=$(pwd | cygpath -f - -m)/Makefile.config
-#  run "Content of $FILE" cat Makefile.config
+#  FILE=$(pwd | cygpath -f - -m)/config.mk
+#  run "Content of $FILE" cat config.mk
 }
 
 PARALLEL_URL='https://git.savannah.gnu.org/cgit/parallel.git/plain/src/parallel'

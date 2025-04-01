@@ -25,6 +25,6 @@ REQUIRES_CONFIGURATION := $(strip \
 
 ifneq "$(REQUIRES_CONFIGURATION)" ""
 ifneq "$(origin BUILD_CONFIG_INCLUDED)" "override"
-include $(ROOTDIR)/Makefile.build_config
+include $(ROOTDIR)/build_config.mk
 endif
 endif

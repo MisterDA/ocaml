@@ -349,11 +349,11 @@ AC_DEFUN([OCAML_TEST_FLEXLINK_WHERE], [
   cat > conftest.c <<"EOF"
   AC_LANG_PROGRAM([[#include <flexdll.h>]])
 EOF
-  cat > conftest.Makefile <<EOF
+  cat > conftest.mk <<EOF
 all:
 	$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.c $LIBS
 EOF
-  AS_IF([make -f conftest.Makefile >/dev/null 2>/dev/null],
+  AS_IF([make -f conftest.mk >/dev/null 2>/dev/null],
     [have_flexdll_h=yes
     AC_MSG_RESULT([yes])],
     [AC_MSG_RESULT([no])])

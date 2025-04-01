@@ -17,12 +17,12 @@
 
 ROOTDIR = .
 # NOTE: it is important that the OCAMLDEP and OCAMLLEX variables
-# are defined *before* Makefile.common gets included, so that
+# are defined *before* common.mk gets included, so that
 # their local definitions here take precedence over their
-# general shared definitions in Makefile.common.
+# general shared definitions in common.mk.
 OCAMLLEX ?= $(BOOT_OCAMLLEX)
-include Makefile.common
-include Makefile.best_binaries
+include common.mk
+include best_binaries.mk
 
 .PHONY: defaultentry
 defaultentry: $(DEFAULT_BUILD_TARGET)
@@ -629,7 +629,7 @@ FLEXDLL_OBJECTS = \
   flexdll_$(FLEXDLL_CHAIN).$(O) flexdll_initer_$(FLEXDLL_CHAIN).$(O)
 FLEXLINK_BUILD_ENV = \
   MSVCC_ROOT= \
-  MSVC_DETECT=0 OCAML_CONFIG_FILE=../Makefile.config \
+  MSVC_DETECT=0 OCAML_CONFIG_FILE=../config.mk \
   CHAINS=$(FLEXDLL_CHAIN) ROOTDIR=..
 FLEXDLL_SOURCES = \
   $(addprefix $(FLEXDLL_SOURCE_DIR)/, flexdll.c flexdll_initer.c flexdll.h) \
@@ -1358,7 +1358,7 @@ endif
 
 ## Generated non-object files
 
-runtime/ld.conf: $(ROOTDIR)/Makefile.config
+runtime/ld.conf: $(ROOTDIR)/config.mk
 	$(V_GEN)echo "$(STUBLIBDIR)" > $@ && \
 	echo "$(LIBDIR)" >> $@
 
@@ -1390,9 +1390,9 @@ $(SAK): runtime/sak.c runtime/caml/misc.h runtime/caml/config.h
 
 C_LITERAL = $(shell $(SAK) $(ENCODE_C_LITERAL) '$(1)')
 
-runtime/build_config.h: $(ROOTDIR)/Makefile.config $(SAK)
+runtime/build_config.h: $(ROOTDIR)/config.mk $(SAK)
 	$(V_GEN){ \
-	  echo '/* This file is generated from $(ROOTDIR)/Makefile.config */'; \
+	  echo '/* This file is generated from $(ROOTDIR)/config.mk */'; \
 	  printf '#define OCAML_STDLIB_DIR %s\n' \
 	         '$(call C_LITERAL,$(TARGET_LIBDIR))'; \
 	  echo '#define HOST "$(HOST)"'; \
@@ -1547,7 +1547,7 @@ $(eval $(call COMPILE_C_FILE,runtime/$(UNIX_OR_WIN32)_non_shared.%, \
 
 $(foreach runtime_OBJECT_TYPE,$(subst %,,$(runtime_OBJECT_TYPES)), \
   $(eval \
-    runtime/dynlink$(runtime_OBJECT_TYPE).$(O): $(ROOTDIR)/Makefile.config))
+    runtime/dynlink$(runtime_OBJECT_TYPE).$(O): $(ROOTDIR)/config.mk))
 
 ## Compilation of runtime assembly files
 
@@ -1742,11 +1742,11 @@ $(ocamlyacc_OTHER_MODULES:=.$(O)): OC_CPPFLAGS += $(ocamlyacc_CPPFLAGS)
 # The rules below do not depend on Menhir being available,
 # they just build the parser from boot/.
 
-# See Makefile.menhir for the rules to rebuild the parser and update
-# boot/, which require Menhir. The targets in Makefile.menhir
+# See menhir.mk for the rules to rebuild the parser and update
+# boot/, which require Menhir. The targets in menhir.mk
 # (also included here for convenience) must be used after any
 # modification of parser.mly.
-include Makefile.menhir
+include menhir.mk
 
 # To avoid module-name conflicts with compiler-lib users that link
 # with their code with their own MenhirLib module (possibly with
@@ -2533,7 +2533,7 @@ partialclean::
 beforedepend:: bytecomp/opcodes.ml bytecomp/opcodes.mli
 
 ifneq "$(wildcard .git)" ""
-include Makefile.dev
+include dev.mk
 endif
 
 # Default rules
@@ -2646,7 +2646,7 @@ endif
 	rm -f boot/ocamlrun boot/ocamlrun.exe boot/$(HEADER_NAME) \
 	      boot/flexdll_*.o boot/flexdll_*.obj \
 	      boot/*.cm* boot/libcamlrun.a boot/libcamlrun.lib boot/ocamlc.opt
-	rm -f Makefile.config Makefile.build_config
+	rm -f config.mk build_config.mk
 	rm -rf autom4te.cache winpthreads-sources flexdll-sources \
          $(BYTE_BUILD_TREE) $(OPT_BUILD_TREE)
 	rm -f config.log config.status libtool
@@ -2806,7 +2806,8 @@ endif # ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	$(INSTALL_DATA) $(addprefix $(BYTE_BINDIR)/, $(FLEXDLL_OBJECTS)) \
     "$(INSTALL_FLEXDLLDIR)"
 endif # ifeq "$(BOOTSTRAPPING_FLEXDLL)" "true"
-	$(INSTALL_DATA) Makefile.config "$(INSTALL_LIBDIR)"
+	$(INSTALL_DATA) config.mk "$(INSTALL_LIBDIR)"
+	(cd "$(INSTALL_LIBDIR)" && $(LN) config.mk Makefile.config)
 	$(INSTALL_DATA) $(DOC_FILES) "$(INSTALL_DOCDIR)"
 ifeq "$(INSTALL_BYTECODE_PROGRAMS)" "true"
 	if test -f ocamlopt$(EXE); then $(MAKE) installopt; else \
@@ -2971,10 +2972,10 @@ include .depend
 
 # Include the cross-compiler recipes only when relevant
 ifneq "$(HOST)" "$(TARGET)"
-include Makefile.cross
+include cross.mk
 endif
 
-Makefile.config Makefile.build_config: config.status
+config.mk build_config.mk: config.status
 config.status:
 	@echo "Please refer to the installation instructions:"
 	@echo "- In file INSTALL for Unix systems."

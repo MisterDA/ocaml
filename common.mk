@@ -16,14 +16,14 @@
 # This makefile contains common definitions and rules shared by
 # other Makefiles
 
-include $(ROOTDIR)/Makefile.config_if_required
+include $(ROOTDIR)/config_if_required.mk
 
 # %(DEPDIR) must be kept in sync with entries in .gitignore
 DEPDIR=.dep
 D=d
 MKDIR=mkdir -p
 
-# $(EMPTY) is defined in Makefile.config, but may not have been loaded
+# $(EMPTY) is defined in config.mk, but may not have been loaded
 EMPTY :=
 # $(SPACE) contains a single space
 SPACE := $(EMPTY) $(EMPTY)
@@ -190,7 +190,7 @@ endef # PROGRAM_SYNONYM
 
 # Default value for OCAMLDEP
 # In those directories where this needs to be overridden, the overriding
-# should take place *before* Makefile.common is included.
+# should take place *before* common.mk is included.
 
 OCAMLDEP ?= $(BEST_OCAMLDEP)
 OCAMLDEPFLAGS ?=
@@ -205,7 +205,7 @@ BOOT_OCAMLLEX ?= $(OCAMLRUN) $(ROOTDIR)/boot/ocamllex
 
 # Default value for OCAMLLEX
 # In those directories where this needs to be overridden, the overriding
-# should take place *before* Makefile.common is included.
+# should take place *before* common.mk is included.
 
 OCAMLLEX ?= $(BEST_OCAMLLEX)
 

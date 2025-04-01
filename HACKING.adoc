@@ -185,7 +185,7 @@ has excellent documentation.
   INSTALL.adoc::          instructions for installation
   LICENSE::               license and copyright notice
   Makefile::              main Makefile
-  Makefile.common::       common Makefile definitions
+  common.mk::             common Makefile definitions
   README.adoc::           general information on the compiler distribution
   README.win32.adoc::     general information on the Windows ports of OCaml
   VERSION::               version string. Run `tools/autogen` after changing.

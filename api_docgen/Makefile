@@ -14,7 +14,7 @@
 #**************************************************************************
 # Used by included Makefiles
 ROOTDIR = ..
--include ../Makefile.build_config
+-include ../build_config.mk
 
 odoc-%:
 	$(MAKE) -C odoc $*

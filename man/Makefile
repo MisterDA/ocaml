@@ -14,7 +14,7 @@
 #**************************************************************************
 
 ROOTDIR = ..
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 
 MANPAGES = $(addsuffix .1,\
   ocaml ocamlc ocamlc.opt ocamlcp ocamldebug ocamldep ocamldoc ocamllex \

@@ -1,7 +1,8 @@
 [submodule "flexdll"]
 	path = flexdll
-	url = https://github.com/ocaml/flexdll.git
+	url = https://github.com/MisterDA/flexdll.git
 	shallow = true
+	branch = makefile.mk
 [submodule "winpthreads"]
 	path = winpthreads
 	url = https://github.com/ocaml/winpthreads.git

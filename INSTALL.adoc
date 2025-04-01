@@ -55,7 +55,7 @@ From the top directory, do:
 
         ./configure
 
-This generates the three configuration files `Makefile.config`,
+This generates the three configuration files `config.mk`,
 `runtime/caml/m.h` and `runtime/caml/s.h`.
 
 The `configure` script accepts options that can be discovered by running:
@@ -93,8 +93,8 @@ By default, build is 32-bit. For 64-bit build, please set environment variable `
 If something goes wrong during the automatic configuration, or if the generated
 files cause errors later on, then look at the template files:
 
-        Makefile.config.in
-        Makefile.build_config.in
+        config.mk.in
+        build_config.mk.in
         runtime/caml/m.h.in
         runtime/caml/s.h.in
 +
@@ -169,7 +169,7 @@ and data segment size (type `limit` under csh or `ulimit -a` under bash). Make
 sure the limit on the stack size is at least 4M.
 
 Try recompiling the runtime system with optimizations turned off (change
-`OC_CFLAGS` in `Makefile.build_config`). The runtime system
+`OC_CFLAGS` in `build_config.mk`). The runtime system
 contains some complex, atypical pieces of C code which can uncover bugs in
 optimizing compilers.  Alternatively, try another C compiler (e.g. `gcc` instead
 of the vendor-supplied `cc`).

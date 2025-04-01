@@ -169,7 +169,6 @@ tools/magic                       typo.missing-header
 
 /tools/ci/appveyor/appveyor_build.cmd text eol=crlf
 
-Makefile* linguist-language=Makefile
 *.c linguist-language=C
 *.h linguist-language=C
 *.h.in linguist-language=C

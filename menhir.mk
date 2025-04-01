@@ -160,7 +160,7 @@ clean-menhir: partialclean-menhir
 ## depend-menhir
 
 # The following rule depends on the OCAMLDEP_CMD variable defined in
-# Makefile.common, so it can only be invoked from the main (root) Makefile
+# common.mk, so it can only be invoked from the main (root) Makefile
 
 .PHONY: depend-menhir
 depend-menhir:

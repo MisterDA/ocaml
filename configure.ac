@@ -266,8 +266,8 @@ AC_SUBST([ar_supports_response_files])
 
 ## Generated files
 
-AC_CONFIG_FILES([Makefile.build_config])
-AC_CONFIG_FILES([Makefile.config])
+AC_CONFIG_FILES([build_config.mk])
+AC_CONFIG_FILES([config.mk])
 AC_CONFIG_FILES([stdlib/sys.ml])
 AC_CONFIG_FILES([manual/src/version.tex])
 AC_CONFIG_FILES([manual/src/html_processing/src/common.ml])
@@ -1667,7 +1667,7 @@ AS_IF([test -z "$PARTIALLD"],
   # The string for PACKLD must be capable of being concatenated with the
   # output filename. Don't assume that all C compilers understand GNU -ofoo
   # form, so ensure that the definition includes a space at the end (which is
-  # achieved using the $(EMPTY) expansion trick in Makefile.config.in).
+  # achieved using the $(EMPTY) expansion trick in config.mk.in).
   AS_CASE(["$ocaml_cc_vendor"],
     [msvc-*],
       # For the Microsoft C compiler there must be no space at the end of the

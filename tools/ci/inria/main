@@ -151,7 +151,7 @@ esac
 # default values
 build=''
 host=''
-conffile=Makefile.config
+conffile=config.mk
 make=make
 instdir="$HOME/ocaml-tmp-install"
 confoptions="--enable-ocamltest --enable-dependency-generation \
@@ -288,7 +288,7 @@ fi
 
 eval ./configure "$CCOMP" $build $host --prefix='$instdir' $confoptions
 
-grep -q '^NATIVE_COMPILER=false' Makefile.config && make_native=false
+grep -q '^NATIVE_COMPILER=false' config.mk && make_native=false
 
 if test "$flambda" = "true" && test "$make_native" = "false"; then
   echo "No need to test flambda in a bytecode-only system; skipping the test."

@@ -23,7 +23,7 @@
 (rule
  (targets domainstate.ml)
  (mode    fallback)
- (deps    (:conf ../Makefile.config)
+ (deps    (:conf ../config.mk)
           (:c domainstate.ml.c)
           (:tbl ../runtime/caml/domain_state.tbl))
  (action
@@ -35,7 +35,7 @@
 (rule
  (targets domainstate.mli)
  (mode    fallback)
- (deps    (:conf ../Makefile.config)
+ (deps    (:conf ../config.mk)
           (:c domainstate.mli.c)
           (:tbl ../runtime/caml/domain_state.tbl))
  (action

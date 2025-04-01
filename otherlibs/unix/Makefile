@@ -17,11 +17,11 @@
 
 ROOTDIR = ../..
 # Note: at the moment, we need to include the configuration makefile directly
-# even before we can include Makefile.otherlibs.common
+# even before we can include otherlibs.common.mk
 # because the UNIX_OR_WIN32 variable must be defined even before
-# we can include Makefile.otherlibs.common
+# we can include otherlibs.common.mk
 # This will be fixed later
-include $(ROOTDIR)/Makefile.config_if_required
+include $(ROOTDIR)/config_if_required.mk
 
 LIBNAME=unix
 
@@ -75,7 +75,7 @@ CAMLOBJS=unix.cmo unixLabels.cmo
 
 HEADERS=$(addprefix caml/, unixsupport.h socketaddr.h)
 
-include ../Makefile.otherlibs.common
+include ../otherlibs.common.mk
 
 distclean::
 	rm -f unix.ml

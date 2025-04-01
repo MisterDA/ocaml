@@ -22,7 +22,7 @@ $(error The Testsuite does not handle spaces\
 endif
 
 ROOTDIR = ..
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 
 ifeq "$(UNIX_OR_WIN32)" "win32"
   CYGPATH=cygpath -m

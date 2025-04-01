@@ -3556,9 +3556,9 @@ LINEAR_MAGIC_NUMBER=Caml1999L035
 
 ## Generated files
 
-ac_config_files="$ac_config_files Makefile.build_config"
+ac_config_files="$ac_config_files build_config.mk"
 
-ac_config_files="$ac_config_files Makefile.config"
+ac_config_files="$ac_config_files config.mk"
 
 ac_config_files="$ac_config_files stdlib/sys.ml"
 
@@ -15655,11 +15655,11 @@ main (void)
   return 0;
 }
 EOF
-  cat > conftest.Makefile <<EOF
+  cat > conftest.mk <<EOF
 all:
 	$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.c $LIBS
 EOF
-  if make -f conftest.Makefile >/dev/null 2>/dev/null
+  if make -f conftest.mk >/dev/null 2>/dev/null
 then :
   have_flexdll_h=yes
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -18862,7 +18862,7 @@ esac
   # The string for PACKLD must be capable of being concatenated with the
   # output filename. Don't assume that all C compilers understand GNU -ofoo
   # form, so ensure that the definition includes a space at the end (which is
-  # achieved using the $(EMPTY) expansion trick in Makefile.config.in).
+  # achieved using the $(EMPTY) expansion trick in config.mk.in).
   case "$ocaml_cc_vendor" in #(
   msvc-*) :
     # For the Microsoft C compiler there must be no space at the end of the
@@ -24698,8 +24698,8 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "Makefile.build_config") CONFIG_FILES="$CONFIG_FILES Makefile.build_config" ;;
-    "Makefile.config") CONFIG_FILES="$CONFIG_FILES Makefile.config" ;;
+    "build_config.mk") CONFIG_FILES="$CONFIG_FILES build_config.mk" ;;
+    "config.mk") CONFIG_FILES="$CONFIG_FILES config.mk" ;;
     "stdlib/sys.ml") CONFIG_FILES="$CONFIG_FILES stdlib/sys.ml" ;;
     "manual/src/version.tex") CONFIG_FILES="$CONFIG_FILES manual/src/version.tex" ;;
     "manual/src/html_processing/src/common.ml") CONFIG_FILES="$CONFIG_FILES manual/src/html_processing/src/common.ml" ;;

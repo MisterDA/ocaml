@@ -14,7 +14,7 @@
 #**************************************************************************
 # Used by included Makefiles
 ROOTDIR = ../..
-include ../Makefile.common
+include ../common.mk
 vpath %.mli ../../stdlib $(DOC_COMPILERLIBS_DIRS)  $(DOC_STDLIB_DIRS)
 
 

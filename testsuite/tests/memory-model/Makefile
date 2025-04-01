@@ -1,7 +1,7 @@
 ROOTDIR = ../../..
 
-include $(ROOTDIR)/Makefile.common
-include $(ROOTDIR)/Makefile.best_binaries
+include $(ROOTDIR)/common.mk
+include $(ROOTDIR)/best_binaries.mk
 
 OCAMLC ?= $(BEST_OCAMLC) $(STDLIBFLAGS)
 OCAMLOPT ?= $(BEST_OCAMLOPT) $(STDLIBFLAGS)

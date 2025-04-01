@@ -1,8 +1,8 @@
 ROOTDIR = ../..
-include $(ROOTDIR)/api_docgen/Makefile.docfiles
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/api_docgen/docfiles.mk
+include $(ROOTDIR)/common.mk
 include $(ROOTDIR)/stdlib/StdlibModules
-include $(ROOTDIR)/Makefile.best_binaries
+include $(ROOTDIR)/best_binaries.mk
 OCAMLC ?= $(BEST_OCAMLC) $(STDLIBFLAGS)
 
 MANUAL=$(ROOTDIR)/manual/src

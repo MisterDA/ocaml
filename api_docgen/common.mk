@@ -14,10 +14,10 @@
 #**************************************************************************
 DOCGEN= $(ROOTDIR)/api_docgen
 
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 include $(ROOTDIR)/stdlib/StdlibModules
-include $(ROOTDIR)/Makefile.best_binaries
-include $(DOCGEN)/Makefile.docfiles
+include $(ROOTDIR)/best_binaries.mk
+include $(DOCGEN)/docfiles.mk
 
 DOC_COMPILERLIBS_DIRS= $(addprefix $(ROOTDIR)/,\
   parsing utils typing bytecomp driver file_formats lambda)
@@ -44,7 +44,7 @@ build/latex/alldoc.pdf: build/latex/stdlib_input.tex \
 build/Compiler_libs.mld: $(DOCGEN)/Compiler_libs.pre.mld | build/
 	$(V_GEN)cp $< $@ && echo "{!modules:$(compilerlibref_C)}" >> $@
 
-build/latex/ifocamldoc.tex: $(ROOTDIR)/Makefile.config | build/latex
+build/latex/ifocamldoc.tex: $(ROOTDIR)/config.mk | build/latex
 
 build/latex/alldoc.tex:$(DOCGEN)/alldoc.tex | build/latex
 	$(V_GEN)cp $< $@

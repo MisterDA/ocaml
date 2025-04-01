@@ -16,7 +16,7 @@
 # This Makefile should be included.
 
 # It expects:
-# - Makefile.common to be included as well
+# - common.mk to be included as well
 # - a ROOTDIR variable pointing to the repository root
 #   relative to the including Makefile
 

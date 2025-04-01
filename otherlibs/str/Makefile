@@ -20,7 +20,7 @@ C_SOURCES=strstubs.c
 CLIBNAME=camlstr
 CAMLOBJS=str.cmo
 
-include ../Makefile.otherlibs.common
+include ../otherlibs.common.mk
 str.cmo: str.cmi
 str.cmx: str.cmi
 

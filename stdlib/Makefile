@@ -15,11 +15,11 @@
 
 ROOTDIR = ..
 # NOTE: it is important that the OCAMLDEP variable is defined *before*
-# Makefile.common gets included, so that its local definition here
-# take precedence over its general shared definitions in Makefile.common.
+# common.mk gets included, so that its local definition here
+# take precedence over its general shared definitions in common.mk.
 OCAMLDEP ?= $(BOOT_OCAMLDEP)
 
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 
 # There are three ways the Standard Library is compiled in bytecode:
 # 1. During coldstart

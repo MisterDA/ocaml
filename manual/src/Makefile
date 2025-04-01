@@ -1,5 +1,5 @@
 ROOTDIR = ../..
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 
 TEXQUOTE = $(ROOTDIR)/runtime/ocamlrun ../tools/texquote2
 
@@ -30,7 +30,7 @@ html_files:
 	make -C $(APIDOC) html
 	cp -r $(APIDOC)/odoc/build/html/*  htmlman
 
-ifocamldoc.tex: $(ROOTDIR)/Makefile.build_config
+ifocamldoc.tex: $(ROOTDIR)/build_config.mk
 	$(MAKE) -C $(APIDOC)/odoc build/latex/ifocamldoc.tex
 	cp $(APIDOC)/odoc/build/latex/ifocamldoc.tex $@
 else
@@ -46,7 +46,7 @@ html_files:
 	cp style.css htmlman/libref
 	cp style.css htmlman/compilerlibref
 
-ifocamldoc.tex: $(ROOTDIR)/Makefile.build_config
+ifocamldoc.tex: $(ROOTDIR)/build_config.mk
 	$(MAKE) -C $(APIDOC)/ocamldoc build/latex/ifocamldoc.tex
 	cp $(APIDOC)/ocamldoc/build/latex/ifocamldoc.tex $@
 endif

@@ -1,5 +1,5 @@
 ROOTDIR = ../../..
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/common.mk
 
 TEXQUOTE = $(ROOTDIR)/runtime/ocamlrun ../../tools/texquote2
 LD_PATH = $(ROOTDIR)/otherlibs/str $(ROOTDIR)/otherlibs/unix

@@ -33,10 +33,10 @@
  (targets libcamlrun.a)
  (mode    fallback)
  (deps
-   ../Makefile.config
-   ../Makefile.build_config
-   ../Makefile.config_if_required
-   ../Makefile.common Makefile
+   ../config.mk
+   ../build_config.mk
+   ../config_if_required.mk
+   ../common.mk Makefile
    (glob_files caml/*.h)
    ; matches the line structure of files in Makefile/BYTECODE_C_SOURCES
    interp.c misc.c fix_code.c startup_aux.c startup_byt.c freelist.c
