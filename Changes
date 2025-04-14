@@ -302,6 +302,18 @@ Working version
 - #13810: Support build of cross compilers to native freestanding targets
   (Samuel Hym, review by Antonin Décimo and Romain Calascibetta)
 
+- #????: Allow cross-compiling with LLVM tools, in particular targeting
+  *-pc-windows with clang-cl.
+  Introduce the configure variables RC for selecting a resource processor, such
+  as windres, rc.exe, or llvm-rc; MANIFEST_TOOL for selecting a manifest
+  generator, such as mt.exe or llvm-mt; LD for selecting a linker, such as ld,
+  ld64, link.exe, or a flavor of lld; AS and ASFLAGS for selecting an assembler,
+  such as as, llvm-as, ml.exe, ml64.exe, or llvm-ml.
+  Remove ASPP: the C preprocessor is now always used.
+  Use the chosen C compiler when bootstrapping flexlink instead of flexdll's
+  guessed default.
+  (Antonin Décimo, review by ???)
+
 ### Bug fixes:
 
 - #14071: Fix exception name in Dynlink.Error printer.
@@ -921,6 +933,12 @@ OCaml 5.4.0
 - #13494: Use native symlinks on Windows for the OCaml installation, reducing
   disk usage considerably.
   (David Allsopp, review by Nicolás Ojeda Bär and Gabriel Scherer)
+
+* #13526, #13789, #13804: Simplify the build of cross compilers
+  This replaces the configure `--with-target-bindir` option by an equivalent
+  `TARGET_BINDIR` variable
+  (Samuel Hym, review by Miod Vallat, Xavier Leroy, Antonin Décimo and Sébastien
+  Hinderer)
 
 - #13789: Strictly validate the host and target triplets when building for the
   Windows ports to be *-*-cygwin, *-w64-mingw32* or *-pc-windows. Other Cygwin
