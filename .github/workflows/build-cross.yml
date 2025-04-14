@@ -33,6 +33,8 @@ env:
     let _ =
       Printf.printf "allow_unaligned_access = %b\n" Arch.allow_unaligned_access;
       Printf.printf "macosx = %b\n" Arch.macosx
+  # Fully print commands executed by Make
+  # MAKEFLAGS: V=1
 
 jobs:
   non-cross:
@@ -136,6 +138,129 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: x86_64-w64-mingw32-executable
+      - name: Run example program
+        run: |
+          .\example.exe
+
+  cross-x86_64-pc-windows:
+    runs-on: ubuntu-latest
+    needs: non-cross
+    env:
+      LLVM_VERSION: 21
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: non-cross-ocaml
+      - name: Install non-cross OCaml and set up environment
+        run: |
+          set -x
+          tar xaf ocaml.tar.zst -C "$HOME"
+          rm -f ocaml.tar.zst
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh $LLVM_VERSION
+          sudo apt-get update -y && sudo apt-get install -y --no-install-recommends \
+            clang-$LLVM_VERSION clang-tools-$LLVM_VERSION gcc-mingw-w64-x86-64 \
+            lld-$LLVM_VERSION llvm-$LLVM_VERSION msitools python3
+      - name: Checkout mstorsjo/msvc-wine
+        uses: actions/checkout@v4
+        with:
+          repository: mstorsjo/msvc-wine
+          path: msvc-wine
+          persist-credentials: false
+      - name: Compute a key to cache VS components
+        id: msvc-wine-cache-key
+        run: |
+          PYTHONUNBUFFERED=1 ./msvc-wine/vsdownload.py --accept-license \
+            --architecture=x64 --host-arch=x64 --only-host=yes --print-selection \
+            Microsoft.VisualStudio.Workload.VCTools | tee selection.txt
+          echo "key=$(sha256sum selection.txt | cut -c 1-64)" >> $GITHUB_OUTPUT
+      - name: Restore msvc-wine download cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cache/msvc-wine
+          key: ${{ steps.msvc-wine-cache-key.outputs.key }}
+      - name: Set up mstorsjo/msvc-wine
+        run: |
+          mkdir -p /opt/msvc/wrappers ~/.cache/msvc-wine
+          PYTHONUNBUFFERED=1 ./msvc-wine/vsdownload.py --accept-license \
+            --cache="$HOME/.cache/msvc-wine" --dest=/opt/msvc  \
+            --architecture=x64 --host-arch=x64 --only-host=yes \
+            Microsoft.VisualStudio.Workload.VCTools
+          cd msvc-wine
+          cp -p lowercase fixinclude install.sh vsdownload.py msvctricks.cpp /opt/msvc
+          cp -p wrappers/* /opt/msvc/wrappers
+          ./install.sh /opt/msvc
+          cp -p msvcenv-native.sh /opt/msvc
+      - name: Save msvc-wine download cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/msvc-wine
+          key: ${{ steps.msvc-wine-cache-key.outputs.key }}
+      - name: Checkout OCaml
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Configure, build and install Linux-to-Windows OCaml
+        run: |
+          set -x
+          BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh && \
+          ./configure --prefix="$HOME/cross" --target=x86_64-pc-windows \
+              CC="clang-cl-$LLVM_VERSION" \
+              CC_FOR_BUILD="clang-$LLVM_VERSION" LDFLAGS_FOR_BUILD='-fuse-ld=lld' \
+              CFLAGS='-Wno-cast-function-type-mismatch' \
+              LDFLAGS='-fuse-ld=lld-link' LD="lld-link-$LLVM_VERSION" \
+              AS="llvm-ml64-$LLVM_VERSION" \
+              MANIFEST_TOOL="llvm-mt-$LLVM_VERSION" RC="llvm-rc-$LLVM_VERSION" \
+              FLEXLINKFLAGS="-use-linker=lld-link-$LLVM_VERSION -use-mt=llvm-mt-$LLVM_VERSION" \
+              TARGET_LIBDIR="$TESTDIR" || res=$?
+          if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
+          (export PATH="/opt/msvc/bin/x64:$PATH" && \
+            BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh && \
+            make crossopt -j$(nproc))
+          make installcross
+          ln -sr "$HOME/cross/bin/flexlink.opt.exe" "$HOME/.local/bin/flexlink"
+      - name: Show opt.opt configuration
+        run: |
+          set -x
+          $HOME/cross/bin/ocamlopt.opt.exe -config
+          cat runtime/build_config.h
+      - name: Cross compile a small program
+        run: |
+          printf %s "$EXAMPLE_PROGRAM$COMPLIBS_PROG_X86_64" > example.ml
+          set -x
+          cat example.ml
+          BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh && \
+          $HOME/cross/bin/ocamlopt.opt.exe -I $HOME/cross/lib/ocaml/compiler-libs/ ocamlcommon.cmxa ocamloptcomp.cmxa example.ml -o example.exe -verbose
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-pc-windows-executable
+          path: example.exe
+          retention-days: 1
+      - name: Test cross sak
+        run: |
+          printf %s "$STR_UTF16" > utf16.ref
+          printf %s "$STR_UTF8" > utf8.ref
+          set -x
+          runtime/sak encode-C-utf16-literal "$TESTDIR" > utf16
+          git diff --no-index utf16.ref utf16
+          runtime/sak encode-C-utf8-literal "$TESTDIR" > utf8
+          git diff --no-index utf8.ref utf8
+
+  run-x86_64-pc-windows:
+    runs-on: windows-latest
+    needs: cross-x86_64-pc-windows
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: x86_64-pc-windows-executable
       - name: Run example program
         run: |
           .\example.exe
