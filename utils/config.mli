@@ -125,7 +125,10 @@ val mksharedlibrpath: string
     (used by ocamlmklib) *)
 
 val ar: string
-(** Name of the ar command, or "" if not needed  (MSVC) *)
+(** Name of the ar command, or "" if not needed on *-pc-windows targets *)
+
+val link: string
+(** Name of the link command for *-pc-windows targets, or "" if not needed *)
 
 val interface_suffix: string ref
 (** Suffix for interface file names *)

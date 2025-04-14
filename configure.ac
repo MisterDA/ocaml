@@ -260,6 +260,7 @@ AC_SUBST([oc_native_compflags])
 AC_SUBST([afl])
 AC_SUBST([flexdll_chain])
 AC_SUBST([PACKLD])
+AC_SUBST([LD])
 AC_SUBST([build_libraries_manpages])
 AC_SUBST([compute_deps])
 AC_SUBST([ocaml_bindir])
@@ -395,6 +396,7 @@ AS_IF([test -n "$csc"],
 AC_ARG_VAR([AS], [which assembler to use])
 AC_ARG_VAR([ASFLAGS], [flags for the assembler])
 AC_ARG_VAR([PARTIALLD], [how to build partial (relocatable) object files])
+AC_ARG_VAR([LD], [which linker to use (when bypassing the C compiler driver)])
 AC_ARG_VAR([RC], [which resource compiler to use])
 AC_ARG_VAR([MANIFEST_TOOL], [which manifest generator to use])
 
@@ -692,9 +694,12 @@ AC_CHECK_TOOLS(MANIFEST_TOOL, [mt llvm-mt], :)
 # Initialization of libtool
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
+AS_CASE([$target],
+  [*-pc-windows], [AC_CHECK_PROGS([LD], [link lld-link])])
 AS_IF([$cross_compiler],
-  [AC_CHECK_TARGET_TOOLS([LD],[ld link],[false])],
-  [AC_CHECK_TOOLS([LD],[ld link])])
+  [AC_CHECK_TARGET_TOOLS([LD], [ld])],
+  [AC_CHECK_TOOLS([LD], [ld ld.lld ld64.lld])])
+
 # libtool will detect a build-to-host C toolchain but when building an OCaml
 # cross compiler we need the C toolchain to build the target runtime so we
 # temporarily define host* values as macros for target* values so that the
@@ -762,7 +767,7 @@ AS_CASE([$target],
       AS_IF([test "$target_cpu" = "x86_64" ],
         [machine="-machine:AMD64 "],
         [machine=""])
-      mklib="link -lib -nologo $machine /out:\$(1) \$(2)"
+      mklib="$LD -lib -nologo $machine /out:\$(1) \$(2)"
     ],
   [
     mklib="rm -f \$(1) && ${AR} rc \$(1) \$(2)"
@@ -1712,9 +1717,6 @@ AS_CASE([$enable_native_toplevel,$natdynlink],
 AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
 target_os_type="$ostype"
 
-AS_IF([$cross_compiler],
-  [AC_CHECK_TARGET_TOOL([DIRECT_LD],[ld],[false])],
-  [AC_CHECK_TOOL([DIRECT_LD],[ld])])
 AS_IF([test -z "$PARTIALLD"],
   [AS_CASE(["$target,$ocaml_cc_vendor"],
     [x86_64-*-darwin*,gcc-*], [PACKLD_FLAGS=' -arch x86_64'],
@@ -1732,8 +1734,8 @@ AS_IF([test -z "$PARTIALLD"],
     [msvc-*],
       # For the Microsoft C compiler there must be no space at the end of the
       # string.
-      [PACKLD="link -lib -nologo $machine -out:"],
-    [PACKLD="$DIRECT_LD -r$PACKLD_FLAGS -o "])],
+      [PACKLD="$LD -lib -nologo $machine -out:"],
+    [PACKLD="$LD -r$PACKLD_FLAGS -o "])],
   [PACKLD="$PARTIALLD -o "])
 
 # Disable PIE at link time when ocamlopt does not produce position-independent

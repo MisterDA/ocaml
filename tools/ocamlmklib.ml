@@ -22,7 +22,8 @@ let mklib out files opts =
     then "-machine:AMD64 "
     else ""
   in
-  Printf.sprintf "link -lib -nologo %s-out:%s %s %s" machine out opts files
+  Printf.sprintf "%s -lib -nologo %s-out:%s %s %s"
+    Config.link machine out opts files
   else Printf.sprintf "%s rcs %s %s %s" Config.ar out opts files
 
 (* PR#4783: under Windows, don't use absolute paths because we do
