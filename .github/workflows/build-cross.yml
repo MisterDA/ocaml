@@ -34,7 +34,7 @@ env:
       Printf.printf "allow_unaligned_access = %b\n" Arch.allow_unaligned_access;
       Printf.printf "macosx = %b\n" Arch.macosx
   # Fully print commands executed by Make
-  # MAKEFLAGS: V=1
+  MAKEFLAGS: V=1
 
 jobs:
   non-cross:
