@@ -730,13 +730,12 @@ popdef([host])dnl
 OCAML_WITH_NONEXECSTACK_NOTE
 OCAML_ASM_SIZE_TYPE_DIRECTIVES
 
-AS_CASE([$host],
+AS_CASE([$target],
   [sparc-sun-solaris*],
     [DEP_CC="false"],
   [*-pc-windows],
-    [AC_CHECK_TOOLS(
-      [DEP_CC],
-      [$DEP_CC gcc cc x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc],
+    [AC_CHECK_PROGS([DEP_CC],
+      [x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc],
       [false])],
   [DEP_CC="$CC"])
 
