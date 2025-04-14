@@ -1570,37 +1570,37 @@ $(foreach runtime_OBJECT_TYPE,$(subst %,,$(runtime_OBJECT_TYPES)), \
 
 ## Compilation of runtime assembly files
 
-ASPP_ERROR = \
-  { echo "If your assembler produced syntax errors, it is probably";\
-          echo "unhappy with the preprocessor. Check your assembler, or";\
-          echo "try producing $*.o by hand.";\
-          exit 2; }
+COMPILE.S.ERROR = \
+  { >&2 echo "If your assembler produced syntax errors, it is probably" \
+    "unhappy with the preprocessor. Check your assembler, or try producing" \
+    "$@ by hand."; \
+    exit 2; }
 runtime/%.o: runtime/%.S
-	$(V_ASM)$(ASPP) $(OC_ASPPFLAGS) -o $@ $< || $(ASPP_ERROR)
+	$(V_ASM)$(CC) $(ASFLAGS) $(OC_CPPFLAGS) $(OC_NATIVE_CPPFLAGS) $(CPPFLAGS) -c -o $@ $< || $(COMPILE.S.ERROR)
 
 runtime/%.d.o: runtime/%.S
-	$(V_ASM)$(ASPP) $(OC_ASPPFLAGS) $(ocamlrund_CPPFLAGS) -o $@ $< || $(ASPP_ERROR)
+	$(V_ASM)$(CC) $(ASFLAGS) $(OC_CPPFLAGS) $(OC_NATIVE_CPPFLAGS) $(ocamlrund_CPPFLAGS) $(CPPFLAGS) -c -o $@ $< || $(COMPILE.S.ERROR)
 
 runtime/%.i.o: runtime/%.S
-	$(V_ASM)$(ASPP) $(OC_ASPPFLAGS) $(ocamlruni_CPPFLAGS) -o $@ $< || $(ASPP_ERROR)
+	$(V_ASM)$(CC) $(ASFLAGS) $(OC_CPPFLAGS) $(OC_NATIVE_CPPFLAGS) $(ocamlruni_CPPFLAGS) $(CPPFLAGS) -c -o $@ $< || $(COMPILE.S.ERROR)
 
 runtime/%_libasmrunpic.o: runtime/%.S
-	$(V_ASM)$(ASPP) $(OC_ASPPFLAGS) $(SHAREDLIB_CFLAGS) -o $@ $<
+	$(V_ASM)$(CC) $(ASFLAGS) $(OC_CPPFLAGS) $(OC_NATIVE_CPPFLAGS) $(SHAREDLIB_CFLAGS) $(CPPFLAGS) -c -o $@ $< || $(COMPILE.S.ERROR)
 
 runtime/domain_state.inc: runtime/caml/domain_state.tbl
 	$(V_GEN)$(CPP) $< > $@
 
 runtime/amd64nt.obj: runtime/amd64nt.asm runtime/domain_state.inc
-	$(V_ASM)$(ASM)$@ $<
+	$(V_ASM)$(AS) $(ASFLAGS)$@ $<
 
 runtime/amd64nt.d.obj: runtime/amd64nt.asm runtime/domain_state.inc
-	$(V_ASM)$(ASM)$@ $(ocamlrund_CPPFLAGS) $<
+	$(V_ASM)$(AS) $(ASFLAGS)$@ $(ocamlrund_CPPFLAGS) $<
 
 runtime/amd64nt.i.obj: runtime/amd64nt.asm runtime/domain_state.inc
-	$(V_ASM)$(ASM)$@ $(ocamlruni_CPPFLAGS) $<
+	$(V_ASM)$(AS) $(ASFLAGS)$@ $(ocamlruni_CPPFLAGS) $<
 
 runtime/%_libasmrunpic.obj: runtime/%.asm
-	$(V_ASM)$(ASM)$@ $<
+	$(V_ASM)$(AS) $(ASFLAGS) $(SHAREDLIB_CFLAGS) $@ $<
 
 ## Runtime dependencies
 
@@ -1999,7 +1999,7 @@ asmgen_MODULE = testsuite/tools/asmgen_$(ARCH)
 asmgen_SOURCE = $(asmgen_MODULE).S
 asmgen_OBJECT = $(asmgen_MODULE).$(O)
 $(asmgen_OBJECT): $(asmgen_SOURCE)
-	$(V_ASM)$(ASPP) $(OC_ASPPFLAGS) -o $@ $< || $(ASPP_ERROR)
+	$(V_ASM)$(CC) $(ASFLAGS) $(OC_CPPFLAGS) $(OC_NATIVE_CPPFLAGS) -c -o $@ $< || $(COMPILE.S.ERROR)
 endif
 
 test_in_prefix_SOURCES = $(addprefix testsuite/tools/,\
