@@ -937,6 +937,7 @@ DIFF_FLAGS
 encode_C_literal
 SAK
 SAK_BUILD
+LDFLAGS_no_fuse_ld
 ocaml_cc_vendor
 CC
 LINEAR_MAGIC_NUMBER
@@ -3427,6 +3428,7 @@ CMXS_MAGIC_NUMBER=Caml1999D037
 CMT_MAGIC_NUMBER=Caml1999T037
 
 LINEAR_MAGIC_NUMBER=Caml1999L037
+
 
 
 
@@ -16241,6 +16243,31 @@ esac
 
 mkexe_cmd_exp="$CC"
 
+# Strip LDFLAGS of the -fuse-ld=<cmd> when the linker is called
+# directly.
+if test -n ${LDFLAGS}
+then :
+  LDFLAGS_no_fuse_ld=''
+  was_fuse_ld=false
+  for flag in ${LDFLAGS}; do
+    case $flag,$was_use_ld in #(
+  *,true) :
+    use_ld="-fuse-ld=$flag"; was_fuse_ld=false ;; #(
+  -fuse-ld,*) :
+    was_fuse_ld=true ;; #(
+  -fuse-ld=*,*) :
+    use_ld="$flag" ;; #(
+  *) :
+    LDFLAGS_no_fuse_ld="${LDFLAGS_no_fuse_ld:+$LDFLAGS_no_fuse_ld }$flag" ;;
+esac
+  done
+  unset was_fuse_ld
+  if test -z "${use_ld+x}"
+then :
+  LDFLAGS_no_fuse_ld="$LDFLAGS"
+fi
+fi
+
 case $ocaml_cc_vendor,$target in #(
   *,x86_64-*-darwin*) :
     oc_ldflags='-Wl,-no_compact_unwind';
@@ -16283,7 +16310,8 @@ esac
     mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_cmd="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_ldflags_prefix='-link '
-    mkexe_via_cc_ldflags_prefix='/link '
+    mkexe_via_cc_ldflags_prefix="${use_ld:+$use_ld }/link "
+
     oc_exe_ldflags='/ENTRY:wmainCRTStartup'
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag='' ;; #(
@@ -16308,7 +16336,7 @@ if test x"$build" = x"$target" -o x"$target_runnable" = xtrue
 then :
   case $target in #(
   *-pc-windows) :
-    SAK_BUILD="\$(CC) /nologo \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2) /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS) /debug:none && rm -f sak.obj" ;; #(
+    SAK_BUILD="\$(CC) /nologo \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2) $mkexe_via_cc_ldflags_prefix /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld) /debug:none && rm -f sak.obj" ;; #(
   *) :
     SAK_BUILD='$(MKEXE_VIA_CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)' ;;
 esac
@@ -24437,7 +24465,7 @@ then :
     mkexe_exp="$mkexe_exp $mkexe_extra_flags"
 fi
   # If $mkexe_ldflags_prefix is given, apply it to $oc_ldflags and $oc_dllflags
-  # and ensure that LDFLAGS is passed using it. This is used for flexlink. where
+  # and ensure that LDFLAGS is passed using it. This is used for flexlink, where
   # linker flags need to be prefixed with -link.
   if test -n "$mkexe_ldflags_prefix"
 then :
@@ -24447,9 +24475,9 @@ then :
   mkexedebugflag="${mkexe_ldflags_prefix}${mkexedebugflag}"
 fi
     mkdll_ldflags=""
-    if test -n "${LDFLAGS}"
+    if test -n $LDFLAGS_no_fuse_ld
 then :
-  for flag in ${LDFLAGS}; do
+  for flag in ${LDFLAGS_no_fuse_ld}; do
         mkdll_ldflags="${mkdll_ldflags} ${mkexe_ldflags_prefix}${flag}"
       done
       mkdll_ldflags_exp="$mkdll_ldflags"
@@ -24480,14 +24508,14 @@ ${mkdll_ldflags}"
 
 else $as_nop
 
-    mkdll_ldflags='$(OC_DLL_LDFLAGS) $(LDFLAGS)'
+    mkdll_ldflags='$(OC_DLL_LDFLAGS) $(LDFLAGS_no_fuse_ld)'
     mkdll_ldflags_exp="${oc_dll_ldflags}"
-    if test -n "${LDFLAGS}"
+    if test -n "${LDFLAGS_no_fuse_ld}"
 then :
-  mkdll_ldflags_exp="$mkdll_ldflags_exp $LDFLAGS"
+  mkdll_ldflags_exp="$mkdll_ldflags_exp $LDFLAGS_no_fuse_ld"
 fi
-    mkexe_ldflags="\$(OC_LDFLAGS) \$(LDFLAGS)"
-    mkexe_ldflags_exp="${oc_ldflags} ${LDFLAGS}"
+    mkexe_ldflags="\$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld)"
+    mkexe_ldflags_exp="${oc_ldflags} ${LDFLAGS_no_fuse_ld}"
 
 fi
   mkexe="$mkexe $mkexe_ldflags"
@@ -24501,7 +24529,8 @@ fi
 then :
   mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags}${oc_exe_ldflags} "
 fi
-  mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags}\$(OC_LDFLAGS) \$(LDFLAGS)"
+  mkexe_via_cc_ldflags=\
+"${mkexe_via_cc_ldflags}\$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld)"
   # cl requires linker flags after the objects.
   if test "$ccomp_type" = 'msvc'
 then :

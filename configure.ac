@@ -124,6 +124,7 @@ AC_SUBST([CMT_MAGIC_NUMBER], [CMT__MAGIC_NUMBER])
 AC_SUBST([LINEAR_MAGIC_NUMBER], [LINEAR__MAGIC_NUMBER])
 AC_SUBST([CC])
 AC_SUBST([ocaml_cc_vendor])
+AC_SUBST([LDFLAGS_no_fuse_ld])
 AC_SUBST([SAK_BUILD])
 AC_SUBST([SAK])
 AC_SUBST([encode_C_literal])
@@ -1175,6 +1176,21 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$target],
 
 mkexe_cmd_exp="$CC"
 
+# Strip LDFLAGS of the -fuse-ld=<cmd> when the linker is called
+# directly.
+AS_IF([test -n ${LDFLAGS}],
+  [LDFLAGS_no_fuse_ld=''
+  was_fuse_ld=false
+  for flag in ${LDFLAGS}; do
+    AS_CASE([$flag,$was_use_ld],
+      [*,true], [use_ld="-fuse-ld=$flag"; was_fuse_ld=false],
+      [-fuse-ld,*], [was_fuse_ld=true],
+      [-fuse-ld=*,*], [use_ld="$flag"],
+      [LDFLAGS_no_fuse_ld="${LDFLAGS_no_fuse_ld:+$LDFLAGS_no_fuse_ld }$flag"])
+  done
+  unset was_fuse_ld
+  AS_IF([test -z "${use_ld+x}"], [LDFLAGS_no_fuse_ld="$LDFLAGS"])])
+
 AS_CASE([$ocaml_cc_vendor,$target],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
@@ -1208,7 +1224,8 @@ AS_CASE([$ocaml_cc_vendor,$target],
     mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_cmd="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_ldflags_prefix='-link '
-    mkexe_via_cc_ldflags_prefix='/link '
+    mkexe_via_cc_ldflags_prefix="${use_ld:+$use_ld }/link "
+
     oc_exe_ldflags='/ENTRY:wmainCRTStartup'
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag=''],
@@ -1229,8 +1246,9 @@ AS_IF([test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
     [*-pc-windows],
       [SAK_BUILD=m4_normalize([
         "\$(CC) /nologo \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS)
-          \$(2) /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)
-          /debug:none && rm -f sak.obj"])],
+          \$(2) $mkexe_via_cc_ldflags_prefix /out:\$(1) $oc_exe_ldflags
+          \$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld) /debug:none
+          && rm -f sak.obj"])],
     [SAK_BUILD=m4_normalize([
       '$(MKEXE_VIA_CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)'])])
   SAK="\$(ROOTDIR)/runtime/sak${EXEEXT}"],
@@ -2942,15 +2960,15 @@ AC_CONFIG_COMMANDS_PRE([
     [mkexe="$mkexe $mkexe_extra_flags"
     mkexe_exp="$mkexe_exp $mkexe_extra_flags"])
   # If $mkexe_ldflags_prefix is given, apply it to $oc_ldflags and $oc_dllflags
-  # and ensure that LDFLAGS is passed using it. This is used for flexlink. where
+  # and ensure that LDFLAGS is passed using it. This is used for flexlink, where
   # linker flags need to be prefixed with -link.
   AS_IF([test -n "$mkexe_ldflags_prefix"],[
     AS_IF([test -n "$mkexedebugflag"],
       [mkexedebugflag="${mkexe_ldflags_prefix}${mkexedebugflag}"])
     mkdll_ldflags=""
-    AS_IF([test -n "${LDFLAGS}"],
-      [for flag in ${LDFLAGS}; do
-        mkdll_ldflags="${mkdll_ldflags} ${mkexe_ldflags_prefix}${flag}"
+    AS_IF([test -n $LDFLAGS_no_fuse_ld],
+      [for flag in ${LDFLAGS_no_fuse_ld}; do
+        [mkdll_ldflags="${mkdll_ldflags} ${mkexe_ldflags_prefix}${flag}"]
       done
       mkdll_ldflags_exp="$mkdll_ldflags"])
     tmp_oc_ldflags=""
@@ -2973,12 +2991,12 @@ AC_CONFIG_COMMANDS_PRE([
     mkdll_ldflags="\$(addprefix ${mkexe_ldflags_prefix},\$(OC_DLL_LDFLAGS)) \
 ${mkdll_ldflags}"
   ],[
-    mkdll_ldflags='$(OC_DLL_LDFLAGS) $(LDFLAGS)'
+    mkdll_ldflags='$(OC_DLL_LDFLAGS) $(LDFLAGS_no_fuse_ld)'
     mkdll_ldflags_exp="${oc_dll_ldflags}"
-    AS_IF([test -n "${LDFLAGS}"],
-      [mkdll_ldflags_exp="$mkdll_ldflags_exp $LDFLAGS"])
-    mkexe_ldflags="\$(OC_LDFLAGS) \$(LDFLAGS)"
-    mkexe_ldflags_exp="${oc_ldflags} ${LDFLAGS}"
+    AS_IF([test -n "${LDFLAGS_no_fuse_ld}"],
+      [mkdll_ldflags_exp="$mkdll_ldflags_exp $LDFLAGS_no_fuse_ld"])
+    mkexe_ldflags="\$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld)"
+    mkexe_ldflags_exp="${oc_ldflags} ${LDFLAGS_no_fuse_ld}"
   ])
   mkexe="$mkexe $mkexe_ldflags"
   mkexe_exp="$mkexe_exp $mkexe_ldflags_exp"
@@ -2989,7 +3007,8 @@ ${mkdll_ldflags}"
   mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags_prefix}"
   AS_IF([test -n "${oc_exe_ldflags}"],
     [mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags}${oc_exe_ldflags} "])
-  mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags}\$(OC_LDFLAGS) \$(LDFLAGS)"
+  mkexe_via_cc_ldflags=\
+"${mkexe_via_cc_ldflags}\$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld)"
   # cl requires linker flags after the objects.
   AS_IF([test "$ccomp_type" = 'msvc'],
     [mkexe_via_cc_ldflags=\

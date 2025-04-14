@@ -70,6 +70,9 @@ CC_HAS_DEBUG_PREFIX_MAP=@cc_has_debug_prefix_map@
 AS_HAS_DEBUG_PREFIX_MAP=@as_has_debug_prefix_map@
 
 LDFLAGS?=@LDFLAGS@
+# $(LDFLAGS) stripped of the -fuse-ld=<cmd> option for direct calls of
+# the linker
+LDFLAGS_no_fuse_ld=@LDFLAGS_no_fuse_ld@
 
 ### How to invoke the C preprocessor through the C compiler
 CPP=@CPP@
