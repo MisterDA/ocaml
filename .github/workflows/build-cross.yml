@@ -163,7 +163,29 @@ jobs:
           sudo ./llvm.sh $LLVM_VERSION
           sudo apt-get update -y && sudo apt-get install -y --no-install-recommends \
             clang-$LLVM_VERSION clang-tools-$LLVM_VERSION gcc-mingw-w64-x86-64 \
-            lld-$LLVM_VERSION llvm-$LLVM_VERSION msitools python3
+            lld-$LLVM_VERSION llvm-$LLVM_VERSION msitools python3 wine wine64
+          wine wineboot --init && WINEDEBUG="+all" wineserver -w
+          cat <<'EOF' > "$HOME/.local/bin/wine-ml64"
+          #!/bin/bash
+          set -eu
+          set +o pipefail       # wine may fail, but the subprocess may succeed!
+          # wine exits before the ml64 process finishes. Pipe the output to wait
+          # for the end of all processes. Remove annoying warnings.
+          wine /opt/msvc/bin/x64/ml64 "$@" 2>&1 | \
+          sed -E \
+              -e '/^it looks like wine32 is missing, you should install it.$/d' \
+              -e '/^multiarch needs to be enabled first.  as root, please$/d' \
+              -e '/^execute "dpkg --add-architecture i386 && apt-get update &&$/d' \
+              -e '/^apt-get install wine32:i386"$/d' \
+              -e '/^[0-9a-f]{4}:err:winediag:nodrv_CreateWindow.*$/d' \
+              -e '/^[0-9a-f]{4}:err:winediag:nodrv_CreateWindow.*/d' \
+              -e '/^[0-9a-f]{4}:err:systray:initialize_systray.*$/d' \
+              -e '/^[0-9a-f]{4}:err:vulkan:vulkan_init_once.*$/d' \
+              -e '/^[0-9a-f]{4}:err:winebth:bluez_dbus_init.*$/d' \
+              -e '/^[0-9a-f]{4}:err:ntoskrnl:ZwLoadDriver.*$/d' \
+              -e '/^error: XDG_RUNTIME_DIR is invalid or not set in the environment\.$/d'
+          EOF
+          chmod +x "$HOME/.local/bin/wine-ml64"
       - name: Checkout mstorsjo/msvc-wine
         uses: actions/checkout@v4
         with:
@@ -215,7 +237,7 @@ jobs:
               CC_FOR_BUILD="clang-$LLVM_VERSION" LDFLAGS_FOR_BUILD='-fuse-ld=lld' \
               CFLAGS='-Wno-cast-function-type-mismatch' \
               LDFLAGS='-fuse-ld=lld-link' LD="lld-link-$LLVM_VERSION" \
-              AS="llvm-ml64-$LLVM_VERSION" \
+              AS='wine-ml64' \
               MANIFEST_TOOL="llvm-mt-$LLVM_VERSION" RC="llvm-rc-$LLVM_VERSION" \
               FLEXLINKFLAGS="-use-linker=lld-link-$LLVM_VERSION -use-mt=llvm-mt-$LLVM_VERSION" \
               TARGET_LIBDIR="$TESTDIR" || res=$?
