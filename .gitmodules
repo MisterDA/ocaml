@@ -5,6 +5,6 @@
 	branch = master
 [submodule "winpthreads"]
 	path = winpthreads
-	url = https://github.com/ocaml/winpthreads.git
+	url = https://github.com/MisterDA/mingw-w64.git
 	shallow = true
-	branch = master
+	branch = winpthreads
