@@ -16251,7 +16251,7 @@ if test x"$build" = x"$target" -o x"$target_runnable" = xtrue
 then :
   case $target in #(
   *-pc-windows) :
-    SAK_BUILD="\$(CC) \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2) /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)" ;; #(
+    SAK_BUILD="\$(CC) /nologo \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2) /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS) /debug:none && rm -f sak.obj" ;; #(
   *) :
     SAK_BUILD='$(MKEXE_VIA_CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)' ;;
 esac

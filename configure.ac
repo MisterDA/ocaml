@@ -1222,8 +1222,9 @@ AS_IF([test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
   [AS_CASE([$target],
     [*-pc-windows],
       [SAK_BUILD=m4_normalize([
-        "\$(CC) \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2)
-        /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)"])],
+        "\$(CC) /nologo \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS)
+          \$(2) /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)
+          /debug:none && rm -f sak.obj"])],
     [SAK_BUILD=m4_normalize([
       '$(MKEXE_VIA_CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)'])])
   SAK="\$(ROOTDIR)/runtime/sak${EXEEXT}"],
