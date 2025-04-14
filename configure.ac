@@ -1018,6 +1018,12 @@ AS_CASE([$ocaml_cc_vendor],
     AX_CHECK_COMPILE_FLAG([-volatileMetadata-],
       [internal_cflags="$internal_cflags -volatileMetadata-"], [],
       [$warn_error_flag])
+    # FlexDLL doesn't handle LLVM's SHT_LLVM_ADDRSIG Section
+    # (address-significance table). Don't emit them.
+    # https://llvm.org/docs/Extensions.html#sht-llvm-addrsig-section-address-significance-table
+    AX_CHECK_COMPILE_FLAG([-fno-addrsig],
+      [internal_cflags="$internal_cflags -fno-addrsig"], [],
+      [$warn_error_flag])
     internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE=$windows_unicode"],
   [xlc-*],
     [common_cflags="-O5 -qtune=balanced -qnoipa -qinline";
