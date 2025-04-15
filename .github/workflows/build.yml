@@ -143,7 +143,7 @@ jobs:
         run: |
           MAKE_ARG=-j OCAMLRUNPARAM=b,v=0 bash -xe tools/ci/actions/runner.sh other-checks
 
-# MacOS build+testsuite run, and Linux O0 run.
+# macOS build+testsuite run, and Linux -O0 run.
   others:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -155,17 +155,17 @@ jobs:
             config_arg: CFLAGS='-O0'
           - name: linux-arm64
             os: ubuntu-24.04-arm
-          - name: macos-x86_64
+          - name: macOS-x86_64
             os: macos-13
-          - name: macos-arm64
-            os: macos-14
+          - name: macOS-arm64
+            os: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: MacOS 13 Dependencies
+      - name: macOS 13 dependencies
         if: matrix.os == 'macos-13'
         run: |
           brew install parallel
@@ -176,8 +176,8 @@ jobs:
           sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
           lldb --version
 
-      - name: MacOS 14 Dependencies
-        if: matrix.os == 'macos-14'
+      - name: macOS 15 dependencies
+        if: matrix.os == 'macos-15'
         run: |
           brew install parallel
           # Allows starting up lldb from a remote terminal
@@ -186,10 +186,10 @@ jobs:
           sudo DevToolsSecurity --enable
           spctl developer-mode enable-terminal
           # Select latest supported version
-          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
           lldb --version
 
-      - name: configure tree
+      - name: Configure tree
         run: |
           CONFIG_ARG='--enable-codegen-invariants ${{ matrix.config_arg }}' MAKE_ARG=-j bash -xe tools/ci/actions/runner.sh configure
       - name: Build
