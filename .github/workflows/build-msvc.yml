@@ -95,7 +95,7 @@ jobs:
   build:
     permissions: {}
 
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     needs: config
 
