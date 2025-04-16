@@ -939,7 +939,8 @@ AS_CASE([$ocaml_cc_vendor],
   [msvc-*],
     [AS_CASE([$ocaml_cc_vendor],
       [msvc-*-clang-*],
-        [cc_warnings='-W4 -Wno-unused-parameter -Wno-sign-compare -Wundef'
+        [cc_warnings='-W4 -Wno-unused-parameter -Wno-sign-compare -Wundef\
+-Wno-gnu-label-as-value -Wno-gnu-null-pointer-arithmetic'
          warn_error_flag='-WX'],
       [cc_warnings='-W2'
        warn_error_flag='-WX -options:strict'])],
