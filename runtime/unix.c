@@ -542,3 +542,44 @@ void caml_plat_mem_unmap(void* mem, uintnat size)
   if (munmap(mem, size) != 0)
     CAMLassert(0);
 }
+
+/* Threads */
+
+int caml_plat_thread_create(caml_plat_thread *restrict thread,
+                            const caml_plat_thread_attr *restrict attr,
+                            void *(*start_routine)(void *),
+                            void *restrict arg)
+{
+  return pthread_create(thread, attr, start_routine, arg);
+}
+
+int caml_plat_thread_equal(caml_plat_thread t1, caml_plat_thread t2)
+{
+  return pthread_equal(t1, t2);
+}
+
+caml_plat_thread caml_plat_thread_self(void)
+{
+  return pthread_self();
+}
+
+int caml_plat_thread_detach(caml_plat_thread thread)
+{
+  return pthread_detach(thread);
+}
+
+int caml_plat_thread_join(caml_plat_thread thread)
+{
+  return pthread_join(thread, NULL);
+}
+
+int caml_plat_thread_cancel(caml_plat_thread t)
+{
+  return pthread_cancel(t);
+}
+
+void caml_plat_thread_exit(void)
+{
+  pthread_exit(NULL);
+}
+

@@ -103,6 +103,22 @@ Caml_inline void cpu_relax(void) {
 
 typedef pthread_mutex_t caml_plat_mutex;
 #define CAML_PLAT_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
+
+typedef pthread_t caml_plat_thread;
+typedef pthread_attr_t caml_plat_thread_attr;
+
+int caml_plat_thread_create(caml_plat_thread *restrict,
+                            const caml_plat_thread_attr *restrict,
+                            void *(*)(void *),
+                            void *restrict);
+
+int caml_plat_thread_equal(caml_plat_thread, caml_plat_thread);
+caml_plat_thread caml_plat_thread_self(void);
+int caml_plat_thread_detach(caml_plat_thread);
+int caml_plat_thread_join(caml_plat_thread);
+CAMLnoret void caml_plat_thread_exit(void);
+int caml_plat_thread_cancel(caml_plat_thread);
+
 CAMLextern void caml_plat_mutex_init(caml_plat_mutex*);
 Caml_inline void caml_plat_lock_blocking(caml_plat_mutex*);
 Caml_inline void caml_plat_lock_non_blocking(caml_plat_mutex*);
