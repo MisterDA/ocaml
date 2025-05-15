@@ -182,6 +182,9 @@ Working version
   sources of installed packages.
   (Pierre Boutillier, review by Gabriel Scherer)
 
+- #14032, #14034: Update to and require FlexDLL 0.44.
+  (Jan Midtgaard, Antonin Décimo, review by David Allsopp)
+
 ### Manual and documentation:
 
 * #13975: documented the `[@remove_aliases]` built-in attribute for signatures
