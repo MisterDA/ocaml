@@ -16,13 +16,15 @@
 #define CAML_INTERNALS
 #include <caml/mlvalues.h>
 #include <caml/signals.h>
+#include <caml/osdeps.h>
 #include "caml/unixsupport.h"
+#include <math.h>
 
 CAMLprim value caml_unix_sleep(value sec)
 {
-  DWORD msec = (DWORD) (Double_val(sec) * MSEC_PER_SEC);
+  const struct timespec req = caml_timespec_of_sec(Double_val(sec));
   caml_enter_blocking_section();
-  Sleep(msec);
+  caml_win32_nanosleep(&req, NULL);
   caml_leave_blocking_section();
   return Val_unit;
 }
