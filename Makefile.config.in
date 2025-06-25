@@ -137,11 +137,12 @@ MODEL=@model@
 ### Name of operating system family for the native-code compiler.
 SYSTEM=@system@
 
-### Command and flags to use for assembling ocamlopt-generated code
-ASM=@AS@
+### Program for compiling assembly files.
+AS=@AS@
 
-### Command and flags to use for assembling .S files (often with preprocessing)
-ASPP=@ASPP@
+### Extra flags to give to the assembler (when explicitly invoked
+### on a '.s' or '.S' file).
+ASFLAGS=@oc_asflags@ @ASFLAGS@
 
 ### Set to "true" to install ".byte" executables (ocamlc.byte, etc.)
 INSTALL_BYTECODE_PROGRAMS=@install_bytecode_programs@
@@ -221,6 +222,11 @@ AWK=@AWK@
 NAKED_POINTERS=false
 
 # Deprecated variables
+
+## Variables deprecated since OCaml 5.5
+
+ASM=@AS@ @oc_asflags@ @ASFLAGS@
+ASPP=@ASPP@
 
 ## Variables deprecated since OCaml 5.3
 

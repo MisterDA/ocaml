@@ -21,7 +21,9 @@ let arch = {@QS@|@arch@|@QS@}
 
 let afl_instrument = @afl@
 
-let asm = {@QS@|@AS@|@QS@}
+let asm = {@QS@|@AS@|@QS@} ^ " " ^
+          {@QS@|@oc_asflags@|@QS@} ^ " " ^
+          {@QS@|@ASFLAGS@|@QS@}
 
 let cpp = {@QS@|@ocamltest_CPP@|@QS@}
 

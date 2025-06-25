@@ -78,7 +78,9 @@ let model = {@QS@|@model@|@QS@}
 let system = {@QS@|@system@|@QS@}
 let target_os_type = {@QS@|@target_os_type@|@QS@}
 
-let asm = {@QS@|@AS@|@QS@}
+let asm = {@QS@|@AS@|@QS@} ^ " " ^
+          {@QS@|@oc_asflags@|@QS@} ^ " " ^
+          {@QS@|@ASFLAGS@|@QS@}
 let asm_cfi_supported = @asm_cfi_supported@
 let asm_size_type_directives = @asm_size_type_directives@
 let with_frame_pointers = @frame_pointers@
