@@ -91,7 +91,7 @@ let compile_file ?output ?(opt="") ?stable_name name =
   let debug_prefix_map =
     match stable_name with
     | Some stable
-      when Config.c_has_debug_prefix_map
+      when Config.cc_has_debug_prefix_map
            && not (String.starts_with ~prefix:"mingw" Config.system) ->
       (* -fdebug-prefix-map exists on mingw-w64 but at present it is not used
          for BUILD_PATH_PREFIX_MAP because there isn't yet a good story for how
