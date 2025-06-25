@@ -215,6 +215,7 @@ AC_SUBST([unix_library])
 AC_SUBST([unix_directory])
 AC_SUBST([cc_has_debug_prefix_map])
 AC_SUBST([as_has_debug_prefix_map])
+AC_SUBST([ocaml_as_is_cc])
 AC_SUBST([with_debugger]) # TODO: rename this variable
 AC_SUBST([build_ocamldebug])
 AC_SUBST([build_ocamltex])
@@ -1740,6 +1741,7 @@ AS_IF([test -n "$ASPP"], # legacy
   [AC_MSG_ERROR(m4_normalize([\$ASPP has been removed, the C compiler is now
   always used for preprocessed assembly files.]))])
 
+ocaml_as_is_cc=false
 AS_CASE([$target,$ocaml_cc_vendor],
   [*-pc-windows,*],
     [AS_IF([test "$target_cpu" = "x86_64"],
@@ -1750,8 +1752,11 @@ AS_CASE([$target,$ocaml_cc_vendor],
   [*,clang-*], [
     # clang has deprecated as.
     : ${AS:="$CC"}
+    AS_IF(["$AS" = "$CC"],
+      [ocaml_as_is_cc=true
+      oc_asflags='-c'])
     # Some character sequences in string literals trigger trigraphs warnings.
-    oc_asflags='-c -Wno-trigraphs'
+    oc_asflags="$oc_asflags${oc_asflags:+ }-Wno-trigraphs"
   ],
   [AS_IF([$cross_compiler],
     [AC_CHECK_TARGET_TOOL([AS], [as], [$CC])],

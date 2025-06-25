@@ -848,6 +848,7 @@ build_ocamldoc
 build_ocamltex
 build_ocamldebug
 with_debugger
+ocaml_as_is_cc
 as_has_debug_prefix_map
 cc_has_debug_prefix_map
 unix_directory
@@ -3427,6 +3428,7 @@ LINEAR_MAGIC_NUMBER=Caml1999L037
 # Note: This is present for the flexdll bootstrap where it exposed as the old
 # TOOLPREF variable. It would be better if flexdll where updated to require
 # WINDRES instead.
+
 
 
 
@@ -18957,6 +18959,7 @@ then :
   as_fn_error $? "\$ASPP has been removed, the C compiler is now always used for preprocessed assembly files." "$LINENO" 5
 fi
 
+ocaml_as_is_cc=false
 case $target,$ocaml_cc_vendor in #(
   *-pc-windows,*) :
     if test "$target_cpu" = "x86_64"
@@ -19019,8 +19022,13 @@ test -n "$AS" || AS="as_fn_error $? "missing assembler" "$LINENO" 5"
 
     # clang has deprecated as.
     : ${AS:="$CC"}
+    if "$AS" = "$CC"
+then :
+  ocaml_as_is_cc=true
+      oc_asflags='-c'
+fi
     # Some character sequences in string literals trigger trigraphs warnings.
-    oc_asflags='-c -Wno-trigraphs'
+    oc_asflags="$oc_asflags${oc_asflags:+ }-Wno-trigraphs"
    ;; #(
   *) :
     if $cross_compiler
