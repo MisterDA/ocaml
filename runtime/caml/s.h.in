@@ -82,6 +82,12 @@
 
 #undef HAS_LINUX_FUTEX_H
 
+/* Define to 1 if you have void __tsan_func_exit(void) */
+#undef HAVE___TSAN_FUNC_EXIT_VOID_VOID
+
+/* Define to 1 if you have void __tsan_func_exit(void*) */
+#undef HAVE___TSAN_FUNC_EXIT_VOID_VOID_P
+
 /* 2. For the Unix library. */
 
 #undef HAS_SOCKETS
@@ -323,7 +329,5 @@
 /* 3. Language extensions. */
 
 #undef HAVE_LABELS_AS_VALUES
-
-#undef TSAN_FUNC_EXIT_SIGNATURE
 
 /* Define if the C compiler supports the labels as values extension. */

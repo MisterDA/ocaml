@@ -264,7 +264,6 @@ AC_SUBST([ocaml_libdir])
 AC_SUBST([TARGET_LIBDIR])
 AC_SUBST([QS])
 AC_SUBST([ar_supports_response_files])
-AC_SUBST([TSAN_FUNC_EXIT_SIGNATURE])
 
 ## Generated files
 
@@ -1981,89 +1980,64 @@ AS_IF([$tsan],
                    Try installing it on your system.])])
   LDFLAGS="$SAVED_LDFLAGS"
 
-  # We use tsan builtins which are internal functions
-  # and might not be backwards compatible.
-  # We explicitly check if the compiler uses the same declarations we expect
+  # We use tsan builtins which are internal functions and might not be
+  # backwards compatible. We explicitly check if the compiler uses the
+  # same declarations we expect.
+  # Some tsan builtins like __tsan_func_exit() have either of two
+  # signatures, void (void) or void (void *) (PR #14082).
+  # We first do a single check for all builtins for which we expect
+  # only one signature, then we check builtins for which we expect one
+  # of multiple signatures and set a preprocessor definition according
+  # to which one is found.
+  AC_CACHE_CHECK([for TSan builtins],
+    [ocaml_cv_tsan_builtins],
+    [saved_CFLAGS="$CFLAGS"
+    saved_LDFLAGS="$LDFLAGS"
+    CFLAGS="$CFLAGS $warn_error_flag"
+    LDFLAGS="$LDFLAGS -fsanitize=thread"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+void AnnotateHappensBefore(const char *f, int l, void *addr);
+void AnnotateHappensAfter (const char *f, int l, void *addr);
+void __tsan_func_entry   (void *);
+void __tsan_write8       (void *location);
+      ]],[[
+  AnnotateHappensBefore(__FILE__, __LINE__, (void*)0);
+  AnnotateHappensAfter (__FILE__, __LINE__, (void*)0);
+  __tsan_func_entry   ((void*)0);
+  __tsan_write8       ((void*)0);
+      ]])],
+      [ocaml_cv_tsan_builtins=yes],
+      [ocaml_cv_tsan_builtins=no])
+    CFLAGS="$saved_CFLAGS"
+    LDFLAGS="$saved_LDFLAGS"])
+  AS_IF([test x"$ocaml_cv_tsan_builtins" = xno],
+    [AC_MSG_ERROR([libtsan doesn't provide the expected builtins])])
 
-  # Some tsan builtins like __tsan_func_exit have either of
-  # 2 signatures void(void) or void(void *) (PR #14082)
-  # We first do a single check for all builtins
-  # for which we expect only one signature
-
-  # Then check builtins for which we expect one of multiple signatures
-  # and set a preprocessor definition according to which one is found
-
-  SAVED_LDFLAGS="$LDFLAGS"
-  AC_MSG_CHECKING([for ThreadSanitizer builtins])
-  LDFLAGS="$LDFLAGS -fsanitize=thread"
-  AC_LINK_IFELSE(
-    [AC_LANG_SOURCE([
-
-      void AnnotateHappensBefore(const char *f, int l, void *addr);
-      void AnnotateHappensAfter (const char *f, int l, void *addr);
-      void __tsan_func_entry   (void *);
-      void __tsan_write8       (void *location);
-
-      int main(void) {
-        AnnotateHappensBefore(__FILE__, __LINE__, (void*)0);
-        AnnotateHappensAfter (__FILE__, __LINE__, (void*)0);
-        __tsan_func_entry   ((void*)0);
-        __tsan_write8       ((void*)0);
-        return 0;
-      }
-
-    ])],
-    [ AC_MSG_RESULT([yes]) ],
-    [ AC_MSG_ERROR([libtsan provided uses unexpected builtins]) ]
-  )
-  LDFLAGS="$SAVED_LDFLAGS"
-
-  SAVED_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$LDFLAGS -fsanitize=thread"
-  AC_LINK_IFELSE(
-    [AC_LANG_SOURCE([
-
-      void __tsan_func_exit(void *);
-
-      int main(void) {
-        __tsan_func_exit((void*)0);
-        return 0;
-      }
-
-    ])],
-    [ tsan_func_exit_signature=VOID_VOID_PTR; ],
-    [  ]
-  )
-  LDFLAGS="$SAVED_LDFLAGS"
-
-  SAVED_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$LDFLAGS -fsanitize=thread"
-  AC_LINK_IFELSE(
-    [AC_LANG_SOURCE([
-
-      void __tsan_func_exit();
-
-      int main(void) {
-        __tsan_func_exit();
-        return 0;
-      }
-
-    ])],
-    [ tsan_func_exit_signature=VOID_VOID; ],
-    [  ]
-  )
-  LDFLAGS="$SAVED_LDFLAGS"
+  AC_CACHE_CHECK([the signature of __tsan_func_exit()],
+    [ocaml_cv_func_which___tsan_func_exit],
+    [saved_CFLAGS="$CFLAGS"
+    saved_LDFLAGS="$LDFLAGS"
+    CFLAGS="$CFLAGS $warn_error_flag"
+    LDFLAGS="$LDFLAGS -fsanitize=thread"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM(
+        [[void __tsan_func_exit(void);]],
+        [[__tsan_func_exit();]])],
+      [ocaml_cv_func_which___tsan_func_exit=VOID_VOID],
+      [AC_LINK_IFELSE([AC_LANG_PROGRAM(
+          [[void __tsan_func_exit(void *);]],
+          [[__tsan_func_exit((void*)0);]])],
+        [ocaml_cv_func_which___tsan_func_exit=VOID_VOID_P],
+        [ocaml_cv_func_which___tsan_func_exit='not found'])])
+    CFLAGS="$saved_CFLAGS"
+    LDFLAGS="$saved_LDFLAGS"])
 
   # Define a C macro based on the detected __tsan_func_exit signature
-  AS_CASE([$tsan_func_exit_signature],
-    [VOID_VOID_PTR],
-      [AC_DEFINE([TSAN_FUNC_EXIT_SIGNATURE], [1],
-                 [ThreadSanitizer exit function signature: void(void*)])],
-    [VOID_VOID],
-      [AC_DEFINE([TSAN_FUNC_EXIT_SIGNATURE], [2],
-                 [ThreadSanitizer exit function signature: void(void)])],
-    [AC_MSG_ERROR([libtsan provided uses
-                        unexpected type of builtin __tsan_func_exit])])
+  AS_CASE([$ocaml_cv_func_which___tsan_func_exit],
+    [VOID_VOID], [AC_DEFINE([HAVE___TSAN_FUNC_EXIT_VOID_VOID], [1],
+                    [Define to 1 if you have void __tsan_func_exit(void)])],
+    [VOID_VOID_P], [AC_DEFINE([HAVE___TSAN_FUNC_EXIT_VOID_VOID_P], [1],
+                    [Define to 1 if you have void __tsan_func_exit(void*)])],
+    [AC_MSG_ERROR([libtsan uses an unexpected signature for __tsan_func_exit])])
 
   AS_CASE([$ocaml_cc_vendor],
     [gcc-[[0123456789]]-*|gcc-10-*|clang-*],
