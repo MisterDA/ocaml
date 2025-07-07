@@ -252,7 +252,7 @@ NORETURN void __cdecl wmainCRTStartup(void)
   PROCESS_INFORMATION procinfo;
   DWORD retcode;
 
-  if (GetModuleFileName(NULL, truename, sizeof(truename)/sizeof(wchar_t)) == 0)
+  if (GetModuleFileName(NULL, truename, countof(truename)) == 0)
     exit_with_error(L"Out of memory", NULL, NULL);
 
   h = CreateFile(truename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -260,11 +260,11 @@ NORETURN void __cdecl wmainCRTStartup(void)
   if (h == INVALID_HANDLE_VALUE ||
       (runtime_path = read_runtime_path(h)) == NULL ||
       !MultiByteToWideChar(CP, 0, runtime_path, -1, wruntime_path,
-                           sizeof(wruntime_path)/sizeof(wchar_t)))
+                           countof(wruntime_path)))
     exit_with_error(NULL, truename,
                     L" not found or is not a bytecode executable file");
   CloseHandle(h);
-  if (SearchPath(NULL, wruntime_path, L".exe", sizeof(truename)/sizeof(wchar_t),
+  if (SearchPath(NULL, wruntime_path, L".exe", countof(truename),
                  truename, NULL)) {
     /* Need to ignore ctrl-C and ctrl-break, otherwise we'll die and take
        the underlying OCaml program with us! */

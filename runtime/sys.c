@@ -66,6 +66,7 @@
 #include "caml/startup_aux.h"
 #include "caml/major_gc.h"
 #include "caml/shared_heap.h"
+#include "caml/camlcountof.h"
 
 CAMLexport char * caml_strerror(int errnum, char * buf, size_t buflen)
 {
@@ -397,7 +398,7 @@ CAMLprim value caml_sys_getcwd(value unit)
   char_os buff[4096];
   char_os * ret;
 #ifdef HAS_GETCWD
-  ret = getcwd_os(buff, sizeof(buff)/sizeof(*buff));
+  ret = getcwd_os(buff, countof(buff));
 #else
   caml_invalid_argument("Sys.getcwd not implemented");
 #endif /* HAS_GETCWD */

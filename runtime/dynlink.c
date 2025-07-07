@@ -40,6 +40,7 @@
 #include "caml/signals.h"
 #include "caml/intext.h"
 #include "caml/startup.h"
+#include "caml/camlcountof.h"
 
 #include "build_config.h"
 
@@ -233,7 +234,7 @@ CAMLprim value caml_dynlink_get_bytecode_sections(value unit)
     const char* sec_names[] = {"SYMB", "CRCS"};
     tbl = caml_input_value_from_block(caml_params->section_table,
                                       caml_params->section_table_size);
-    for (int i = 0; i < sizeof(sec_names)/sizeof(sec_names[0]); i++) {
+    for (int i = 0; i < countof(sec_names); i++) {
       for (int j = 0; j < Wosize_val(tbl); j++) {
         value kv = Field(tbl, j);
         if (!strcmp(sec_names[i], String_val(Field(kv, 0))))
