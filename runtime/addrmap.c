@@ -124,7 +124,7 @@ void caml_addrmap_insert(struct addrmap* t, value k, value v) {
   *p = v;
 }
 
-void caml_addrmap_iter(struct addrmap* t, void (*f)(value, value)) {
+void caml_addrmap_iter(struct addrmap* t, typeof(void (value, value)) *f) {
   for (addrmap_iterator i = caml_addrmap_iterator(t);
        caml_addrmap_iter_ok(t, i);
        i = caml_addrmap_next(t, i)) {

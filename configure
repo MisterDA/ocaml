@@ -18067,9 +18067,9 @@ case $cc_supports_atomic,$ocaml_cc_vendor in #(
 
 
   opts=""
-  if test -n "-std:c11"
+  if test -n "-std:clatest"
 then :
-  CFLAGS="$CFLAGS -std:c11"; opts="-std:c11"
+  CFLAGS="$CFLAGS -std:clatest"; opts="-std:clatest"
 fi
   if test -n ""
 then :
@@ -18126,7 +18126,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 
      if $cc_supports_atomic
 then :
-  common_cflags="$common_cflags -std:c11"
+  common_cflags="$common_cflags -std:clatest"
 else $as_nop
 
 
@@ -18143,9 +18143,9 @@ else $as_nop
 
 
   opts=""
-  if test -n "-std:c11 -experimental:c11atomics"
+  if test -n "-std:clatest -experimental:c11atomics"
 then :
-  CFLAGS="$CFLAGS -std:c11 -experimental:c11atomics"; opts="-std:c11 -experimental:c11atomics"
+  CFLAGS="$CFLAGS -std:clatest -experimental:c11atomics"; opts="-std:clatest -experimental:c11atomics"
 fi
   if test -n ""
 then :
@@ -18202,7 +18202,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 
         if $cc_supports_atomic
 then :
-  common_cflags="$common_cflags -std:c11 -experimental:c11atomics"
+  common_cflags=\
+"$common_cflags -std:clatest -experimental:c11atomics"
 fi
 
 fi ;; #(
@@ -18216,6 +18217,63 @@ printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "C11 atomic support is required, use another C compiler
 See \`config.log' for more details" "$LINENO" 5; }
 fi
+
+# typeof operator
+
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for typeof syntax and keyword spelling" >&5
+printf %s "checking for typeof syntax and keyword spelling... " >&6; }
+if test ${ac_cv_c_typeof+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_cv_c_typeof=no
+     for ac_kw in typeof __typeof__ no; do
+       test $ac_kw = no && break
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+	   int value;
+	   typedef struct {
+		   char a [1
+			   + ! (($ac_kw (value))
+				(($ac_kw (value)) 0 < ($ac_kw (value)) -1
+				 ? ($ac_kw (value)) - 1
+				 : ~ (~ ($ac_kw (value)) 0
+				      << sizeof ($ac_kw (value)))))]; }
+	      ac__typeof_type_;
+	   return
+	     (! ((void) ((ac__typeof_type_ *) 0), 0));
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ac_cv_c_typeof=$ac_kw
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+       test $ac_cv_c_typeof != no && break
+     done
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_typeof" >&5
+printf "%s\n" "$ac_cv_c_typeof" >&6; }
+  if test $ac_cv_c_typeof != no; then
+
+printf "%s\n" "#define HAVE_TYPEOF 1" >>confdefs.h
+
+    if test $ac_cv_c_typeof != typeof; then
+
+printf "%s\n" "#define typeof $ac_cv_c_typeof" >>confdefs.h
+
+    fi
+  fi
+
 
 # Full support for thread local storage
 # macOS and MinGW-w64 have problems with thread local storage accessed from DLLs

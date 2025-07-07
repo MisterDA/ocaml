@@ -26,14 +26,14 @@ struct custom_fixed_length {
 
 struct custom_operations {
   char const *identifier;
-  void (*finalize)(value v);
-  int (*compare)(value v1, value v2);
-  intnat (*hash)(value v);
-  void (*serialize)(value v,
-                    /*out*/ uintnat * bsize_32 /*size in bytes*/,
-                    /*out*/ uintnat * bsize_64 /*size in bytes*/);
-  uintnat (*deserialize)(void * dst);
-  int (*compare_ext)(value v1, value v2);
+  typeof(void (value)) *finalize;
+  typeof(int (value v1, value v2)) *compare;
+  typeof(intnat (value v)) *hash;
+  typeof(void (value v,
+               /*out*/ uintnat * bsize_32 /*size in bytes*/,
+               /*out*/ uintnat * bsize_64 /*size in bytes*/)) *serialize;
+  typeof(uintnat (void * dst)) *deserialize;
+  typeof(int (value v1, value v2)) *compare_ext;
   const struct custom_fixed_length* fixed_length;
 };
 
@@ -83,7 +83,7 @@ CAMLextern mlsize_t caml_custom_get_max_major (void);
 extern struct custom_operations *
           caml_find_custom_operations(const char * ident);
 extern struct custom_operations *
-          caml_final_custom_operations(void (*fn)(value));
+          caml_final_custom_operations(typeof(void (value)) *fn);
 
 extern void caml_init_custom_operations(void);
 

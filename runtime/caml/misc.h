@@ -287,7 +287,7 @@ CAMLdeprecated_typedef(addr, char *);
 #ifndef __cplusplus
 #include <stdatomic.h>
 
-typedef void (*caml_timing_hook) (void);
+typedef typeof(void (void))* caml_timing_hook;
 extern _Atomic caml_timing_hook caml_major_slice_begin_hook;
 extern _Atomic caml_timing_hook caml_major_slice_end_hook;
 extern _Atomic caml_timing_hook caml_minor_gc_begin_hook;
