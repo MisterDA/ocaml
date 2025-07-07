@@ -40,6 +40,7 @@
 #include "caml/platform.h"
 #include "caml/runtime_events.h"
 #include "caml/tsan.h"
+#include "jtckdint.h"
 
 /* Note [MM]: Enforcing the memory model.
 
@@ -694,7 +695,7 @@ CAMLexport caml_stat_block caml_stat_resize(caml_stat_block b, asize_t sz)
 CAMLexport caml_stat_block caml_stat_calloc_noexc(asize_t num, asize_t sz)
 {
   uintnat total;
-  if (caml_umul_overflow(sz, num, &total))
+  if (ckd_mul(&total, sz, num))
     return NULL;
   else {
     caml_stat_block result = caml_stat_alloc_noexc(total);

@@ -436,36 +436,9 @@ CAMLnoret CAMLextern void caml_fatal_error (const char *, ...)
    If overflow is reported, this is the exact result modulo 2 to the word size.
 */
 
-Caml_inline int caml_uadd_overflow(uintnat a, uintnat b, uintnat * res)
-{
-#if __has_builtin(__builtin_add_overflow) || defined(__GNUC__) && __GNUC__ >= 5
-  return __builtin_add_overflow(a, b, res);
-#else
-  uintnat c = a + b;
-  *res = c;
-  return c < a;
-#endif
-}
-
-Caml_inline int caml_usub_overflow(uintnat a, uintnat b, uintnat * res)
-{
-#if __has_builtin(__builtin_sub_overflow) || defined(__GNUC__) && __GNUC__ >= 5
-  return __builtin_sub_overflow(a, b, res);
-#else
-  uintnat c = a - b;
-  *res = c;
-  return a < b;
-#endif
-}
-
-#if __has_builtin(__builtin_mul_overflow) || defined(__GNUC__) && __GNUC__ >= 5
-Caml_inline int caml_umul_overflow(uintnat a, uintnat b, uintnat * res)
-{
-  return __builtin_mul_overflow(a, b, res);
-}
-#else
+extern int caml_uadd_overflow(uintnat a, uintnat b, uintnat * res);
+extern int caml_usub_overflow(uintnat a, uintnat b, uintnat * res);
 extern int caml_umul_overflow(uintnat a, uintnat b, uintnat * res);
-#endif
 
 #ifdef CAML_INTERNALS
 
