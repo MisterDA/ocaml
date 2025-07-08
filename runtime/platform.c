@@ -80,7 +80,7 @@ void caml_plat_assert_locked(caml_plat_mutex* m)
 }
 
 #ifdef DEBUG
-CAMLexport CAMLthread_local int caml_lockdepth = 0;
+CAMLexport thread_local int caml_lockdepth = 0;
 #endif
 
 void caml_plat_assert_all_locks_unlocked(void)

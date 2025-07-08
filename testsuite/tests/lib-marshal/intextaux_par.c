@@ -13,6 +13,7 @@
 /*                                                                        */
 /**************************************************************************/
 
+#define CAML_INTERNALS
 #include <caml/mlvalues.h>
 #include <caml/intext.h>
 #include <caml/custom.h>
@@ -20,7 +21,7 @@
 #define CAML_INTERNALS
 
 #define BLOCK_SIZE 512
-static CAMLthread_local char marshal_block[BLOCK_SIZE];
+static thread_local char marshal_block[BLOCK_SIZE];
 
 value marshal_to_block(value vlen, value v, value vflags)
 {

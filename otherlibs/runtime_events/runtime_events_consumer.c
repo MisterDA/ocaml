@@ -59,28 +59,37 @@ struct caml_runtime_events_cursor {
   HANDLE ring_handle;
 #endif
   /* callbacks */
-  int (*runtime_begin)(int domain_id, void *callback_data, uint64_t timestamp,
-                        ev_runtime_phase phase);
-  int (*runtime_end)(int domain_id, void *callback_data, uint64_t timestamp,
-                      ev_runtime_phase phase);
-  int (*runtime_counter)(int domain_id, void *callback_data,
-                          uint64_t timestamp, ev_runtime_counter counter,
-                          uint64_t val);
-  int (*alloc)(int domain_id, void *callback_data, uint64_t timestamp,
-                uint64_t *sz);
-  int (*lifecycle)(int domain_id, void *callback_data, int64_t timestamp,
-                    ev_lifecycle lifecycle, int64_t data);
-  int (*lost_events)(int domain_id, void *callback_data, int lost_words);
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              ev_runtime_phase phase))
+  *runtime_begin;
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              ev_runtime_phase phase))
+  *runtime_end;
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              ev_runtime_counter counter, uint64_t val))
+  *runtime_counter;
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              uint64_t *sz))
+  *alloc;
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              ev_lifecycle lifecycle, int64_t data))
+  *lifecycle;
+  typeof(int (int domain_id, void *callback_data, int lost_words))
+  *lost_events;
   /* user events: mapped from type to callback */
-  int (*user_unit)(int domain_id, void* callback_data, int64_t timestamp,
-                      uintnat event_id, char* event_name);
-  int (*user_span)(int domain_id, void* callback_data, int64_t timestamp,
-                      uintnat event_id, char* event_name, ev_user_span value);
-  int (*user_int)(int domain_id, void* callback_data, int64_t timestamp,
-                      uintnat event_id, char* event_name, uint64_t val);
-  int (*user_custom)(int domain_id, void *callback_data, int64_t timestamp,
-                      uintnat event_id, char* event_name,
-                      uintnat event_data_len, uint64_t* event_data);
+  typeof(int (int domain_id, void* callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name))
+  *user_unit;
+  typeof(int (int domain_id, void* callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name, ev_user_span value))
+  *user_span;
+  typeof(int (int domain_id, void* callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name, uint64_t val))
+  *user_int;
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name,
+              uintnat event_data_len, uint64_t* event_data))
+  *user_custom;
 };
 
 /* C-API for reading from an runtime_events */
@@ -305,89 +314,73 @@ runtime_events_error caml_runtime_events_create_cursor(
 }
 
 void caml_runtime_events_set_runtime_begin(
-                                      struct caml_runtime_events_cursor *cursor,
-                                      int (*f)(int domain_id,
-                                               void *callback_data,
-                                               uint64_t timestamp,
-                                               ev_runtime_phase phase)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              ev_runtime_phase phase)) *f) {
   cursor->runtime_begin = f;
 }
 
 void caml_runtime_events_set_runtime_end(
-                                    struct caml_runtime_events_cursor *cursor,
-                                    int (*f)(int domain_id, void *callback_data,
-                                             uint64_t timestamp,
-                                             ev_runtime_phase phase)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              ev_runtime_phase phase)) *f) {
   cursor->runtime_end = f;
 }
 
 void caml_runtime_events_set_runtime_counter(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, uint64_t timestamp,
-             ev_runtime_counter counter, uint64_t val)) {
+    typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+                ev_runtime_counter counter, uint64_t val)) *f) {
   cursor->runtime_counter = f;
 }
 
-void caml_runtime_events_set_alloc(struct caml_runtime_events_cursor *cursor,
-                              int (*f)(int domain_id, void *callback_data,
-                                       uint64_t timestamp, uint64_t *sz)) {
+void caml_runtime_events_set_alloc(
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              uint64_t *sz)) *f)
+{
   cursor->alloc = f;
 }
 
 void caml_runtime_events_set_lifecycle(
-                                  struct caml_runtime_events_cursor *cursor,
-                                  int (*f)(int domain_id, void *callback_data,
-                                            int64_t timestamp,
-                                            ev_lifecycle lifecycle,
-                                            int64_t data)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              ev_lifecycle lifecycle, int64_t data)) *f) {
   cursor->lifecycle = f;
 }
 
 void caml_runtime_events_set_lost_events(
-                                    struct caml_runtime_events_cursor *cursor,
-                                    int (*f)(int domain_id,
-                                              void *callback_data,
-                                              int lost_words)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, int lost_words)) *f) {
   cursor->lost_events = f;
 }
 
 void caml_runtime_events_set_user_unit(
-                                  struct caml_runtime_events_cursor *cursor,
-                                  int (*f)(int domain_id, void *callback_data,
-                                            int64_t timestamp,
-                                            uintnat event_id,
-                                            char* event_name)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name)) *f) {
   cursor->user_unit = f;
 }
 
 void caml_runtime_events_set_user_span(
-                                  struct caml_runtime_events_cursor *cursor,
-                                  int (*f)(int domain_id, void *callback_data,
-                                            int64_t timestamp,
-                                            uintnat event_id,
-                                            char* event_name,
-                                            ev_user_span span)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name, ev_user_span span)) *f) {
   cursor->user_span = f;
 }
 
 void caml_runtime_events_set_user_int(
-                                  struct caml_runtime_events_cursor *cursor,
-                                  int (*f)(int domain_id, void *callback_data,
-                                            int64_t timestamp,
-                                            uintnat event_id,
-                                            char* event_name,
-                                            uint64_t val)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name, uint64_t val)) *f) {
   cursor->user_int = f;
 }
 
 void caml_runtime_events_set_user_custom(
-                                  struct caml_runtime_events_cursor *cursor,
-                                  int (*f)(int domain_id, void *callback_data,
-                                            int64_t timestamp,
-                                            uintnat event_id,
-                                            char* event_name,
-                                            uintnat event_data_len,
-                                            uint64_t* event_data)) {
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+              uintnat event_id, char* event_name, uintnat event_data_len,
+              uint64_t* event_data)) *f) {
   cursor->user_custom = f;
 }
 

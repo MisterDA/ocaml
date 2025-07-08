@@ -19,6 +19,7 @@
 #include <caml/alloc.h>
 #include <caml/fail.h>
 #include <caml/osdeps.h>
+#include <caml/camlcountof.h>
 #include "caml/unixsupport.h"
 
 #if !defined(_WIN32)
@@ -39,7 +40,7 @@ CAMLprim value caml_unix_getcwd(value unit)
 {
   char_os buff[PATH_MAX];
   char_os * ret;
-  ret = getcwd_os(buff, sizeof(buff)/sizeof(*buff));
+  ret = getcwd_os(buff, countof(buff));
   if (ret == 0) caml_uerror("getcwd", Nothing);
   return caml_copy_string_of_os(buff);
 }

@@ -27,6 +27,7 @@
 #include "caml/domain.h"
 #include "caml/startup.h"
 #include "caml/startup_aux.h"
+#include "jtckdint.h"
 
 _Atomic caml_timing_hook caml_major_slice_begin_hook = (caml_timing_hook)NULL;
 _Atomic caml_timing_hook caml_major_slice_end_hook = (caml_timing_hook)NULL;
@@ -60,7 +61,7 @@ CAMLnoret void caml_debug_abort(const char_os * file_os, int line) {
 #endif
 
 #if defined(DEBUG)
-static CAMLthread_local int noalloc_level = 0;
+static thread_local int noalloc_level = 0;
 int caml_noalloc_begin(void)
 {
   return noalloc_level++;
@@ -212,49 +213,20 @@ void caml_ext_table_free(struct ext_table * tbl, int free_entries)
 
 /* Integer arithmetic with overflow detection */
 
-#if ! (__has_builtin(__builtin_mul_overflow) || \
-       defined(__GNUC__) && __GNUC__ >= 5)
-CAMLexport int caml_umul_overflow(uintnat a, uintnat b, uintnat * res)
+int caml_uadd_overflow(uintnat a, uintnat b, uintnat * res)
 {
-#define HALF_SIZE (sizeof(uintnat) * 4)
-#define HALF_MASK (((uintnat)1 << HALF_SIZE) - 1)
-#define LOW_HALF(x) ((x) & HALF_MASK)
-#define HIGH_HALF(x) ((x) >> HALF_SIZE)
-  /* Cut in half words */
-  uintnat al = LOW_HALF(a);
-  uintnat ah = HIGH_HALF(a);
-  uintnat bl = LOW_HALF(b);
-  uintnat bh = HIGH_HALF(b);
-  /* Exact product is:
-              al * bl
-           +  ah * bl  << HALF_SIZE
-           +  al * bh  << HALF_SIZE
-           +  ah * bh  << 2*HALF_SIZE
-     Overflow occurs if:
-        ah * bh is not 0, i.e. ah != 0 and bh != 0
-     OR ah * bl has high half != 0
-     OR al * bh has high half != 0
-     OR the sum al * bl + LOW_HALF(ah * bl) << HALF_SIZE
-                        + LOW_HALF(al * bh) << HALF_SIZE overflows.
-     This sum is equal to p = (a * b) modulo word size. */
-  uintnat p = a * b;
-  uintnat p1 = al * bh;
-  uintnat p2 = ah * bl;
-  *res = p;
-  if (ah == 0 && bh == 0) return 0;
-  if (ah != 0 && bh != 0) return 1;
-  if (HIGH_HALF(p1) != 0 || HIGH_HALF(p2) != 0) return 1;
-  p1 <<= HALF_SIZE;
-  p2 <<= HALF_SIZE;
-  p1 += p2;
-  if (p < p1 || p1 < p2) return 1; /* overflow in sums */
-  return 0;
-#undef HALF_SIZE
-#undef HALF_MASK
-#undef LOW_HALF
-#undef HIGH_HALF
+  return ckd_add(res, a, b);
 }
-#endif
+
+int caml_usub_overflow(uintnat a, uintnat b, uintnat * res)
+{
+  return ckd_sub(res, a, b);
+}
+
+int caml_umul_overflow(uintnat a, uintnat b, uintnat * res)
+{
+  return ckd_mul(res, a, b);
+}
 
 /* Runtime warnings */
 

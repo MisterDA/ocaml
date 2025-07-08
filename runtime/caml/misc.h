@@ -159,6 +159,9 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLthread_local thread_local
 #else
 #define CAMLthread_local _Thread_local
+#if defined(CAML_INTERNALS) && !defined(thread_local)
+#define thread_local _Thread_local
+#endif
 #endif
 
 /* Prefetching */
@@ -287,7 +290,7 @@ CAMLdeprecated_typedef(addr, char *);
 #ifndef __cplusplus
 #include <stdatomic.h>
 
-typedef void (*caml_timing_hook) (void);
+typedef typeof(void (void))* caml_timing_hook;
 extern _Atomic caml_timing_hook caml_major_slice_begin_hook;
 extern _Atomic caml_timing_hook caml_major_slice_end_hook;
 extern _Atomic caml_timing_hook caml_minor_gc_begin_hook;
@@ -436,36 +439,9 @@ CAMLnoret CAMLextern void caml_fatal_error (const char *, ...)
    If overflow is reported, this is the exact result modulo 2 to the word size.
 */
 
-Caml_inline int caml_uadd_overflow(uintnat a, uintnat b, uintnat * res)
-{
-#if __has_builtin(__builtin_add_overflow) || defined(__GNUC__) && __GNUC__ >= 5
-  return __builtin_add_overflow(a, b, res);
-#else
-  uintnat c = a + b;
-  *res = c;
-  return c < a;
-#endif
-}
-
-Caml_inline int caml_usub_overflow(uintnat a, uintnat b, uintnat * res)
-{
-#if __has_builtin(__builtin_sub_overflow) || defined(__GNUC__) && __GNUC__ >= 5
-  return __builtin_sub_overflow(a, b, res);
-#else
-  uintnat c = a - b;
-  *res = c;
-  return a < b;
-#endif
-}
-
-#if __has_builtin(__builtin_mul_overflow) || defined(__GNUC__) && __GNUC__ >= 5
-Caml_inline int caml_umul_overflow(uintnat a, uintnat b, uintnat * res)
-{
-  return __builtin_mul_overflow(a, b, res);
-}
-#else
+extern int caml_uadd_overflow(uintnat a, uintnat b, uintnat * res);
+extern int caml_usub_overflow(uintnat a, uintnat b, uintnat * res);
 extern int caml_umul_overflow(uintnat a, uintnat b, uintnat * res);
-#endif
 
 #ifdef CAML_INTERNALS
 

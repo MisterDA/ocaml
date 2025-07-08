@@ -47,43 +47,44 @@ caml_runtime_events_create_cursor(const char_os* runtime_events_path, int pid,
 /* Set the runtime_begin event callback on the cursor */
 CAMLextern void caml_runtime_events_set_runtime_begin(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, uint64_t timestamp,
-             ev_runtime_phase phase));
+    typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+                ev_runtime_phase phase)) *f);
 
 /* Set the runtime_end event callback on the cursor */
 CAMLextern void caml_runtime_events_set_runtime_end(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, uint64_t timestamp,
-             ev_runtime_phase phase));
+    typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+                ev_runtime_phase phase)) *f);
 
 /* Set the runtime_counter event callback on the cursor */
 CAMLextern void caml_runtime_events_set_runtime_counter(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, uint64_t timestamp,
-             ev_runtime_counter counter, uint64_t val));
+    typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+                ev_runtime_counter counter, uint64_t val)) *f);
 
 /* Set the alloc event callback on the cursor */
 CAMLextern void
-caml_runtime_events_set_runtime_alloc(struct caml_runtime_events_cursor *cursor,
-                                 int (*f)(int domain_id, void *callback_data,
-                                          uint64_t timestamp, uint64_t *sz));
+caml_runtime_events_set_runtime_alloc(
+  struct caml_runtime_events_cursor *cursor,
+  typeof(int (int domain_id, void *callback_data, uint64_t timestamp,
+              uint64_t *sz)) *f);
 
 /* Set the lifecycle event callback on the cursor */
 CAMLextern void caml_runtime_events_set_lifecycle(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, int64_t timestamp,
-              ev_lifecycle lifecycle, int64_t data));
+    typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+                ev_lifecycle lifecycle, int64_t data)) *f);
 
 /* Set the lost events callback on the cursor */
 CAMLextern void caml_runtime_events_set_lost_events(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, int lost_words));
+    typeof(int (int domain_id, void *callback_data, int lost_words)) *f);
 
 /* Set the user events callback on the cursor */
 CAMLextern void caml_runtime_events_set_user_events(
     struct caml_runtime_events_cursor *cursor,
-    int (*f)(int domain_id, void *callback_data, int64_t timestamp,
-            value event, uintnat event_data_len, uint64_t* event_data));
+    typeof(int (int domain_id, void *callback_data, int64_t timestamp,
+                value event, uintnat event_data_len, uint64_t* event_data)) *f);
 
 /* frees a cursor obtained from caml_runtime_events_creator_cursor */
 CAMLextern void

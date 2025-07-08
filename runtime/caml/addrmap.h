@@ -47,7 +47,7 @@ void caml_addrmap_init(struct addrmap* t);
 
 void caml_addrmap_clear(struct addrmap* t);
 
-void caml_addrmap_iter(struct addrmap* t, void (*f)(value, value));
+void caml_addrmap_iter(struct addrmap* t, typeof(void (value, value))* f);
 
 /* iteration */
 typedef uintnat addrmap_iterator;
