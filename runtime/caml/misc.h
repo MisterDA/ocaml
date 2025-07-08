@@ -159,6 +159,9 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLthread_local thread_local
 #else
 #define CAMLthread_local _Thread_local
+#if defined(CAML_INTERNALS) && !defined(thread_local)
+#define thread_local _Thread_local
+#endif
 #endif
 
 /* Prefetching */
