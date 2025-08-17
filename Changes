@@ -204,6 +204,9 @@ Working version
 - #13810: Support build of cross compilers to native freestanding targets
   (Samuel Hym, review by Antonin Décimo and Romain Calascibetta)
 
+- #?????: Rework assembler tool usage and discovery.
+  (Antonin Décimo, review by ???)
+
 ### Bug fixes:
 
 - #14071: Fix exception name in Dynlink.Error printer.

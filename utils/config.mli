@@ -64,11 +64,17 @@ val c_output_obj: string
 (** Name of the option of the C compiler for specifying the output
     file *)
 
-val c_has_debug_prefix_map : bool
+val cc_has_debug_prefix_map : bool
 (** Whether the C compiler supports -fdebug-prefix-map *)
 
 val as_has_debug_prefix_map : bool
 (** Whether the assembler supports --debug-prefix-map *)
+
+val as_is_cc : bool
+(** Whether the assembler is actually an assembler, or whether we are
+    really assembling files via the C compiler.
+
+    @since 5.5 *)
 
 val bytecode_cflags : string
 (** The flags ocamlc should pass to the C compiler *)

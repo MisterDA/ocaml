@@ -26,8 +26,9 @@ let ccomp_type = {@QS@|@ccomp_type@|@QS@}
 let c_compiler = {@QS@|@CC@|@QS@}
 let c_compiler_vendor = {@QS@|@ocaml_cc_vendor@|@QS@}
 let c_output_obj = {@QS@|@outputobj@|@QS@}
-let c_has_debug_prefix_map = @cc_has_debug_prefix_map@
-let as_has_debug_prefix_map = @as_has_debug_prefix_map@
+let cc_has_debug_prefix_map = @cc_has_debug_prefix_map@
+let ocaml_cv_prog_as_debug_prefix_map = @ocaml_cv_prog_as_debug_prefix_map@
+let as_is_cc = @ocaml_as_is_cc@
 let bytecode_cflags = {@QS@|@bytecode_cflags@|@QS@}
 let bytecode_cppflags = {@QS@|@bytecode_cppflags@|@QS@}
 let native_cflags = {@QS@|@native_cflags@|@QS@}
@@ -78,7 +79,9 @@ let model = {@QS@|@model@|@QS@}
 let system = {@QS@|@system@|@QS@}
 let target_os_type = {@QS@|@target_os_type@|@QS@}
 
-let asm = {@QS@|@AS@|@QS@}
+let asm = {@QS@|@AS@|@QS@} ^ " " ^
+          {@QS@|@oc_asflags@|@QS@} ^ " " ^
+          {@QS@|@ASFLAGS@|@QS@}
 let asm_cfi_supported = @asm_cfi_supported@
 let asm_size_type_directives = @asm_size_type_directives@
 let with_frame_pointers = @frame_pointers@
