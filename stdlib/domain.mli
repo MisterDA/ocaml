@@ -79,7 +79,7 @@ let temp_file_key = Domain.DLS.new_key (fun _ ->
     case the current domain exits. *)
 
 val cpu_relax : unit -> unit
-(** If busy-waiting, calling cpu_relax () between iterations
+(** If busy-waiting, calling [cpu_relax ()] between iterations
     will improve performance on some CPU architectures *)
 
 val is_main_domain : unit -> bool
