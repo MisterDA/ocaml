@@ -39,7 +39,7 @@
 #include <sys/cpuset.h>
 typedef cpuset_t cpu_set_t;
 #endif
-#ifdef _WIN32
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <sysinfoapi.h>
@@ -2459,10 +2459,28 @@ CAMLprim value caml_recommended_domain_count(value unused)
     n = sysconf(_SC_NPROCESSORS_ONLN);
 #endif /* _SC_NPROCESSORS_ONLN */
 
-#ifdef _WIN32
-  SYSTEM_INFO sysinfo;
-  GetSystemInfo(&sysinfo);
-  n = sysinfo.dwNumberOfProcessors;
+#if defined(_WIN32)
+  PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX buffer = NULL;
+  DWORD length;
+
+  while (! GetLogicalProcessorInformationEx(RelationAll, buffer, &length)) {
+    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+      buffer = caml_stat_resize(buffer, length);
+    } else {
+      goto skip;
+    }
+  }
+
+  n = 0;
+  for (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX ptr = buffer;
+       ptr - buffer < length;
+       ptr += ptr->Size) {
+    n += ptr->Relationship == RelationProcessorCore;
+  }
+
+skip:
+  caml_stat_free(buffer);
+
 #endif /* _WIN32 */
 
   /* At least one, even if system says zero */
