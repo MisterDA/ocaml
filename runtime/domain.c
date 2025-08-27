@@ -43,7 +43,10 @@ typedef cpuset_t cpu_set_t;
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <sysinfoapi.h>
+#elif defined(__APPLE__)
+#include <sys/sysctl.h>
 #endif
+
 #include "caml/alloc.h"
 #include "caml/backtrace.h"
 #include "caml/backtrace_prim.h"
@@ -2481,7 +2484,11 @@ CAMLprim value caml_recommended_domain_count(value unused)
 skip:
   caml_stat_free(buffer);
 
-#endif /* _WIN32 */
+#elif defined(__APPLE__)
+  size_t len = sizeof(n);
+  if (sysctlbyname("hw.physicalcpu", &n, &len, NULL, 0) == -1)
+    n = -1;
+#endif
 
   /* At least one, even if system says zero */
   if (n <= 0)
