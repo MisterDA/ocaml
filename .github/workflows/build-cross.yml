@@ -123,7 +123,7 @@ jobs:
           git diff --no-index utf8.ref utf8
 
   run-windows:
-    runs-on: windows-latest
+    runs-on: windows-2025
     needs: cross-windows
     steps:
       - name: Download Artifact
