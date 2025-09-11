@@ -52,7 +52,7 @@ sp is a local copy of the global variable Caml_state->current_stack->sp. */
 /* Instruction decoding */
 
 #ifdef THREADED_CODE
-#  define Instruct(name) lbl_##name
+#  define Instruct(name) lbl_##name:
 #  if defined(ARCH_SIXTYFOUR) && !defined(ARCH_CODE32)
 #    define Jumptbl_base &&lbl_ACC0
 #  else
@@ -66,7 +66,7 @@ sp is a local copy of the global variable Caml_state->current_stack->sp. */
 #  endif
 #  define Fallthrough ((void) 0)
 #else
-#  define Instruct(name) case name
+#  define Instruct(name) case name:
 #  define Next break
 #  define Fallthrough fallthrough
 #endif
@@ -386,85 +386,118 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Basic stack operations */
 
-    Instruct(ACC0):
+    Instruct(ACC0) {
       accu = sp[0]; Next;
-    Instruct(ACC1):
+    }
+    Instruct(ACC1) {
       accu = sp[1]; Next;
-    Instruct(ACC2):
+    }
+    Instruct(ACC2) {
       accu = sp[2]; Next;
-    Instruct(ACC3):
+    }
+    Instruct(ACC3) {
       accu = sp[3]; Next;
-    Instruct(ACC4):
+    }
+    Instruct(ACC4) {
       accu = sp[4]; Next;
-    Instruct(ACC5):
+    }
+    Instruct(ACC5) {
       accu = sp[5]; Next;
-    Instruct(ACC6):
+    }
+    Instruct(ACC6) {
       accu = sp[6]; Next;
-    Instruct(ACC7):
+    }
+    Instruct(ACC7) {
       accu = sp[7]; Next;
+    }
 
-    Instruct(PUSH): Instruct(PUSHACC0):
+    Instruct(PUSH) {
       *--sp = accu; Next;
-    Instruct(PUSHACC1):
+    }
+    Instruct(PUSHACC0) {
+      *--sp = accu; Next;
+    }
+    Instruct(PUSHACC1) {
       *--sp = accu; accu = sp[1]; Next;
-    Instruct(PUSHACC2):
+    }
+    Instruct(PUSHACC2) {
       *--sp = accu; accu = sp[2]; Next;
-    Instruct(PUSHACC3):
+    }
+    Instruct(PUSHACC3) {
       *--sp = accu; accu = sp[3]; Next;
-    Instruct(PUSHACC4):
+    }
+    Instruct(PUSHACC4) {
       *--sp = accu; accu = sp[4]; Next;
-    Instruct(PUSHACC5):
+    }
+    Instruct(PUSHACC5) {
       *--sp = accu; accu = sp[5]; Next;
-    Instruct(PUSHACC6):
+    }
+    Instruct(PUSHACC6) {
       *--sp = accu; accu = sp[6]; Next;
-    Instruct(PUSHACC7):
+    }
+    Instruct(PUSHACC7) {
       *--sp = accu; accu = sp[7]; Next;
+    }
 
-    Instruct(PUSHACC):
+    Instruct(PUSHACC) {
       *--sp = accu;
       Fallthrough;
-    Instruct(ACC):
+    }
+    Instruct(ACC) {
       accu = sp[*pc++];
       Next;
+    }
 
-    Instruct(POP):
+    Instruct(POP) {
       sp += *pc++;
       Next;
-    Instruct(ASSIGN):
+    }
+    Instruct(ASSIGN) {
       sp[*pc++] = accu;
       accu = Val_unit;
       Next;
+    }
 
 /* Access in heap-allocated environment */
 
-    Instruct(ENVACC1):
+    Instruct(ENVACC1) {
       accu = Field(env, 1); Next;
-    Instruct(ENVACC2):
+    }
+    Instruct(ENVACC2) {
       accu = Field(env, 2); Next;
-    Instruct(ENVACC3):
+    }
+    Instruct(ENVACC3) {
       accu = Field(env, 3); Next;
-    Instruct(ENVACC4):
+    }
+    Instruct(ENVACC4) {
       accu = Field(env, 4); Next;
+    }
 
-    Instruct(PUSHENVACC1):
+    Instruct(PUSHENVACC1) {
       *--sp = accu; accu = Field(env, 1); Next;
-    Instruct(PUSHENVACC2):
+    }
+    Instruct(PUSHENVACC2) {
       *--sp = accu; accu = Field(env, 2); Next;
-    Instruct(PUSHENVACC3):
+    }
+    Instruct(PUSHENVACC3) {
       *--sp = accu; accu = Field(env, 3); Next;
-    Instruct(PUSHENVACC4):
+    }
+    Instruct(PUSHENVACC4) {
       *--sp = accu; accu = Field(env, 4); Next;
+    }
 
-    Instruct(PUSHENVACC):
+    Instruct(PUSHENVACC) {
       *--sp = accu;
       Fallthrough;
-    Instruct(ENVACC):
+    }
+    Instruct(ENVACC) {
       accu = Field(env, *pc++);
       Next;
+    }
 
 /* Function application */
 
-    Instruct(PUSH_RETADDR): {
+    Instruct(PUSH_RETADDR) {
       sp -= 3;
       sp[0] = (value) (pc + *pc);
       sp[1] = env;
@@ -472,13 +505,13 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc++;
       Next;
     }
-    Instruct(APPLY): {
+    Instruct(APPLY) {
       extra_args = *pc - 1;
       pc = Code_val(accu);
       env = accu;
       goto check_stacks;
     }
-    Instruct(APPLY1): {
+    Instruct(APPLY1) {
       value arg1 = sp[0];
       sp -= 3;
       sp[0] = arg1;
@@ -490,7 +523,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       extra_args = 0;
       goto check_stacks;
     }
-    Instruct(APPLY2): {
+    Instruct(APPLY2) {
       value arg1 = sp[0];
       value arg2 = sp[1];
       sp -= 3;
@@ -504,7 +537,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       extra_args = 1;
       goto check_stacks;
     }
-    Instruct(APPLY3): {
+    Instruct(APPLY3) {
       value arg1 = sp[0];
       value arg2 = sp[1];
       value arg3 = sp[2];
@@ -521,7 +554,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       goto check_stacks;
     }
 
-    Instruct(APPTERM): {
+    Instruct(APPTERM) {
       int nargs = *pc++;
       int slotsize = *pc;
       value * newsp;
@@ -535,7 +568,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       extra_args += nargs - 1;
       goto check_stacks;
     }
-    Instruct(APPTERM1): {
+    Instruct(APPTERM1) {
       value arg1 = sp[0];
       sp = sp + *pc - 1;
       sp[0] = arg1;
@@ -543,7 +576,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       env = accu;
       goto check_stacks;
     }
-    Instruct(APPTERM2): {
+    Instruct(APPTERM2) {
       value arg1 = sp[0];
       value arg2 = sp[1];
       sp = sp + *pc - 2;
@@ -554,7 +587,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       extra_args += 1;
       goto check_stacks;
     }
-    Instruct(APPTERM3): {
+    Instruct(APPTERM3) {
       value arg1 = sp[0];
       value arg2 = sp[1];
       value arg3 = sp[2];
@@ -568,7 +601,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       goto check_stacks;
     }
 
-    Instruct(RETURN): {
+    Instruct(RETURN) {
       sp += *pc++;
       if (extra_args > 0) {
         extra_args--;
@@ -610,7 +643,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       }
       Next;
 
-    Instruct(RESTART): {
+    Instruct(RESTART) {
       int num_args = Wosize_val(env) - 3;
       sp -= num_args;
       for (int i = 0; i < num_args; i++) sp[i] = Field(env, i + 3);
@@ -619,7 +652,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       Next;
     }
 
-    Instruct(GRAB): {
+    Instruct(GRAB) {
       int required = *pc++;
       if (extra_args >= required) {
         extra_args -= required;
@@ -636,8 +669,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
         goto do_return;
       }
     }
-
-    Instruct(CLOSURE): {
+    Instruct(CLOSURE) {
       int nvars = *pc++;
       if (nvars > 0) *--sp = accu;
       if (nvars <= Max_young_wosize - 2) {
@@ -661,7 +693,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       Next;
     }
 
-    Instruct(CLOSUREREC): {
+    Instruct(CLOSUREREC) {
       int nfuncs = *pc++;
       int nvars = *pc++;
       mlsize_t envofs = nfuncs * 3 - 1;
@@ -697,40 +729,50 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc += nfuncs;
       Next;
     }
-
-    Instruct(PUSHOFFSETCLOSURE):
+    Instruct(PUSHOFFSETCLOSURE) {
       *--sp = accu; Fallthrough;
-    Instruct(OFFSETCLOSURE):
+    }
+    Instruct(OFFSETCLOSURE) {
       accu = env + *pc++ * sizeof(value); Next;
+    }
 
-    Instruct(PUSHOFFSETCLOSUREM3):
+    Instruct(PUSHOFFSETCLOSUREM3) {
       *--sp = accu; Fallthrough;
-    Instruct(OFFSETCLOSUREM3):
+    }
+    Instruct(OFFSETCLOSUREM3) {
       accu = env - 3 * sizeof(value); Next;
-    Instruct(PUSHOFFSETCLOSURE0):
+    }
+    Instruct(PUSHOFFSETCLOSURE0) {
       *--sp = accu; Fallthrough;
-    Instruct(OFFSETCLOSURE0):
+    }
+    Instruct(OFFSETCLOSURE0) {
       accu = env; Next;
-    Instruct(PUSHOFFSETCLOSURE3):
+    }
+    Instruct(PUSHOFFSETCLOSURE3) {
       *--sp = accu; Fallthrough;
-    Instruct(OFFSETCLOSURE3):
+    }
+    Instruct(OFFSETCLOSURE3) {
       accu = env + 3 * sizeof(value); Next;
+    }
 
 
 /* Access to global variables */
 
-    Instruct(PUSHGETGLOBAL):
+    Instruct(PUSHGETGLOBAL) {
       *--sp = accu;
       Fallthrough;
-    Instruct(GETGLOBAL):
+    }
+    Instruct(GETGLOBAL) {
       accu = Field(caml_global_data, *pc);
       pc++;
       Next;
+    }
 
-    Instruct(PUSHGETGLOBALFIELD):
+    Instruct(PUSHGETGLOBALFIELD) {
       *--sp = accu;
       Fallthrough;
-    Instruct(GETGLOBALFIELD): {
+    }
+    Instruct(GETGLOBALFIELD) {
       accu = Field(caml_global_data, *pc);
       pc++;
       accu = Field(accu, *pc);
@@ -738,7 +780,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       Next;
     }
 
-    Instruct(SETGLOBAL):  {
+    Instruct(SETGLOBAL) {
       caml_modify(&Field(caml_global_data, *pc), accu);
       accu = Val_unit;
       pc++;
@@ -747,19 +789,23 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Allocation of blocks */
 
-    Instruct(PUSHATOM0):
+    Instruct(PUSHATOM0) {
       *--sp = accu;
       Fallthrough;
-    Instruct(ATOM0):
+    }
+    Instruct(ATOM0) {
       accu = Atom(0); Next;
+    }
 
-    Instruct(PUSHATOM):
+    Instruct(PUSHATOM) {
       *--sp = accu;
       Fallthrough;
-    Instruct(ATOM):
+    }
+    Instruct(ATOM) {
       accu = Atom(*pc++); Next;
+    }
 
-    Instruct(MAKEBLOCK): {
+    Instruct(MAKEBLOCK) {
       mlsize_t wosize = *pc++;
       tag_t tag = *pc++;
       value block;
@@ -776,7 +822,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       accu = block;
       Next;
     }
-    Instruct(MAKEBLOCK1): {
+    Instruct(MAKEBLOCK1) {
       tag_t tag = *pc++;
       value block;
       Alloc_small(block, 1, tag, Enter_gc);
@@ -784,7 +830,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       accu = block;
       Next;
     }
-    Instruct(MAKEBLOCK2): {
+    Instruct(MAKEBLOCK2) {
       tag_t tag = *pc++;
       value block;
       Alloc_small(block, 2, tag, Enter_gc);
@@ -794,7 +840,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       accu = block;
       Next;
     }
-    Instruct(MAKEBLOCK3): {
+    Instruct(MAKEBLOCK3) {
       tag_t tag = *pc++;
       value block;
       Alloc_small(block, 3, tag, Enter_gc);
@@ -805,7 +851,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       accu = block;
       Next;
     }
-    Instruct(MAKEFLOATBLOCK): {
+    Instruct(MAKEFLOATBLOCK) {
       mlsize_t size = *pc++;
       value block;
       if (size <= Max_young_wosize / Double_wosize) {
@@ -824,54 +870,64 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Access to components of blocks */
 
-    Instruct(GETFIELD0):
+    Instruct(GETFIELD0) {
       accu = Field(accu, 0); Next;
-    Instruct(GETFIELD1):
+    }
+    Instruct(GETFIELD1) {
       accu = Field(accu, 1); Next;
-    Instruct(GETFIELD2):
+    }
+    Instruct(GETFIELD2) {
       accu = Field(accu, 2); Next;
-    Instruct(GETFIELD3):
+    }
+    Instruct(GETFIELD3) {
       accu = Field(accu, 3); Next;
-    Instruct(GETFIELD):
+    }
+    Instruct(GETFIELD) {
       accu = Field(accu, *pc); pc++; Next;
-    Instruct(GETFLOATFIELD): {
+    }
+    Instruct(GETFLOATFIELD) {
       double d = Double_flat_field(accu, *pc++);
       Alloc_small(accu, Double_wosize, Double_tag, Enter_gc);
       Store_double_val(accu, d);
       Next;
     }
-
-    Instruct(SETFIELD0):
+    Instruct(SETFIELD0) {
       caml_modify(&Field(accu, 0), *sp++);
       accu = Val_unit;
       Next;
-    Instruct(SETFIELD1):
+    }
+    Instruct(SETFIELD1) {
       caml_modify(&Field(accu, 1), *sp++);
       accu = Val_unit;
       Next;
-    Instruct(SETFIELD2):
+    }
+    Instruct(SETFIELD2) {
       caml_modify(&Field(accu, 2), *sp++);
       accu = Val_unit;
       Next;
-    Instruct(SETFIELD3):
+    }
+    Instruct(SETFIELD3) {
       caml_modify(&Field(accu, 3), *sp++);
       accu = Val_unit;
       Next;
-    Instruct(SETFIELD):
+    }
+    Instruct(SETFIELD) {
       caml_modify(&Field(accu, *pc), *sp++);
       accu = Val_unit;
       pc++;
       Next;
-    Instruct(SETFLOATFIELD):
+    }
+    Instruct(SETFLOATFIELD) {
       Store_double_flat_field(accu, *pc, Double_val(*sp));
       accu = Val_unit;
       sp++;
       pc++;
       Next;
+    }
 
 /* Array operations */
 
-    Instruct(VECTLENGTH): {
+    Instruct(VECTLENGTH) {
       /* Todo: when FLAT_FLOAT_ARRAY is false, this instruction should
          be split into VECTLENGTH and FLOATVECTLENGTH because we know
          statically which one it is. */
@@ -880,40 +936,51 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       accu = Val_long(size);
       Next;
     }
-    Instruct(GETVECTITEM):
+    Instruct(GETVECTITEM) {
       accu = Field(accu, Long_val(sp[0]));
       sp += 1;
       Next;
-    Instruct(SETVECTITEM):
+    }
+    Instruct(SETVECTITEM) {
       caml_modify(&Field(accu, Long_val(sp[0])), sp[1]);
       accu = Val_unit;
       sp += 2;
       Next;
+    }
 
 /* Bytes/String operations */
-    Instruct(GETSTRINGCHAR):
-    Instruct(GETBYTESCHAR):
+    Instruct(GETSTRINGCHAR) {
       accu = Val_int(Byte_u(accu, Long_val(sp[0])));
       sp += 1;
       Next;
-    Instruct(SETBYTESCHAR):
+    }
+    Instruct(GETBYTESCHAR) {
+      accu = Val_int(Byte_u(accu, Long_val(sp[0])));
+      sp += 1;
+      Next;
+    }
+    Instruct(SETBYTESCHAR) {
       Byte_u(accu, Long_val(sp[0])) = Int_val(sp[1]);
       sp += 2;
       accu = Val_unit;
       Next;
+    }
 
 /* Branches and conditional branches */
 
-    Instruct(BRANCH):
+    Instruct(BRANCH) {
       pc += *pc;
       Next;
-    Instruct(BRANCHIF):
+    }
+    Instruct(BRANCHIF) {
       if (accu != Val_false) pc += *pc; else pc++;
       Next;
-    Instruct(BRANCHIFNOT):
+    }
+    Instruct(BRANCHIFNOT) {
       if (accu == Val_false) pc += *pc; else pc++;
       Next;
-    Instruct(SWITCH): {
+    }
+    Instruct(SWITCH) {
       uint32_t sizes = *pc++;
       if (Is_block(accu)) {
         intnat index = Tag_val(accu);
@@ -926,13 +993,14 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       }
       Next;
     }
-    Instruct(BOOLNOT):
+    Instruct(BOOLNOT) {
       accu = Val_not(accu);
       Next;
+    }
 
 /* Exceptions */
 
-    Instruct(PUSHTRAP):
+    Instruct(PUSHTRAP) {
       sp -= 4;
       Trap_pc(sp) = pc + *pc;
       Trap_link(sp) = Val_long(domain_state->trap_sp_off);
@@ -941,8 +1009,9 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       domain_state->trap_sp_off = sp - Stack_high(domain_state->current_stack);
       pc++;
       Next;
+    }
 
-    Instruct(POPTRAP):
+    Instruct(POPTRAP) {
       if (Caml_check_gc_interrupt(domain_state)) {
         /* We must check here so that if a signal is pending and its
            handler triggers an exception, the exception is trapped
@@ -953,20 +1022,23 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       domain_state->trap_sp_off = Long_val(Trap_link(sp));
       sp += 4;
       Next;
+    }
 
-    Instruct(RAISE_NOTRACE):
+    Instruct(RAISE_NOTRACE) {
       check_trap_barrier_for_exception (domain_state);
       goto raise_notrace;
+    }
 
-    Instruct(RERAISE):
+    Instruct(RERAISE) {
       check_trap_barrier_for_exception (domain_state);
       if (domain_state->backtrace_active) {
         *--sp = (value)(pc - 1);
         caml_stash_backtrace(accu, sp, 1);
       }
       goto raise_notrace;
+    }
 
-    Instruct(RAISE):
+    Instruct(RAISE) {
     raise_exception:
       check_trap_barrier_for_exception (domain_state);
       if (domain_state->backtrace_active) {
@@ -1010,6 +1082,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
         sp += 4;
       }
       Next;
+    }
 
 /* Stack checks */
 
@@ -1025,10 +1098,11 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Signal handling */
 
-    Instruct(CHECK_SIGNALS):    /* accu not preserved */
+    Instruct(CHECK_SIGNALS) {     /* accu not preserved */
       if (Caml_check_gc_interrupt(domain_state))
         goto process_signal;
       Next;
+    }
 
     process_signal:
       Setup_for_event;
@@ -1038,41 +1112,46 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Calling C functions */
 
-    Instruct(C_CALL1):
+    Instruct(C_CALL1) {
       Setup_for_c_call;
       accu = Primitive1(*pc)(accu);
       Restore_after_c_call;
       pc++;
       Next;
-    Instruct(C_CALL2):
+    }
+    Instruct(C_CALL2) {
       Setup_for_c_call;
       accu = Primitive2(*pc)(accu, sp[2]);
       Restore_after_c_call;
       sp += 1;
       pc++;
       Next;
-    Instruct(C_CALL3):
+    }
+    Instruct(C_CALL3) {
       Setup_for_c_call;
       accu = Primitive3(*pc)(accu, sp[2], sp[3]);
       Restore_after_c_call;
       sp += 2;
       pc++;
       Next;
-    Instruct(C_CALL4):
+    }
+    Instruct(C_CALL4) {
       Setup_for_c_call;
       accu = Primitive4(*pc)(accu, sp[2], sp[3], sp[4]);
       Restore_after_c_call;
       sp += 3;
       pc++;
       Next;
-    Instruct(C_CALL5):
+    }
+    Instruct(C_CALL5) {
       Setup_for_c_call;
       accu = Primitive5(*pc)(accu, sp[2], sp[3], sp[4], sp[5]);
       Restore_after_c_call;
       sp += 4;
       pc++;
       Next;
-    Instruct(C_CALLN): {
+    }
+    Instruct(C_CALLN) {
       int nargs = *pc++;
       *--sp = accu;
       Setup_for_c_call;
@@ -1085,71 +1164,92 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Integer constants */
 
-    Instruct(CONST0):
+    Instruct(CONST0) {
       accu = Val_int(0); Next;
-    Instruct(CONST1):
+    }
+    Instruct(CONST1) {
       accu = Val_int(1); Next;
-    Instruct(CONST2):
+    }
+    Instruct(CONST2) {
       accu = Val_int(2); Next;
-    Instruct(CONST3):
+    }
+    Instruct(CONST3) {
       accu = Val_int(3); Next;
+    }
 
-    Instruct(PUSHCONST0):
+    Instruct(PUSHCONST0) {
       *--sp = accu; accu = Val_int(0); Next;
-    Instruct(PUSHCONST1):
+    }
+    Instruct(PUSHCONST1) {
       *--sp = accu; accu = Val_int(1); Next;
-    Instruct(PUSHCONST2):
+    }
+    Instruct(PUSHCONST2) {
       *--sp = accu; accu = Val_int(2); Next;
-    Instruct(PUSHCONST3):
+    }
+    Instruct(PUSHCONST3) {
       *--sp = accu; accu = Val_int(3); Next;
+    }
 
-    Instruct(PUSHCONSTINT):
+    Instruct(PUSHCONSTINT) {
       *--sp = accu;
       Fallthrough;
-    Instruct(CONSTINT):
+    }
+    Instruct(CONSTINT) {
       accu = Val_int(*pc);
       pc++;
       Next;
+    }
 
 /* Integer arithmetic */
 
-    Instruct(NEGINT):
+    Instruct(NEGINT) {
       accu = (value)(2 - (intnat)accu); Next;
-    Instruct(ADDINT):
+    }
+    Instruct(ADDINT) {
       accu = (value)((intnat) accu + (intnat) *sp++ - 1); Next;
-    Instruct(SUBINT):
+    }
+    Instruct(SUBINT) {
       accu = (value)((intnat) accu - (intnat) *sp++ + 1); Next;
-    Instruct(MULINT):
+    }
+    Instruct(MULINT) {
       accu = Val_long(Long_val(accu) * Long_val(*sp++)); Next;
+    }
 
-    Instruct(DIVINT): {
+    Instruct(DIVINT) {
       intnat divisor = Long_val(*sp++);
       if (divisor == 0) { Setup_for_c_call; caml_raise_zero_divide(); }
       accu = Val_long(Long_val(accu) / divisor);
       Next;
     }
-    Instruct(MODINT): {
+    Instruct(MODINT) {
       intnat divisor = Long_val(*sp++);
       if (divisor == 0) { Setup_for_c_call; caml_raise_zero_divide(); }
       accu = Val_long(Long_val(accu) % divisor);
       Next;
     }
-    Instruct(ANDINT):
+    Instruct(ANDINT) {
       accu = (value)((intnat) accu & (intnat) *sp++); Next;
-    Instruct(ORINT):
+    }
+    Instruct(ORINT) {
       accu = (value)((intnat) accu | (intnat) *sp++); Next;
-    Instruct(XORINT):
+    }
+    Instruct(XORINT) {
       accu = (value)(((intnat) accu ^ (intnat) *sp++) | 1); Next;
-    Instruct(LSLINT):
+    }
+    Instruct(LSLINT) {
       accu = (value)((((intnat) accu - 1) << Long_val(*sp++)) + 1); Next;
-    Instruct(LSRINT):
+    }
+    Instruct(LSRINT) {
       accu = (value)((((uintnat) accu) >> Long_val(*sp++)) | 1); Next;
-    Instruct(ASRINT):
+    }
+    Instruct(ASRINT) {
       accu = (value)((((intnat) accu) >> Long_val(*sp++)) | 1); Next;
+    }
 
-#define Integer_comparison(typ,opname,tst) \
-    Instruct(opname): \
-      accu = Val_int((typ) accu tst (typ) *sp++); Next;
+#define Integer_comparison(typ,opname,tst)              \
+    Instruct(opname) {                                  \
+      accu = Val_int((typ) accu tst (typ) *sp++); Next; \
+    }
 
     Integer_comparison(intnat,EQ, ==)
     Integer_comparison(intnat,NEQ, !=)
@@ -1161,12 +1261,13 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
     Integer_comparison(uintnat,UGEINT, >=)
 
 #define Integer_branch_comparison(typ,opname,tst,debug) \
-    Instruct(opname): \
-      if ( *pc++ tst (typ) Long_val(accu)) { \
-        pc += *pc ; \
-      } else { \
-        pc++ ; \
-      } ; Next;
+    Instruct(opname) {                                  \
+      if ( *pc++ tst (typ) Long_val(accu)) {            \
+        pc += *pc ;                                     \
+      } else {                                          \
+        pc++ ;                                          \
+      } ; Next;                                         \
+    }
 
     Integer_branch_comparison(intnat,BEQ, ==, "==")
     Integer_branch_comparison(intnat,BNEQ, !=, "!=")
@@ -1177,30 +1278,34 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
     Integer_branch_comparison(uintnat,BULTINT, <, "<")
     Integer_branch_comparison(uintnat,BUGEINT, >=, ">=")
 
-    Instruct(OFFSETINT):
+    Instruct(OFFSETINT) {
       accu += *pc << 1;
       pc++;
       Next;
-    Instruct(OFFSETREF):
+    }
+    Instruct(OFFSETREF) {
       Field(accu, 0) += *pc << 1;
       accu = Val_unit;
       pc++;
       Next;
-    Instruct(ISINT):
+    }
+    Instruct(ISINT) {
       accu = Val_long(accu & 1);
       Next;
+    }
 
 /* Object-oriented operations */
 
 #define Lookup(obj, lab) Field (Field (obj, 0), Int_val(lab))
 
-    Instruct(GETMETHOD):
+    Instruct(GETMETHOD) {
       accu = Lookup(sp[0], accu);
       Next;
+    }
 
 #define CAML_METHOD_CACHE
 #ifdef CAML_METHOD_CACHE
-    Instruct(GETPUBMET): {
+    Instruct(GETPUBMET) {
       /* accu == object, pc[0] == tag, pc[1] == cache */
       value meths = Field (accu, 0);
       value ofs;
@@ -1238,13 +1343,14 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       Next;
     }
 #else
-    Instruct(GETPUBMET):
+    Instruct(GETPUBMET) {
       *--sp = accu;
       accu = Val_int(*pc);
       pc += 2;
       Fallthrough;
+    }
 #endif
-    Instruct(GETDYNMET): {
+    Instruct(GETDYNMET) {
       /* accu == tag, sp[0] == object, *pc == cache */
       value meths = Field (sp[0], 0);
       int li = 3, hi = Field(meths,0), mi;
@@ -1259,29 +1365,32 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
 
 /* Debugging and machine control */
 
-    Instruct(STOP):
+    Instruct(STOP) {
       domain_state->external_raise = initial_external_raise;
       domain_state->trap_sp_off = initial_trap_sp_off;
       domain_state->current_stack->sp = sp;
       return accu;
+    }
 
-    Instruct(EVENT):
+    Instruct(EVENT) {
       if (--caml_event_count == 0) {
         Setup_for_debugger;
         caml_debugger(EVENT_COUNT, Val_unit);
         Restore_after_debugger;
       }
       Restart_curr_instr;
+    }
 
-    Instruct(BREAK):
+    Instruct(BREAK) {
       Setup_for_debugger;
       caml_debugger(BREAKPOINT, Val_unit);
       Restore_after_debugger;
       Restart_curr_instr;
+    }
 
 /* Context switching */
 
-    Instruct(RESUME):
+    Instruct(RESUME) {
       resume_fn = sp[0];
       resume_arg = sp[1];
       sp -= 3;
@@ -1291,6 +1400,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       sp[3] = env;
       sp[4] = Val_long(extra_args);
       goto do_resume;
+    }
 
 do_resume: {
       struct stack_info* cont_tail = Ptr_val(accu);
@@ -1319,16 +1429,17 @@ do_resume: {
       goto check_stacks;
     }
 
-    Instruct(RESUMETERM):
+    Instruct(RESUMETERM) {
       resume_fn = sp[0];
       resume_arg = sp[1];
       sp = sp + *pc - 2;
       sp[0] = Val_long(domain_state->trap_sp_off);
       sp[1] = Val_long(extra_args);
       goto do_resume;
+    }
 
 
-    Instruct(PERFORM): {
+    Instruct(PERFORM) {
       value cont;
       struct stack_info* old_stack = domain_state->current_stack;
       struct stack_info* parent_stack = Stack_parent(old_stack);
@@ -1366,7 +1477,7 @@ do_resume: {
       goto check_stacks;
     }
 
-    Instruct(REPERFORMTERM): {
+    Instruct(REPERFORMTERM) {
       value eff = accu;
       value cont = sp[0];
       struct stack_info* cont_tail = Ptr_val(Field(cont, 0));
@@ -1413,6 +1524,7 @@ do_resume: {
       env = accu;
       extra_args += 1;
       goto check_stacks;
+    }
     }
 
 #ifndef THREADED_CODE
