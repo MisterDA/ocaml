@@ -247,6 +247,49 @@ static CAMLthread_local intnat caml_bcodcount;
 
 static value raise_unhandled_effect;
 
+/* Stack checks */
+
+#define Goto_check_stacks() goto check_stacks
+#define Check_stacks()                                          \
+  check_stacks:                                                 \
+  if (sp < Stack_threshold_ptr(domain_state->current_stack)) {  \
+    domain_state->current_stack->sp = sp;                       \
+    if (!caml_try_realloc_stack(Stack_threshold_words)) {       \
+      Setup_for_c_call; caml_raise_stack_overflow();            \
+    }                                                           \
+    sp = domain_state->current_stack->sp;                       \
+  }                                                             \
+  Fallthrough; /* CHECK_SIGNALS */
+
+#define Goto_do_resume() goto do_resume
+#define Do_resume()                                                     \
+  do_resume: {                                                          \
+  struct stack_info* cont_tail = Ptr_val(accu);                         \
+  if (cont_tail == NULL) {                                              \
+    Setup_for_c_call;                                                   \
+    caml_raise_continuation_already_resumed();                          \
+  }                                                                     \
+  struct stack_info* cont_head = Stack_parent(cont_tail);               \
+  if (cont_head == NULL) {                                              \
+    /* Freshly allocated stack; entering this computation for the first \
+       time */                                                          \
+    cont_head = cont_tail;                                              \
+  }                                                                     \
+  Stack_parent(cont_tail) = Caml_state->current_stack;                  \
+                                                                        \
+  domain_state->current_stack->sp = sp;                                 \
+  domain_state->current_stack = cont_head;                              \
+  sp = domain_state->current_stack->sp;                                 \
+                                                                        \
+  domain_state->trap_sp_off = Long_val(sp[0]);                          \
+  sp[0] = resume_arg;                                                   \
+  accu = resume_fn;                                                     \
+  pc = Code_val(accu);                                                  \
+  env = accu;                                                           \
+  extra_args = 0;                                                       \
+  Goto_check_stacks();                                                  \
+  }
+
 /* The interpreter itself */
 
 CAMLno_tsan /* No need to TSan-instrument this (and pay a slowdown) function as
@@ -509,7 +552,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       extra_args = *pc - 1;
       pc = Code_val(accu);
       env = accu;
-      goto check_stacks;
+      Goto_check_stacks();
     }
     Instruct(APPLY1) {
       value arg1 = sp[0];
@@ -521,7 +564,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc = Code_val(accu);
       env = accu;
       extra_args = 0;
-      goto check_stacks;
+      Goto_check_stacks();
     }
     Instruct(APPLY2) {
       value arg1 = sp[0];
@@ -535,7 +578,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc = Code_val(accu);
       env = accu;
       extra_args = 1;
-      goto check_stacks;
+      Goto_check_stacks();
     }
     Instruct(APPLY3) {
       value arg1 = sp[0];
@@ -551,7 +594,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc = Code_val(accu);
       env = accu;
       extra_args = 2;
-      goto check_stacks;
+      Goto_check_stacks();
     }
 
     Instruct(APPTERM) {
@@ -566,7 +609,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc = Code_val(accu);
       env = accu;
       extra_args += nargs - 1;
-      goto check_stacks;
+      Goto_check_stacks();
     }
     Instruct(APPTERM1) {
       value arg1 = sp[0];
@@ -574,7 +617,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       sp[0] = arg1;
       pc = Code_val(accu);
       env = accu;
-      goto check_stacks;
+      Goto_check_stacks();
     }
     Instruct(APPTERM2) {
       value arg1 = sp[0];
@@ -585,7 +628,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc = Code_val(accu);
       env = accu;
       extra_args += 1;
-      goto check_stacks;
+      Goto_check_stacks();
     }
     Instruct(APPTERM3) {
       value arg1 = sp[0];
@@ -598,7 +641,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       pc = Code_val(accu);
       env = accu;
       extra_args += 2;
-      goto check_stacks;
+      Goto_check_stacks();
     }
 
     Instruct(RETURN) {
@@ -633,7 +676,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
         accu = hval;
         pc = Code_val(accu);
         env = accu;
-        goto check_stacks;
+        Goto_check_stacks();
       } else {
         /* return to callee, no stack switching */
         pc = (code_t)(sp[0]);
@@ -1070,7 +1113,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
           accu = hexn;
           pc = Code_val(accu);
           env = accu;
-          goto check_stacks;
+          Goto_check_stacks();
         }
       } else {
         sp =
@@ -1084,17 +1127,7 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       Next;
     }
 
-/* Stack checks */
-
-    check_stacks:
-      if (sp < Stack_threshold_ptr(domain_state->current_stack)) {
-        domain_state->current_stack->sp = sp;
-        if (!caml_try_realloc_stack(Stack_threshold_words)) {
-          Setup_for_c_call; caml_raise_stack_overflow();
-        }
-        sp = domain_state->current_stack->sp;
-      }
-      Fallthrough; /* CHECK_SIGNALS */
+    Check_stacks();
 
 /* Signal handling */
 
@@ -1399,35 +1432,10 @@ value caml_bytecode_interpreter(code_t prog, asize_t prog_size,
       sp[2] = (value)pc;
       sp[3] = env;
       sp[4] = Val_long(extra_args);
-      goto do_resume;
+      Goto_do_resume();
     }
 
-do_resume: {
-      struct stack_info* cont_tail = Ptr_val(accu);
-      if (cont_tail == NULL) {
-        Setup_for_c_call;
-        caml_raise_continuation_already_resumed();
-      }
-      struct stack_info* cont_head = Stack_parent(cont_tail);
-      if (cont_head == NULL) {
-        /* Freshly allocated stack; entering this computation for the first
-           time */
-        cont_head = cont_tail;
-      }
-      Stack_parent(cont_tail) = Caml_state->current_stack;
-
-      domain_state->current_stack->sp = sp;
-      domain_state->current_stack = cont_head;
-      sp = domain_state->current_stack->sp;
-
-      domain_state->trap_sp_off = Long_val(sp[0]);
-      sp[0] = resume_arg;
-      accu = resume_fn;
-      pc = Code_val(accu);
-      env = accu;
-      extra_args = 0;
-      goto check_stacks;
-    }
+    Do_resume();
 
     Instruct(RESUMETERM) {
       resume_fn = sp[0];
@@ -1435,9 +1443,8 @@ do_resume: {
       sp = sp + *pc - 2;
       sp[0] = Val_long(domain_state->trap_sp_off);
       sp[1] = Val_long(extra_args);
-      goto do_resume;
+      Goto_do_resume();
     }
-
 
     Instruct(PERFORM) {
       value cont;
@@ -1474,7 +1481,7 @@ do_resume: {
       pc = Code_val(accu);
       env = accu;
       extra_args += 1;
-      goto check_stacks;
+      Goto_check_stacks();
     }
 
     Instruct(REPERFORMTERM) {
@@ -1504,7 +1511,7 @@ do_resume: {
         Restore_after_c_call;
         resume_fn = raise_unhandled_effect;
 
-        goto do_resume;
+        Goto_do_resume();
       }
 
       self->sp = sp;
@@ -1523,8 +1530,7 @@ do_resume: {
       pc = Code_val(accu);
       env = accu;
       extra_args += 1;
-      goto check_stacks;
-    }
+      Goto_check_stacks();
     }
 
 #ifndef THREADED_CODE
