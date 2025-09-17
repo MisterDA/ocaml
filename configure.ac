@@ -269,6 +269,7 @@ AC_SUBST([ocaml_libdir])
 AC_SUBST([TARGET_LIBDIR])
 AC_SUBST([QS])
 AC_SUBST([ar_supports_response_files])
+AC_SUBST([link_nocoffgrpinfo])
 
 ## Generated files
 
@@ -696,7 +697,10 @@ AC_CHECK_TOOLS(MANIFEST_TOOL, [mt llvm-mt], :)
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
 AS_CASE([$target],
-  [*-pc-windows], [AC_CHECK_PROGS([LD], [link lld-link])])
+  [*-pc-windows],
+  [AC_CHECK_PROGS([LD], [link lld-link])
+  AX_CHECK_LINK_FLAG(['/NOCOFFGRPINFO'],
+    [link_nocoffgrpinfo='/NOCOFFGRPINFO'])])
 AS_IF([$cross_compiler],
   [AC_CHECK_TARGET_TOOLS([LD], [ld])],
   [AC_CHECK_TOOLS([LD], [ld ld.lld ld64.lld])])
