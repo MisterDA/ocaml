@@ -177,6 +177,8 @@ jobs:
               -e '/^multiarch needs to be enabled first.  as root, please$/d' \
               -e '/^execute "dpkg --add-architecture i386 && apt-get update &&$/d' \
               -e '/^apt-get install wine32:i386"$/d' \
+              -e '/^[0-9a-f]{4}:fixme:winediag:loader_init.*$/d' \
+              -e '/^[0-9a-f]{4}:err:wineboot:process_run_key.*$/d' \
               -e '/^[0-9a-f]{4}:err:winediag:nodrv_CreateWindow.*$/d' \
               -e '/^[0-9a-f]{4}:err:winediag:nodrv_CreateWindow.*/d' \
               -e '/^[0-9a-f]{4}:err:systray:initialize_systray.*$/d' \
@@ -212,11 +214,11 @@ jobs:
             --cache="$HOME/.cache/msvc-wine" --dest=/opt/msvc  \
             --architecture=x64 --host-arch=x64 --only-host=yes \
             Microsoft.VisualStudio.Workload.VCTools
-          cd msvc-wine
-          cp -p lowercase fixinclude install.sh vsdownload.py msvctricks.cpp /opt/msvc
-          cp -p wrappers/* /opt/msvc/wrappers
+          (cd msvc-wine
+          cp -fpr lowercase fixinclude install.sh vsdownload.py msvctricks.cpp /opt/msvc
+          cp -fpr wrappers/* /opt/msvc/wrappers
           ./install.sh /opt/msvc
-          cp -p msvcenv-native.sh /opt/msvc
+          cp -fpr msvcenv-native.sh /opt/msvc)
       - name: Save msvc-wine download cache
         uses: actions/cache/save@v4
         with:
@@ -235,11 +237,10 @@ jobs:
           ./configure --prefix="$HOME/cross" --target=x86_64-pc-windows \
               CC="clang-cl-$LLVM_VERSION" \
               CC_FOR_BUILD="clang-$LLVM_VERSION" LDFLAGS_FOR_BUILD='-fuse-ld=lld' \
-              CFLAGS='-Wno-cast-function-type-mismatch' \
               LDFLAGS='-fuse-ld=lld-link' LD="lld-link-$LLVM_VERSION" \
               AS='wine-ml64' \
               MANIFEST_TOOL="llvm-mt-$LLVM_VERSION" RC="llvm-rc-$LLVM_VERSION" \
-              FLEXLINKFLAGS="-use-linker=lld-link-$LLVM_VERSION -use-mt=llvm-mt-$LLVM_VERSION" \
+              FLEXLINKFLAGS="-use-linker=lld-link-$LLVM_VERSION" \
               TARGET_LIBDIR="$TESTDIR" || res=$?
           if ! [ "$res" = 0 ]; then cat config.log; exit "$res"; fi
           (export PATH="/opt/msvc/bin/x64:$PATH" && \

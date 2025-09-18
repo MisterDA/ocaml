@@ -1094,8 +1094,12 @@ AS_CASE([$target],
     flexlink_flags='-merge-manifest -stack 33554432'],
   [flexdll_chain=''])
 
+AS_IF([test -n "$LD"],
+  [flexlink_flags="${flexlink_flags:+$flexlink_flags }-use-linker '$LD'"])
+
 AS_IF([test -n "$MANIFEST_TOOL"],
-  [flexlink_flags="${flexlink_flags:+$flexlink_flags }-use-mt $MANIFEST_TOOL"])
+  [flexlink_flags="${flexlink_flags:+$flexlink_flags }-use-mt '$MANIFEST_TOOL'"]
+)
 
 AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
   AC_MSG_CHECKING([for flexdll sources])
