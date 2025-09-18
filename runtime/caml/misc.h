@@ -165,14 +165,36 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLalign(n) _Alignas(n)
 #endif
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L || \
-    defined(__cplusplus) && !defined(__CYGWIN__)
-    /* #14220: flexlink does not support C++11 's thread_local,
-       so prefer _Thread_local on Cygwin systems. */
-#define CAMLthread_local thread_local
+/* Thread storage duration */
+
+#if defined(_MSC_VER) && defined(__cplusplus)
+#if __has_cpp_attribute(msvc::no_tls_guard)
+#define CAMLthread_local_msvc 1
+#define CAMLthread_local_msvc_no_tls_guard [[msvc::no_tls_guard]]
 #else
-#define CAMLthread_local _Thread_local
+#define CAMLthread_local_gnuc 1
 #endif
+#elif defined(_MSC_VER)
+#define CAMLthread_local_msvc 1
+#define CAMLthread_local_msvc_no_tls_guard
+#else
+#define CAMLthread_local_gnuc 1
+#endif
+
+/* Use CAMLthread_local_decl for declarations and CAMLthread_local for
+   definitions if the symbol is visible by a C++ compiler. */
+#if defined(CAMLthread_local_msvc)
+#define CAMLthread_local __declspec(thread)
+#define CAMLthread_local_decl(type, name)                       \
+  CAMLthread_local type name CAMLthread_local_msvc_no_tls_guard
+#else
+#define CAMLthread_local __thread
+#define CAMLthread_local_decl(type, name)       \
+  CAMLthread_local type name
+#endif
+
+#undef CAMLthread_local_msvc
+#undef CAMLthread_local_gnuc
 
 /* Prefetching */
 

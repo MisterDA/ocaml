@@ -356,7 +356,7 @@ static void stop_active_domain(dom_internal* dom) {
   check_stw_domains();
 }
 
-CAMLexport _Thread_local caml_domain_state* caml_state;
+CAMLexport CAMLthread_local caml_domain_state* caml_state;
 
 #ifndef HAS_FULL_THREAD_VARIABLES
 /* Export a getter for caml_state, to be used in DLLs */
