@@ -36,7 +36,7 @@
 
 extern code_t caml_start_code;
 
-CAMLthread_local intnat caml_icount = 0;
+_Thread_local intnat caml_icount = 0;
 
 void caml_stop_here (void)
 {
