@@ -397,6 +397,13 @@ CAMLnoret CAMLextern void caml_debug_abort(const char_os *, int);
 #define CAMLunlikely(e) (e)
 #endif
 
+#if __has_attribute(format) || defined(__GNUC__)
+#define CAMLformat(archetype, string_index, first_to_check) \
+  __attribute__((__format__(archetype, string_index, first_to_check)))
+#else
+#define CAMLformat(a, si, ftc)
+#endif
+
 #ifdef CAML_INTERNALS
 
 /* GC status assertions.
@@ -436,11 +443,8 @@ typedef void (*fatal_error_hook) (const char *msg, va_list args);
 extern _Atomic fatal_error_hook caml_fatal_error_hook;
 #endif
 
-CAMLnoret CAMLextern void caml_fatal_error (const char *, ...)
-#if __has_attribute(format) || defined(__GNUC__)
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
+CAMLformat(__printf__, 1, 2)
+CAMLnoret CAMLextern void caml_fatal_error (const char *, ...);
 
 /* Integer arithmetic with overflow detection.
    The functions return 0 if no overflow, 1 if overflow.
@@ -678,11 +682,8 @@ extern atomic_uintnat caml_verb_gc;
 
 /* output message if caml_verb_gc includes any bits in `category`. */
 
-void caml_gc_message (int category, const char *, ...)
-#if __has_attribute(format) || defined(__GNUC__)
-  __attribute__ ((format (printf, 2, 3)))
-#endif
-;
+CAMLformat(__printf__, 2, 3)
+void caml_gc_message (int category, const char *, ...);
 
 /* Short-hand for calls to `caml_gc_message` */
 
@@ -691,11 +692,8 @@ void caml_gc_message (int category, const char *, ...)
 
 /* Output message if CAML_GC_MSG_DEBUG is set */
 
-void caml_gc_log (const char *, ...)
-#if __has_attribute(format) || defined(__GNUC__)
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
+CAMLformat(__printf__, 1, 2)
+void caml_gc_log (const char *, ...);
 
 /* Runtime warnings */
 extern uintnat caml_runtime_warnings;
@@ -747,10 +745,12 @@ CAMLextern int caml_runtime_warnings_active(void);
 
 #ifdef _WIN32
 #ifndef _UCRT
+CAMLformat(__printf__, 3, 4)
 extern int caml_snprintf(char * buf, size_t size, const char * format, ...);
 #define snprintf caml_snprintf
 #endif
 
+/* CAMLformat(__wprintf__, 3, 4) */
 CAMLextern int caml_snwprintf(wchar_t * buf,
                           size_t size,
                           const wchar_t * format, ...);
