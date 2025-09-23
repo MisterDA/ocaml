@@ -76,6 +76,7 @@ const char_os * caml_runtime_standard_library_effective = NULL;
 static char magicstr[EXEC_MAGIC_LENGTH+1];
 
 /* Print the specified error message followed by an end-of-line and exit */
+CAMLformat(printf, 1, 2)
 static void error(const char *msg, ...)
 {
   va_list ap;

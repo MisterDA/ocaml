@@ -58,6 +58,7 @@ static void free_cstringvect(array v)
   caml_stat_free(v);
 }
 
+CAMLformat(printf, 2, 0)
 static void logToChannel(void *voidchannel, const char *fmt, va_list ap)
 {
   struct channel *channel = (struct channel *) voidchannel;

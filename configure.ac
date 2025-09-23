@@ -1078,6 +1078,13 @@ for flag in '-Wimplicit-fallthrough=5' '-Wimplicit-fallthrough'; do
     [cc_warnings="$cc_warnings $flag"; break], [], [$warn_error_flag])
 done
 
+# Use -Wsuggest-attribute=attribute_name if supported
+for attribute_name in format; do
+  AX_CHECK_COMPILE_FLAG([-Wsuggest-attribute=$attribute_name],
+    [cc_warnings="$cc_warnings -Wsuggest-attribute=$attribute_name"], [],
+    [$warn_error_flag])
+done
+
 AS_CASE([$enable_warn_error,OCAML__DEVELOPMENT_VERSION],
   [yes,*|,true],
     [cc_warnings="$cc_warnings $warn_error_flag"],

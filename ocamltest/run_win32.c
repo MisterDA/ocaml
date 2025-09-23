@@ -54,7 +54,7 @@ static void report_error(
   }
   if ( is_defined(argument) )
     error_with_location(file, line,
-      settings, "%s %s: %s", message, argument, caml_error_message);
+      settings, "%s %S: %s", message, argument, caml_error_message);
   else
     error_with_location(file, line,
       settings, "%s: %s", message, caml_error_message);
