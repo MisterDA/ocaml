@@ -51,7 +51,7 @@ enum {
   #define Caml_state_opt caml_state
 #else
 #if __has_attribute(pure) || defined(__GNUC__)
-  __attribute__((pure))
+  __attribute__((__pure__))
 #endif
   CAMLextern caml_domain_state* caml_get_domain_state(void);
   #define Caml_state_opt (caml_get_domain_state())

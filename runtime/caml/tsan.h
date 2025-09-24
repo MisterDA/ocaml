@@ -34,18 +34,18 @@ extern "C" {
 #    if defined(__has_attribute)
 #      if __has_attribute(disable_sanitizer_instrumentation)
 #        define CAMLno_tsan \
-           __attribute__((disable_sanitizer_instrumentation))
+           __attribute__((__disable_sanitizer_instrumentation__))
 #      else
-#        define CAMLno_tsan __attribute__((no_sanitize("thread")))
+#        define CAMLno_tsan __attribute__((__no_sanitize__("thread")))
 #      endif
 #    else
-#      define CAMLno_tsan __attribute__((no_sanitize("thread")))
+#      define CAMLno_tsan __attribute__((__no_sanitize__("thread")))
 #    endif
 #  endif
 #else
 #  if defined(__SANITIZE_THREAD__)
 #    undef CAMLno_tsan
-#    define CAMLno_tsan __attribute__((no_sanitize_thread))
+#    define CAMLno_tsan __attribute__((__no_sanitize_thread__))
 #  endif
 #endif
 
