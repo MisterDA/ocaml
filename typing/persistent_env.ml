@@ -238,12 +238,11 @@ module Style = Misc.Style
 let warn_pers_struct ~loc name = function
   | Not_found ->
       let warn = Warnings.No_cmi_file(name, None) in
-        Location.prerr_warning loc warn
+      Location.prerr_warning loc warn
   | Cmi_format.Error err ->
-      let msg = Format.asprintf "%a"
-          Cmi_format.report_error err in
+      let msg = Format.asprintf "%a" Cmi_format.report_error err in
       let warn = Warnings.No_cmi_file(name, Some msg) in
-        Location.prerr_warning loc warn
+      Location.prerr_warning loc warn
   | Error err ->
       let msg =
         match err with
@@ -262,7 +261,7 @@ let warn_pers_struct ~loc name = function
       in
       let msg = Format_doc.(asprintf "%a" pp_doc) msg in
       let warn = Warnings.No_cmi_file(name, Some msg) in
-        Location.prerr_warning loc warn
+      Location.prerr_warning loc warn
   | _ -> assert false
 
 let find_pers_struct ~allow_hidden penv val_of_pers_sig ~check name =
