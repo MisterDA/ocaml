@@ -53,13 +53,12 @@ let input_cmi ic =
     }
 
 let read_cmi filename =
-  let ic = open_in_bin filename in
+  In_channel.with_open_bin filename @@ fun ic ->
   try
     let buffer =
       really_input_string ic (String.length Config.cmi_magic_number)
     in
     if buffer <> Config.cmi_magic_number then begin
-      close_in ic;
       let pre_len = String.length Config.cmi_magic_number - 3 in
       if String.sub buffer 0 pre_len
           = String.sub Config.cmi_magic_number 0 pre_len then
@@ -72,13 +71,10 @@ let read_cmi filename =
       end
     end;
     let cmi = input_cmi ic in
-    close_in ic;
     cmi
   with End_of_file | Failure _ ->
-      close_in ic;
       raise(Error(Corrupted_interface(filename)))
     | Error e ->
-      close_in ic;
       raise (Error e)
 
 let output_cmi filename oc cmi =
