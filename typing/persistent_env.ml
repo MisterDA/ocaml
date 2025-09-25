@@ -235,10 +235,7 @@ let find_pers_struct ~allow_hidden penv val_of_pers_sig ~check name =
 
 module Style = Misc.Style
 (* Emits a warning if there is no valid cmi for name *)
-let check_pers_struct ~allow_hidden penv f ~loc name =
-  try
-    ignore (find_pers_struct ~allow_hidden penv f ~check:false name)
-  with
+let warn_pers_struct ~loc name = function
   | Not_found ->
       let warn = Warnings.No_cmi_file(name, None) in
         Location.prerr_warning loc warn
@@ -266,6 +263,21 @@ let check_pers_struct ~allow_hidden penv f ~loc name =
       let msg = Format_doc.(asprintf "%a" pp_doc) msg in
       let warn = Warnings.No_cmi_file(name, Some msg) in
         Location.prerr_warning loc warn
+  | _ -> assert false
+
+let find_pers_struct ~allow_hidden penv val_of_pers_sig ~check name =
+  try find_pers_struct ~allow_hidden penv val_of_pers_sig ~check name with
+  | (Not_found | Cmi_format.Error _ | Error _ ) as exn ->
+     let bt = Printexc.get_raw_backtrace () in
+     let loc_start, loc_end = Lexing.(dummy_pos, dummy_pos) in
+     let ghost = Location.{loc_start; loc_end; loc_ghost = true } in
+     warn_pers_struct ~loc:ghost name exn;
+     Printexc.raise_with_backtrace exn bt
+
+let check_pers_struct ~allow_hidden penv f ~loc name =
+  try ignore (find_pers_struct ~allow_hidden penv f ~check:false name) with
+  | (Not_found | Cmi_format.Error _ | Error _ ) as exn ->
+     warn_pers_struct ~loc name exn
 
 let read penv f a =
   snd (read_pers_struct penv f ~check:true a)
