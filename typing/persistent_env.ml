@@ -199,7 +199,7 @@ let acknowledge_pers_struct penv check modname pers_sig pm =
   Hashtbl.add persistent_structures modname (Found (ps, pm));
   ps
 
-let read_pers_struct penv val_of_pers_sig check cmi =
+let read_pers_struct penv val_of_pers_sig ~check cmi =
   let modname = Unit_info.Artifact.modname cmi in
   let filename = Unit_info.Artifact.filename cmi in
   add_import penv modname;
@@ -209,7 +209,7 @@ let read_pers_struct penv val_of_pers_sig check cmi =
   let ps = acknowledge_pers_struct penv check modname pers_sig pm in
   (ps, pm)
 
-let find_pers_struct ~allow_hidden penv val_of_pers_sig check name =
+let find_pers_struct ~allow_hidden penv val_of_pers_sig ~check name =
   let {persistent_structures; _} = penv in
   if name = "*predef*" then raise Not_found;
   match Hashtbl.find persistent_structures name with
@@ -237,7 +237,7 @@ module Style = Misc.Style
 (* Emits a warning if there is no valid cmi for name *)
 let check_pers_struct ~allow_hidden penv f ~loc name =
   try
-    ignore (find_pers_struct ~allow_hidden penv f false name)
+    ignore (find_pers_struct ~allow_hidden penv f ~check:false name)
   with
   | Not_found ->
       let warn = Warnings.No_cmi_file(name, None) in
@@ -268,10 +268,10 @@ let check_pers_struct ~allow_hidden penv f ~loc name =
         Location.prerr_warning loc warn
 
 let read penv f a =
-  snd (read_pers_struct penv f true a)
+  snd (read_pers_struct penv f ~check:true a)
 
 let find ~allow_hidden penv f name =
-  snd (find_pers_struct ~allow_hidden penv f true name)
+  snd (find_pers_struct ~allow_hidden penv f ~check:true name)
 
 let check ~allow_hidden penv f ~loc name =
   let {persistent_structures; _} = penv in
@@ -286,7 +286,7 @@ let check ~allow_hidden penv f ~loc name =
   end
 
 let crc_of_unit penv f name =
-  let (ps, _pm) = find_pers_struct ~allow_hidden:true penv f true name in
+  let (ps, _pm) = find_pers_struct ~allow_hidden:true penv f ~check:true name in
   let crco =
     try
       List.assoc name ps.ps_crcs
