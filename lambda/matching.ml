@@ -621,7 +621,7 @@ end = struct
       | inter -> Some { Row.left = inter @ left; right }
     in
     let lub_with_ctx ps = List.filter_map (lub_row ps) ctx in
-    List.flatten (List.map lub_with_ctx pss)
+    List.concat_map lub_with_ctx pss
 
   let lub p ctx =
     List.filter_map

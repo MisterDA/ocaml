@@ -63,7 +63,7 @@ module Search =
     let search_section t s v = if P.p_section s v then [Res_section (s,t)] else []
 
     let rec search_text root t v =
-      List.flatten (List.map (fun e -> search_text_ele root e v) t)
+      List.concat_map (fun e -> search_text_ele root e v) t
 
     and search_text_ele root e v =
       let module T = Odoc_types in
@@ -86,7 +86,7 @@ module Search =
       | T.Custom (_,t)
       | T.Link (_, t) -> search_text root t v
       | T.List l
-      | T.Enum l -> List.flatten (List.map (fun t -> search_text root t v) l)
+      | T.Enum l -> List.concat_map (fun t -> search_text root t v) l
       | T.Newline
       | T.Module_list _
       | T.Index_list -> []
@@ -114,9 +114,9 @@ module Search =
             match t.ty_kind with
               Type_abstract -> []
             | Type_record l ->
-                List.flatten (List.map (fun rf -> search_recfield t rf v) l)
+                List.concat_map (fun rf -> search_recfield t rf v) l
             | Type_variant l ->
-                List.flatten (List.map (fun rf -> search_const t rf v) l)
+                List.concat_map (fun rf -> search_const t rf v) l
             | Type_open -> []
             | Type_external _ -> []
       in

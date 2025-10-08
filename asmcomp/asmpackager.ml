@@ -222,7 +222,7 @@ let build_package_cmx members cmxfile =
     { ui_name = ui.ui_name;
       ui_symbol = ui.ui_symbol;
       ui_defines =
-          List.flatten (List.map (fun info -> info.ui_defines) units) @
+          List.concat_map (fun info -> info.ui_defines) units @
           [ui.ui_symbol];
       ui_imports_cmi =
           (ui.ui_name, Some (Env.crc_of_unit ui.ui_name)) ::

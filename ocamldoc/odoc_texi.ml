@@ -460,8 +460,7 @@ class texi =
       | Some t -> (self#fix_linebreaks t) @ [ Newline ]
 
     method text_of_sees_opt see_l =
-      List.concat
-        (List.map
+      List.concat_map
            (function
              | (See_url s, t) ->
                  [ linebreak ; Bold [ Raw Odoc_messages.see_also ] ;
@@ -470,21 +469,19 @@ class texi =
              | (See_doc s, t)  ->
                  [ linebreak ; Bold [ Raw Odoc_messages.see_also ] ;
                    Raw " " ; Raw s ] @ t @ [ Newline ])
-           see_l)
+           see_l
 
     method! text_of_before l =
-      List.flatten
-      (List.map
-        (fun x -> linebreak :: (to_text#text_of_before [x])) l)
+      List.concat_map
+        (fun x -> linebreak :: (to_text#text_of_before [x])) l
 
     method text_of_params params_list =
-        List.concat
-          (List.map
+      List.concat_map
              (fun (s, t) ->
                [ linebreak ;
                  Bold [ Raw Odoc_messages.parameters ] ;
                  Raw " " ; Raw s ; Raw ": " ] @ t @ [ Newline ] )
-             params_list)
+             params_list
 
     method! text_of_raised_exceptions = function
       | [] -> []
@@ -672,8 +669,7 @@ class texi =
               (self#text_of_short_type_expr (Name.father ty.ty_name) typ)
           | Some (Object_type l) ->
                (Raw (" = "^(if priv then "private " else "")^"{\n")) ::
-               (List.flatten
-                  (List.map
+                 (List.concat_map
                      (fun r ->
                        [ Raw ("  " ^ r.of_name ^ " : ") ] @
                        (self#text_of_short_type_expr
@@ -681,7 +677,7 @@ class texi =
                           r.of_type) @
                        [ Raw " ;" ] @
                        (entry_doc r.of_text))
-                     l ) )
+                     l )
                @  [ Raw " }" ]
           ) @
           (
@@ -689,18 +685,16 @@ class texi =
            | Type_abstract -> [ Newline ]
            | Type_variant l ->
                (Raw (" ="^(if priv then " private" else "")^"\n")) ::
-               (List.flatten
-                  (List.map
+                 (List.concat_map
                      (fun constr ->
                        (Raw ("  | " ^ constr.vc_name)) ::
                        (Raw (self#string_of_type_args
                                constr.vc_args constr.vc_ret)) ::
                          (entry_doc constr.vc_text)
-                         ) l ) )
+                         ) l )
            | Type_record l ->
                (Raw (" = "^(if priv then "private " else "")^"{\n")) ::
-               (List.flatten
-                  (List.map
+                 (List.concat_map
                      (fun r ->
                        [ Raw ("  " ^ r.rf_name ^ " : ") ] @
                        (self#text_of_short_type_expr
@@ -709,7 +703,7 @@ class texi =
                        [ Raw " ;" ] @
                         (entry_doc r.rf_text)
                         )
-                     l ) )
+                     l )
                @  [ Raw " }" ]
            | Type_open -> [ Raw " = .." ; Newline ]
            | Type_external name ->
@@ -740,8 +734,7 @@ class texi =
               Raw (" +=" ^
                       (if te.te_private = Asttypes.Private
                        then " private" else "")^"\n") ] @
-              (List.flatten
-                 (List.map
+              (List.concat_map
                     (fun x ->
                        (Raw ("  | " ^ (Name.simple x.xt_name))) ::
                          (Raw (self#string_of_type_args
@@ -761,7 +754,7 @@ class texi =
                                      (self#text_of_info (Some t))) @
                                   [ Raw " *)" ; Newline ] ) @
                          [self#index `Extension x.xt_name ] )
-                    te.te_constructors ) ) ) ) ::
+                    te.te_constructors ) ) ) ::
           (self#text_of_info te.te_info) in
         self#texi_of_text t
 
@@ -1225,15 +1218,14 @@ class texi =
       then
         let indices_names_to_build = List.map indices indices_to_build in
         List.iter (puts_nl chan)
-          (List.flatten
-             (List.map
+          (List.concat_map
                 (fun (longname, shortname) ->
                   if List.mem shortname indices_names_to_build
                   then [ "@node " ^ longname ^ " index," ;
                          "@unnumbered " ^ longname ^ " index" ;
                          "@printindex " ^ shortname ; ]
                   else [])
-                indices_names )) ;
+                indices_names ) ;
       if !Global.with_toc
       then puts_nl chan "@contents" ;
       puts_nl chan "@bye"

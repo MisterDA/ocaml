@@ -71,7 +71,7 @@ class virtual info =
             text @
             [Newline]
         in
-        List.flatten (List.map f l)
+        List.concat_map f l
 
     (** @return [text] value for the given list of raised exceptions.*)
     method text_of_raised_exceptions l =

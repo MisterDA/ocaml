@@ -204,7 +204,7 @@ let make_startup_file ~ppf_dump units_list ~crc_interfaces =
   (* set the name of the "current" compunit *)
   Emit.begin_assembly ();
   let name_list =
-    List.flatten (List.map (fun (info,_,_) -> info.ui_defines) units_list) in
+    List.concat_map (fun (info,_,_) -> info.ui_defines) units_list in
   let entry = Cmm_helpers.entry_point name_list in
   let entry =
     if Config.tsan then

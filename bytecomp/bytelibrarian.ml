@@ -99,7 +99,7 @@ let create_archive file_list lib_name =
        let ofs_pos_toc = pos_out outchan in
        output_binary_int outchan 0;
        let units =
-         List.flatten(List.map (copy_object_file outchan) file_list) in
+         List.concat_map (copy_object_file outchan) file_list in
        let ldeps = Linkdeps.create ~complete:false in
        List.iter
          (fun (filename,u) -> Bytelink.linkdeps_unit ldeps ~filename u)

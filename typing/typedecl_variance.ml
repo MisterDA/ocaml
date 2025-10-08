@@ -346,8 +346,7 @@ let compute_variance_decl env ~check decl (required, _ as rloc) =
       | Type_variant (tll,_rep) ->
           if List.for_all (fun c -> c.Types.cd_res = None) tll then
             compute_variance_type env ~check rloc decl
-              (mn @ List.flatten (List.map (fun c -> for_constr c.Types.cd_args)
-                                    tll))
+              (mn @ List.concat_map (fun c -> for_constr c.Types.cd_args) tll)
           else begin
             let vari =
               List.map
