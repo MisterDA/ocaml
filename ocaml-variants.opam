@@ -57,7 +57,7 @@ depends: [
   "ocaml-option-bytecode-only" {arch != "arm64" & arch != "x86_64" & arch != "s390x" & arch != "riscv64" & arch != "ppc64"}
 
   # Support Packages
-  "flexdll" {>= "0.42" & os = "win32"}
+  "flexdll" {>= "0.44" & os = "win32"}
 ]
 conflict-class: "ocaml-core-compiler"
 flags: compiler
@@ -95,7 +95,6 @@ build: [
     "CC=clang -fsanitize=address -fno-omit-frame-pointer -O1 -g" {ocaml-option-address-sanitizer:installed & os="macos"}
     "CC=gcc -m32" {ocaml-option-32bit:installed & os="linux"}
     "CC=gcc -Wl,-read_only_relocs,suppress -arch i386 -m32" {ocaml-option-32bit:installed & os="macos"}
-    "ASPP=musl-gcc -c" {ocaml-option-musl:installed & os-distribution!="alpine"}
     "--host=i386-linux" {ocaml-option-32bit:installed & os="linux"}
     "--host=i386-apple-darwin13.2.0" {ocaml-option-32bit:installed & os="macos"}
     "LIBS=-static" {ocaml-option-static:installed}

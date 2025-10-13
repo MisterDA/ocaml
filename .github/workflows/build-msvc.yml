@@ -12,9 +12,9 @@ on:
       - 'trunk'
   pull_request:
 
-# env:
+env:
   # Fully print commands executed by Make
-  # MAKEFLAGS: V=1
+  MAKEFLAGS: V=1
 
 defaults:
   run:
@@ -32,11 +32,33 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // # Always test cl and clang-cl
-            let compilers = ['cl', 'clang-cl'];
-            // # Also test i686 MSVC
+            const deepCopy = (o) => JSON.parse(JSON.stringify(o));
+            const format = (o) => Object.entries(o).reduce(((s, [k, v]) =>
+              s + ' ' + k + "='" + (Array.isArray(v) ? v.join(' ') : v) + "'"), '');
+
+            // # Test cl
+            let compilers = ['cl'];
             let include = [
+              // # Also test i686 MSVC
               {cc: 'cl', arch: 'i686'}];
+
+            // # Use the full LLVM toolchain (requires flexlink >= 0.44)
+            let config_arg;
+            const llvm_toolchain = {
+              CFLAGS: '-Wno-cast-function-type', LD: 'lld-link', LDFLAGS: '-fuse-ld=lld-link',
+              MANIFEST_TOOL: 'llvm-mt',  RC: 'llvm-rc', AS: 'llvm-ml',
+              FLEXLINKFLAGS: ['-use-linker=lld-link', '-use-mt=llvm-mt']};
+            // # Also test i686 clang-cl
+            config_arg = deepCopy(llvm_toolchain);
+            config_arg.FLEXLINKFLAGS.push('-link /safeseh:no');
+            include.push({cc: 'clang-cl -m32', arch: 'i686', config_arg: format(config_arg)});
+            // # Test x86_64 clang-cl
+            config_arg = deepCopy(llvm_toolchain);
+            // # TODO: set AS=llvm-ml64 when LLVM 21 is released (~ July 2025)
+            // # and packaged in Visual Studio. Default to ml64.exe until then.
+            config_arg.AS = 'ml64';
+            include.push({cc: 'clang-cl', arch: 'x86_64', config_arg: format(config_arg)});
+
             // # If this is a pull request, see if the PR has the
             // # 'CI: Full matrix' label. This is done using an API request,
             // # rather than from context.payload.pull_request.labels, since we
@@ -73,7 +95,7 @@ jobs:
   build:
     permissions: {}
 
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     needs: config
 
@@ -138,7 +160,7 @@ jobs:
             --cache-file=config.cache
             --prefix "${{ matrix.cc != 'gcc' && '$PROGRAMFILES/Бактріан🐫' || '$(cygpath "$PROGRAMFILES/Бактріан🐫")'}}"
             ${{ matrix.cc != 'gcc' && format('--host={0}-pc-windows', matrix.arch) || '' }}
-            ${{ matrix.cc != 'gcc' && format('CC={0}', matrix.cc) || '' }}
+            ${{ matrix.cc != 'gcc' && format('CC=''{0}''', matrix.cc) || '' }}
             --enable-ocamltest
             ${{ endsWith(matrix.arch, '64') && '--enable-native-toplevel' || '--disable-native-toplevel' }}
             ${{ matrix.config_arg }}

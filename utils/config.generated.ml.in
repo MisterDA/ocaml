@@ -52,6 +52,7 @@ let native_pack_linker = {@QS@|@PACKLD@|@QS@}
 let default_rpath = {@QS@|@rpath@|@QS@}
 let mksharedlibrpath = {@QS@|@mksharedlibrpath@|@QS@}
 let ar = {@QS@|@AR@|@QS@}
+let link = {@QS@|@LD@|@QS@}
 let supports_shared_libraries = @supports_shared_libraries@
 let native_dynlink = @natdynlink@
 let mkdll = {@QS@|@mkdll_exp@|@QS@}
@@ -78,7 +79,7 @@ let model = {@QS@|@model@|@QS@}
 let system = {@QS@|@system@|@QS@}
 let target_os_type = {@QS@|@target_os_type@|@QS@}
 
-let asm = {@QS@|@AS@|@QS@}
+let asm = {@QS@|@AS@|@QS@} ^ " " ^ {@QS@|@ASFLAGS@|@QS@}
 let asm_cfi_supported = @asm_cfi_supported@
 let asm_size_type_directives = @asm_size_type_directives@
 let with_frame_pointers = @frame_pointers@

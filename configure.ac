@@ -124,6 +124,7 @@ AC_SUBST([CMT_MAGIC_NUMBER], [CMT__MAGIC_NUMBER])
 AC_SUBST([LINEAR_MAGIC_NUMBER], [LINEAR__MAGIC_NUMBER])
 AC_SUBST([CC])
 AC_SUBST([ocaml_cc_vendor])
+AC_SUBST([LDFLAGS_no_fuse_ld])
 AC_SUBST([SAK_BUILD])
 AC_SUBST([SAK])
 AC_SUBST([encode_C_literal])
@@ -230,9 +231,10 @@ AC_SUBST([build_ocamltest])
 AC_SUBST([ocamltest])
 AC_SUBST([ocamltest_target])
 AC_SUBST([ocamltest_opt_target])
-AC_SUBST([ASPP])
 AC_SUBST([endianness])
 AC_SUBST([AS])
+AC_SUBST([ASFLAGS])
+AC_SUBST([ASPP]) # legacy
 AC_SUBST([asm_cfi_supported])
 AC_SUBST([asm_size_type_directives])
 AC_SUBST([sharedlib_cflags])
@@ -259,6 +261,7 @@ AC_SUBST([oc_native_compflags])
 AC_SUBST([afl])
 AC_SUBST([flexdll_chain])
 AC_SUBST([PACKLD])
+AC_SUBST([LD])
 AC_SUBST([build_libraries_manpages])
 AC_SUBST([compute_deps])
 AC_SUBST([ocaml_bindir])
@@ -266,6 +269,7 @@ AC_SUBST([ocaml_libdir])
 AC_SUBST([TARGET_LIBDIR])
 AC_SUBST([QS])
 AC_SUBST([ar_supports_response_files])
+AC_SUBST([link_nocoffgrpinfo])
 
 ## Generated files
 
@@ -392,8 +396,14 @@ AS_IF([test -n "$csc"],
 # Environment variables that are taken into account
 
 AC_ARG_VAR([AS], [which assembler to use])
-AC_ARG_VAR([ASPP], [which assembler (with preprocessor) to use])
+AC_ARG_VAR([ASFLAGS], [flags for the assembler])
 AC_ARG_VAR([PARTIALLD], [how to build partial (relocatable) object files])
+AC_ARG_VAR([LD], [which linker to use (when bypassing the C compiler driver)])
+AC_ARG_VAR([RC], [which resource compiler to use])
+AC_ARG_VAR([MANIFEST_TOOL], [which manifest generator to use])
+
+AC_ARG_VAR([FLEXLINKFLAGS],
+  [Supplementary flags passed to flexlink (Windows targets)])
 
 AC_ARG_VAR([COMPILER_BYTECODE_CFLAGS],
   [CFLAGS for compiling C files to be linked with bytecode])
@@ -680,12 +690,21 @@ AS_IF(
       AC_MSG_ERROR([exiting])])
     cross_compiler=true])
 
+# Bypass libtool check for the manifest tool
+AC_CHECK_TOOLS(MANIFEST_TOOL, [mt llvm-mt], :)
+
 # Initialization of libtool
 # Allow the MSVC linker to be found even if ld isn't installed.
 # User-specified LD still takes precedence.
+AS_CASE([$target],
+  [*-pc-windows],
+  [AC_CHECK_PROGS([LD], [link lld-link])
+  AX_CHECK_LINK_FLAG(['/NOCOFFGRPINFO'],
+    [link_nocoffgrpinfo='/NOCOFFGRPINFO'])])
 AS_IF([$cross_compiler],
-  [AC_CHECK_TARGET_TOOLS([LD],[ld link],[false])],
-  [AC_CHECK_TOOLS([LD],[ld link])])
+  [AC_CHECK_TARGET_TOOLS([LD], [ld])],
+  [AC_CHECK_TOOLS([LD], [ld ld.lld ld64.lld])])
+
 # libtool will detect a build-to-host C toolchain but when building an OCaml
 # cross compiler we need the C toolchain to build the target runtime so we
 # temporarily define host* values as macros for target* values so that the
@@ -715,13 +734,12 @@ popdef([host])dnl
 OCAML_WITH_NONEXECSTACK_NOTE
 OCAML_ASM_SIZE_TYPE_DIRECTIVES
 
-AS_CASE([$host],
+AS_CASE([$target],
   [sparc-sun-solaris*],
     [DEP_CC="false"],
   [*-pc-windows],
-    [AC_CHECK_TOOLS(
-      [DEP_CC],
-      [$DEP_CC gcc cc x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc],
+    [AC_CHECK_PROGS([DEP_CC],
+      [x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc],
       [false])],
   [DEP_CC="$CC"])
 
@@ -753,7 +771,7 @@ AS_CASE([$target],
       AS_IF([test "$target_cpu" = "x86_64" ],
         [machine="-machine:AMD64 "],
         [machine=""])
-      mklib="link -lib -nologo $machine /out:\$(1) \$(2)"
+      mklib="$LD -lib -nologo $machine /out:\$(1) \$(2)"
     ],
   [
     mklib="rm -f \$(1) && ${AR} rc \$(1) \$(2)"
@@ -925,7 +943,8 @@ AS_CASE([$ocaml_cc_vendor],
   [msvc-*],
     [AS_CASE([$ocaml_cc_vendor],
       [msvc-*-clang-*],
-        [cc_warnings='-W4 -Wno-unused-parameter -Wno-sign-compare -Wundef'
+        [cc_warnings='-W4 -Wno-unused-parameter -Wno-sign-compare -Wundef\
+-Wno-gnu-label-as-value -Wno-gnu-null-pointer-arithmetic'
          warn_error_flag='-WX'],
       [cc_warnings='-W2'
        warn_error_flag='-WX -options:strict'])],
@@ -1004,6 +1023,12 @@ AS_CASE([$ocaml_cc_vendor],
     AX_CHECK_COMPILE_FLAG([-volatileMetadata-],
       [internal_cflags="$internal_cflags -volatileMetadata-"], [],
       [$warn_error_flag])
+    # FlexDLL doesn't handle LLVM's SHT_LLVM_ADDRSIG Section
+    # (address-significance table). Don't emit them.
+    # https://llvm.org/docs/Extensions.html#sht-llvm-addrsig-section-address-significance-table
+    AX_CHECK_COMPILE_FLAG([-fno-addrsig],
+      [internal_cflags="$internal_cflags -fno-addrsig"], [],
+      [$warn_error_flag])
     internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE=$windows_unicode"],
   [xlc-*],
     [common_cflags="-O5 -qtune=balanced -qnoipa -qinline";
@@ -1069,6 +1094,13 @@ AS_CASE([$target],
     flexlink_flags='-merge-manifest -stack 33554432'],
   [flexdll_chain=''])
 
+AS_IF([test -n "$LD"],
+  [flexlink_flags="${flexlink_flags:+$flexlink_flags }-use-linker '$LD'"])
+
+AS_IF([test -n "$MANIFEST_TOOL"],
+  [flexlink_flags="${flexlink_flags:+$flexlink_flags }-use-mt '$MANIFEST_TOOL'"]
+)
+
 AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
   AC_MSG_CHECKING([for flexdll sources])
   AS_IF([test x"$with_flexdll" = "xno"],
@@ -1102,7 +1134,11 @@ AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
         [AC_MSG_RESULT([no])],
         [AC_MSG_RESULT([$flexdll_source_dir$flexmsg])
         bootstrapping_flexdll=true
-        flexdll_dir=\"+flexdll\"])],
+        flexdll_dir=\"+flexdll\"
+        AS_CASE([$target], [*-pc-windows], [AC_CHECK_PROGS(RC, [rc])])
+        AS_IF([$cross_compiler],
+          [AC_CHECK_TARGET_TOOLS(RC, [windres])],
+          [AC_CHECK_TOOLS(RC, [windres])])])],
       [AS_IF([test x"$with_flexdll" != 'x'],
         [AC_MSG_RESULT([requested but not supported])
         AC_MSG_ERROR([exiting])])])])
@@ -1154,6 +1190,21 @@ AS_CASE([$flexdll_source_dir,$supports_shared_libraries,$flexlink,$target],
 
 mkexe_cmd_exp="$CC"
 
+# Strip LDFLAGS of the -fuse-ld=<cmd> when the linker is called
+# directly.
+AS_IF([test -n ${LDFLAGS}],
+  [LDFLAGS_no_fuse_ld=''
+  was_fuse_ld=false
+  for flag in ${LDFLAGS}; do
+    AS_CASE([$flag,$was_use_ld],
+      [*,true], [use_ld="-fuse-ld=$flag"; was_fuse_ld=false],
+      [-fuse-ld,*], [was_fuse_ld=true],
+      [-fuse-ld=*,*], [use_ld="$flag"],
+      [LDFLAGS_no_fuse_ld="${LDFLAGS_no_fuse_ld:+$LDFLAGS_no_fuse_ld }$flag"])
+  done
+  unset was_fuse_ld
+  AS_IF([test -z "${use_ld+x}"], [LDFLAGS_no_fuse_ld="$LDFLAGS"])])
+
 AS_CASE([$ocaml_cc_vendor,$target],
   [*,x86_64-*-darwin*],
     [oc_ldflags='-Wl,-no_compact_unwind';
@@ -1187,7 +1238,8 @@ AS_CASE([$ocaml_cc_vendor,$target],
     mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_cmd="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_ldflags_prefix='-link '
-    mkexe_via_cc_ldflags_prefix='/link '
+    mkexe_via_cc_ldflags_prefix="${use_ld:+$use_ld }/link "
+
     oc_exe_ldflags='/ENTRY:wmainCRTStartup'
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     mkexedebugflag=''],
@@ -1207,8 +1259,10 @@ AS_IF([test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
   [AS_CASE([$target],
     [*-pc-windows],
       [SAK_BUILD=m4_normalize([
-        "\$(CC) \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2)
-        /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)"])],
+        "\$(CC) /nologo \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS)
+          \$(2) $mkexe_via_cc_ldflags_prefix /out:\$(1) $oc_exe_ldflags
+          \$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld) /debug:none
+          && rm -f sak.obj"])],
     [SAK_BUILD=m4_normalize([
       '$(MKEXE_VIA_CC) $(OC_CFLAGS) $(CFLAGS) $(OC_CPPFLAGS) $(CPPFLAGS)'])])
   SAK="\$(ROOTDIR)/runtime/sak${EXEEXT}"],
@@ -1695,9 +1749,6 @@ AS_CASE([$enable_native_toplevel,$natdynlink],
 AC_DEFINE_UNQUOTED([OCAML_OS_TYPE], ["$ostype"])
 target_os_type="$ostype"
 
-AS_IF([$cross_compiler],
-  [AC_CHECK_TARGET_TOOL([DIRECT_LD],[ld],[false])],
-  [AC_CHECK_TOOL([DIRECT_LD],[ld])])
 AS_IF([test -z "$PARTIALLD"],
   [AS_CASE(["$target,$ocaml_cc_vendor"],
     [x86_64-*-darwin*,gcc-*], [PACKLD_FLAGS=' -arch x86_64'],
@@ -1715,8 +1766,8 @@ AS_IF([test -z "$PARTIALLD"],
     [msvc-*],
       # For the Microsoft C compiler there must be no space at the end of the
       # string.
-      [PACKLD="link -lib -nologo $machine -out:"],
-    [PACKLD="$DIRECT_LD -r$PACKLD_FLAGS -o "])],
+      [PACKLD="$LD -lib -nologo $machine -out:"],
+    [PACKLD="$LD -r$PACKLD_FLAGS -o "])],
   [PACKLD="$PARTIALLD -o "])
 
 # Disable PIE at link time when ocamlopt does not produce position-independent
@@ -1740,58 +1791,39 @@ AS_CASE([$arch],
       # Alpine and other musl-based Linux distributions
       [common_cflags="-no-pie $common_cflags"])])
 
-# Assembler
-
-AS_IF([test -n "$target_alias"],
-  [toolpref="${target_alias}-"
-  as_target="$target"
-  as_cpu="$target_cpu"],
-  [AS_IF([test -n "$host_alias"],
-    [toolpref="${host_alias}-"
-    as_target="$host"
-    as_cpu="$host_cpu"],
-    [toolpref=""
-    as_target="$build"
-    as_cpu="$build_cpu"])])
-
-# Finding the assembler
-# The OCaml build system distinguishes two different assemblers:
-# 1. AS, used to assemble the code generated by the ocamlopt native compiler
-# 2. ASPP, to assemble other assembly files that may require preprocessing
-# In general, "$CC -c" is used as a default value for both AS and ASPP.
-# On a few platforms (Windows) both values are overridden.
-# On other platforms, (Linux with GCC) the assembler AS is called directly
-# to avoiding forking a C compiler process for each compilation by ocamlopt.
-# Both AS and ASPP can be overridden by the user.
-
-default_as="$CC -c"
-default_aspp="$CC -c"
-
-AS_CASE([$as_target,$ocaml_cc_vendor],
-  [*-*-linux*,gcc-*],
-    [AS_CASE([$as_cpu],
-      [x86_64|arm*|aarch64*|i[[3-6]]86|riscv*],
-        [default_as="${toolpref}as"])],
-  [i686-pc-windows,*],
-    [default_as="ml -nologo -coff -Cp -c -Fo"
-    default_aspp="$default_as"],
-  [x86_64-pc-windows,*],
-    [default_as="ml64 -nologo -Cp -c -Fo"
-    default_aspp="$default_as"],
-  [*-*-darwin*,clang-*],
-    [default_as="$default_as -Wno-trigraphs"
-    default_aspp="$default_as"])
-
 AS_IF([test "$with_pic"],
   [fpic=true
   AC_DEFINE([CAML_WITH_FPIC], [1])
-  internal_cflags="$internal_cflags $sharedlib_cflags"
-  default_aspp="$default_aspp $sharedlib_cflags"],
+  internal_cflags="$internal_cflags $sharedlib_cflags"],
   [fpic=false])
 
-AS_IF([test -z "$AS"], [AS="$default_as"])
+# Assembler
+AS_IF([test -n "$ASPP"], # legacy
+  [AC_MSG_ERROR(m4_normalize([\$ASPP has been removed, the C compiler is now
+  always used for preprocessed assembly files.]))])
 
-AS_IF([test -z "$ASPP"], [ASPP="$default_aspp"])
+AS_CASE([$target,$ocaml_cc_vendor],
+  [*-pc-windows,*],
+    [AC_REQUIRE([AC_PROG_FGREP])dnl
+    AS_IF([test "$target_cpu" = "x86_64"],
+      [search_as='ml64 llvm-ml64'], [search_as='ml llvm-ml'])
+    AC_CHECK_PROGS([AS], [$search_as], [AC_MSG_ERROR([missing assembler])])
+    AS_IF([$AS -nologo -help | $FGREP 'LLVM' >/dev/null],
+      [: ${ASFLAGS:='-c -Fo'}],
+      [: ${ASFLAGS:='-nologo -quiet -Cp -c -Fo'}])
+    ASPP="$AS $ASFLAGS $CPPFLAGS" # legacy
+  ],
+  [*,clang-*],
+    # clang has deprecated as.
+    # Some character sequences in string literals trigger trigraphs warnings.
+    [: ${AS:="$CC -c"}; : ${ASFLAGS:='-Wno-trigraphs'}
+    : ${ASPP:="$CC $ASFLAGS $CPPFLAGS"} # legacy
+  ],
+  [AS_IF([$cross_compiler],
+    [AC_CHECK_TARGET_TOOL([AS], [as], [$CC])],
+    [AC_CHECK_TOOL([AS], [as], [$CC])])
+  : ${ASPP:="$CC $ASFLAGS $CPPFLAGS -c"} # legacy
+])
 
 # Utilities
 AC_CHECK_PROG([rlwrap],[rlwrap],[rlwrap])
@@ -2942,15 +2974,15 @@ AC_CONFIG_COMMANDS_PRE([
     [mkexe="$mkexe $mkexe_extra_flags"
     mkexe_exp="$mkexe_exp $mkexe_extra_flags"])
   # If $mkexe_ldflags_prefix is given, apply it to $oc_ldflags and $oc_dllflags
-  # and ensure that LDFLAGS is passed using it. This is used for flexlink. where
+  # and ensure that LDFLAGS is passed using it. This is used for flexlink, where
   # linker flags need to be prefixed with -link.
   AS_IF([test -n "$mkexe_ldflags_prefix"],[
     AS_IF([test -n "$mkexedebugflag"],
       [mkexedebugflag="${mkexe_ldflags_prefix}${mkexedebugflag}"])
     mkdll_ldflags=""
-    AS_IF([test -n "${LDFLAGS}"],
-      [for flag in ${LDFLAGS}; do
-        mkdll_ldflags="${mkdll_ldflags} ${mkexe_ldflags_prefix}${flag}"
+    AS_IF([test -n $LDFLAGS_no_fuse_ld],
+      [for flag in ${LDFLAGS_no_fuse_ld}; do
+        [mkdll_ldflags="${mkdll_ldflags} ${mkexe_ldflags_prefix}${flag}"]
       done
       mkdll_ldflags_exp="$mkdll_ldflags"])
     tmp_oc_ldflags=""
@@ -2973,12 +3005,12 @@ AC_CONFIG_COMMANDS_PRE([
     mkdll_ldflags="\$(addprefix ${mkexe_ldflags_prefix},\$(OC_DLL_LDFLAGS)) \
 ${mkdll_ldflags}"
   ],[
-    mkdll_ldflags='$(OC_DLL_LDFLAGS) $(LDFLAGS)'
+    mkdll_ldflags='$(OC_DLL_LDFLAGS) $(LDFLAGS_no_fuse_ld)'
     mkdll_ldflags_exp="${oc_dll_ldflags}"
-    AS_IF([test -n "${LDFLAGS}"],
-      [mkdll_ldflags_exp="$mkdll_ldflags_exp $LDFLAGS"])
-    mkexe_ldflags="\$(OC_LDFLAGS) \$(LDFLAGS)"
-    mkexe_ldflags_exp="${oc_ldflags} ${LDFLAGS}"
+    AS_IF([test -n "${LDFLAGS_no_fuse_ld}"],
+      [mkdll_ldflags_exp="$mkdll_ldflags_exp $LDFLAGS_no_fuse_ld"])
+    mkexe_ldflags="\$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld)"
+    mkexe_ldflags_exp="${oc_ldflags} ${LDFLAGS_no_fuse_ld}"
   ])
   mkexe="$mkexe $mkexe_ldflags"
   mkexe_exp="$mkexe_exp $mkexe_ldflags_exp"
@@ -2989,7 +3021,8 @@ ${mkdll_ldflags}"
   mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags_prefix}"
   AS_IF([test -n "${oc_exe_ldflags}"],
     [mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags}${oc_exe_ldflags} "])
-  mkexe_via_cc_ldflags="${mkexe_via_cc_ldflags}\$(OC_LDFLAGS) \$(LDFLAGS)"
+  mkexe_via_cc_ldflags=\
+"${mkexe_via_cc_ldflags}\$(OC_LDFLAGS) \$(LDFLAGS_no_fuse_ld)"
   # cl requires linker flags after the objects.
   AS_IF([test "$ccomp_type" = 'msvc'],
     [mkexe_via_cc_ldflags=\

@@ -137,7 +137,8 @@ let create_archive archive file_list =
   else
     match Config.ccomp_type with
       "msvc" ->
-        command(Printf.sprintf "link /lib /nologo /out:%s %s"
+        command(Printf.sprintf "%s /lib /nologo /out:%s %s"
+                               Config.link
                                quoted_archive
                                (quote_files ~response_files:true file_list))
     | _ ->

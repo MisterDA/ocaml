@@ -29,6 +29,7 @@ m4_include([build-aux/lt~obsolete.m4])
 
 # Macros from the autoconf macro archive
 m4_include([build-aux/ax_check_compile_flag.m4])
+m4_include([build-aux/ax_check_link_flag.m4])
 m4_include([build-aux/ax_func_which_gethostbyname_r.m4])
 m4_include([build-aux/ax_prog_cc_for_build.m4])
 m4_include([build-aux/ax_pthread.m4])
@@ -172,12 +173,9 @@ AC_DEFUN([OCAML_AS_HAS_CFI_DIRECTIVES], [
     [AC_MSG_RESULT([disabled])],
     [OCAML_CC_SAVE_VARIABLES
 
-    # Modify C-compiler variables to use the assembler
-    CC="$ASPP"
-    CFLAGS="-o conftest.$ac_objext"
-    CPPFLAGS=""
     ac_ext="S"
-    ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+    ac_compile=\
+'$CC $ASFLAGS $CPPFLAGS -c -o conftest.$ac_objext conftest.$ac_ext >&5'
 
     AC_COMPILE_IFELSE(
       [AC_LANG_SOURCE([
@@ -188,28 +186,27 @@ camlPervasives__loop_1128:
         .cfi_adjust_cfa_offset 8
         .cfi_endproc
       ])],
-      [aspp_ok=true],
-      [aspp_ok=false])
+      [compile_S=true],
+      [compile_S=false])
 
-    AS_IF([test "$AS" = "$ASPP"],
-      [as_ok="$aspp_ok"],
-      [CC="$AS"
-      ac_compile='$CC $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-      AC_COMPILE_IFELSE(
-        [AC_LANG_SOURCE([
+    ac_ext="s"
+    ac_compile='$AS $ASFLAGS -o conftest.$ac_objext conftest.$ac_ext >&5'
+
+    AC_COMPILE_IFELSE(
+      [AC_LANG_SOURCE([
 camlPervasives__loop_1128:
         .file   1       "pervasives.ml"
         .loc    1       193
         .cfi_startproc
         .cfi_adjust_cfa_offset 8
         .cfi_endproc
-        ])],
-        [as_ok=true],
-        [as_ok=false])])
+      ])],
+      [compile_s=true],
+      [compile_s=false])
 
     OCAML_CC_RESTORE_VARIABLES
 
-    AS_IF([$aspp_ok && $as_ok],
+    AS_IF([$compile_S && $compile_s],
       [asm_cfi_supported=true
       AC_DEFINE([ASM_CFI_SUPPORTED], [1])
       AC_MSG_RESULT([yes])],

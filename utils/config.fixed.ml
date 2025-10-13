@@ -43,6 +43,7 @@ let native_pack_linker = boot_cannot_call "the linker"
 let default_rpath = ""
 let mksharedlibrpath = ""
 let ar = boot_cannot_call "ar"
+let link = boot_cannot_call "link"
 let supports_shared_libraries = false
 let native_dynlink = false
 let mkdll = native_pack_linker
