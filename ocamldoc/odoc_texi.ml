@@ -461,15 +461,15 @@ class texi =
 
     method text_of_sees_opt see_l =
       List.concat_map
-           (function
-             | (See_url s, t) ->
-                 [ linebreak ; Bold [ Raw Odoc_messages.see_also ] ;
-                   Raw " " ; Link (s, t) ; Newline ]
-             | (See_file s, t)
-             | (See_doc s, t)  ->
-                 [ linebreak ; Bold [ Raw Odoc_messages.see_also ] ;
-                   Raw " " ; Raw s ] @ t @ [ Newline ])
-           see_l
+         (function
+           | (See_url s, t) ->
+               [ linebreak ; Bold [ Raw Odoc_messages.see_also ] ;
+                 Raw " " ; Link (s, t) ; Newline ]
+           | (See_file s, t)
+           | (See_doc s, t)  ->
+               [ linebreak ; Bold [ Raw Odoc_messages.see_also ] ;
+                 Raw " " ; Raw s ] @ t @ [ Newline ])
+         see_l
 
     method! text_of_before l =
       List.concat_map
@@ -477,11 +477,11 @@ class texi =
 
     method text_of_params params_list =
       List.concat_map
-             (fun (s, t) ->
-               [ linebreak ;
-                 Bold [ Raw Odoc_messages.parameters ] ;
-                 Raw " " ; Raw s ; Raw ": " ] @ t @ [ Newline ] )
-             params_list
+        (fun (s, t) ->
+          [ linebreak ;
+            Bold [ Raw Odoc_messages.parameters ] ;
+            Raw " " ; Raw s ; Raw ": " ] @ t @ [ Newline ] )
+        params_list
 
     method! text_of_raised_exceptions = function
       | [] -> []
@@ -670,14 +670,14 @@ class texi =
           | Some (Object_type l) ->
                (Raw (" = "^(if priv then "private " else "")^"{\n")) ::
                  (List.concat_map
-                     (fun r ->
-                       [ Raw ("  " ^ r.of_name ^ " : ") ] @
-                       (self#text_of_short_type_expr
-                          (Name.father r.of_name)
-                          r.of_type) @
-                       [ Raw " ;" ] @
-                       (entry_doc r.of_text))
-                     l )
+                   (fun r ->
+                     [ Raw ("  " ^ r.of_name ^ " : ") ] @
+                     (self#text_of_short_type_expr
+                        (Name.father r.of_name)
+                        r.of_type) @
+                     [ Raw " ;" ] @
+                     (entry_doc r.of_text))
+                   l )
                @  [ Raw " }" ]
           ) @
           (
@@ -686,24 +686,24 @@ class texi =
            | Type_variant l ->
                (Raw (" ="^(if priv then " private" else "")^"\n")) ::
                  (List.concat_map
-                     (fun constr ->
-                       (Raw ("  | " ^ constr.vc_name)) ::
-                       (Raw (self#string_of_type_args
-                               constr.vc_args constr.vc_ret)) ::
-                         (entry_doc constr.vc_text)
-                         ) l )
+                   (fun constr ->
+                     (Raw ("  | " ^ constr.vc_name)) ::
+                     (Raw (self#string_of_type_args
+                             constr.vc_args constr.vc_ret)) ::
+                       (entry_doc constr.vc_text)
+                       ) l )
            | Type_record l ->
                (Raw (" = "^(if priv then "private " else "")^"{\n")) ::
                  (List.concat_map
-                     (fun r ->
-                       [ Raw ("  " ^ r.rf_name ^ " : ") ] @
-                       (self#text_of_short_type_expr
-                          (Name.father r.rf_name)
-                          r.rf_type) @
-                       [ Raw " ;" ] @
-                        (entry_doc r.rf_text)
-                        )
-                     l )
+                   (fun r ->
+                     [ Raw ("  " ^ r.rf_name ^ " : ") ] @
+                     (self#text_of_short_type_expr
+                        (Name.father r.rf_name)
+                        r.rf_type) @
+                     [ Raw " ;" ] @
+                      (entry_doc r.rf_text)
+                      )
+                   l )
                @  [ Raw " }" ]
            | Type_open -> [ Raw " = .." ; Newline ]
            | Type_external name ->
@@ -735,26 +735,26 @@ class texi =
                       (if te.te_private = Asttypes.Private
                        then " private" else "")^"\n") ] @
               (List.concat_map
-                    (fun x ->
-                       (Raw ("  | " ^ (Name.simple x.xt_name))) ::
-                         (Raw (self#string_of_type_args
-                                 x.xt_args x.xt_ret)) ::
-                         (match x.xt_alias with
-                            | None -> []
-                            | Some xa ->
-                                [ Raw " = " ;
-                                  Raw ( match xa.xa_xt with
-                                          | None -> xa.xa_name
-                                          | Some x -> x.xt_name ) ]) @
-                         (match x.xt_text with
-                            | None -> [ Newline ]
-                            | Some t ->
-                                (Raw (indent 5 "\n(* ") ::
-                                   self#soft_fix_linebreaks 8
-                                     (self#text_of_info (Some t))) @
-                                  [ Raw " *)" ; Newline ] ) @
-                         [self#index `Extension x.xt_name ] )
-                    te.te_constructors ) ) ) ::
+                (fun x ->
+                   (Raw ("  | " ^ (Name.simple x.xt_name))) ::
+                     (Raw (self#string_of_type_args
+                             x.xt_args x.xt_ret)) ::
+                     (match x.xt_alias with
+                        | None -> []
+                        | Some xa ->
+                            [ Raw " = " ;
+                              Raw ( match xa.xa_xt with
+                                      | None -> xa.xa_name
+                                      | Some x -> x.xt_name ) ]) @
+                     (match x.xt_text with
+                        | None -> [ Newline ]
+                        | Some t ->
+                            (Raw (indent 5 "\n(* ") ::
+                               self#soft_fix_linebreaks 8
+                                 (self#text_of_info (Some t))) @
+                              [ Raw " *)" ; Newline ] ) @
+                     [self#index `Extension x.xt_name ] )
+                te.te_constructors ) ) ) ::
           (self#text_of_info te.te_info) in
         self#texi_of_text t
 
@@ -1219,13 +1219,13 @@ class texi =
         let indices_names_to_build = List.map indices indices_to_build in
         List.iter (puts_nl chan)
           (List.concat_map
-                (fun (longname, shortname) ->
-                  if List.mem shortname indices_names_to_build
-                  then [ "@node " ^ longname ^ " index," ;
-                         "@unnumbered " ^ longname ^ " index" ;
-                         "@printindex " ^ shortname ; ]
-                  else [])
-                indices_names ) ;
+            (fun (longname, shortname) ->
+              if List.mem shortname indices_names_to_build
+              then [ "@node " ^ longname ^ " index," ;
+                     "@unnumbered " ^ longname ^ " index" ;
+                     "@printindex " ^ shortname ; ]
+              else [])
+            indices_names ) ;
       if !Global.with_toc
       then puts_nl chan "@contents" ;
       puts_nl chan "@bye"
