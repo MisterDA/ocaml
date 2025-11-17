@@ -26,6 +26,20 @@ module Char = struct
     c = ' ' || c = '\012' || c = '\n' || c = '\r' || c =  '\t'
 end
 
+module Sys_make_directory = struct
+  let rec make_directory dir =
+    if Sys.file_exists dir then ()
+    else let () = make_directory (Filename.dirname dir) in
+      if not (Sys.file_exists dir) then
+        Sys.mkdir dir 0o777
+      else ()
+
+  let make_directory dir =
+    try make_directory dir
+    with Sys_error err ->
+      raise (Sys_error (Printf.sprintf "Failed to create %S (%s)" dir err))
+end
+
 module Filename = struct
   include Filename
   let path_sep = if Sys.win32 then ";" else ":"
@@ -41,6 +55,11 @@ module Filename = struct
   let make_path components = List.fold_left Filename.concat "" components
 
   let mkexe filename = filename ^ Ocamltest_config.exe
+
+  let () =
+    let dirname = Filename.(concat (get_temp_dir_name ()) "ocamltest") in
+    Filename.set_temp_dir_name dirname;
+    Sys_make_directory.make_directory dirname
 end
 
 module List = struct
@@ -98,6 +117,7 @@ end
 
 module Sys = struct
   include Sys
+  include Sys_make_directory
 
   let erase_file path =
     try Sys.remove path
@@ -130,18 +150,6 @@ module Sys = struct
         (* path could be a dangling symlink *)
         try Sys.remove path
         with Sys_error _ -> ()
-
-  let rec make_directory dir =
-    if Sys.file_exists dir then ()
-    else let () = make_directory (Filename.dirname dir) in
-         if not (Sys.file_exists dir) then
-           Sys.mkdir dir 0o777
-         else ()
-
-  let make_directory dir =
-    try make_directory dir
-    with Sys_error err ->
-      raise (Sys_error (Printf.sprintf "Failed to create %S (%s)" dir err))
 
   let with_input_file ?(bin=false) x f =
     let ic = (if bin then open_in_bin else open_in) x in
