@@ -50,6 +50,12 @@ let cc = make ("cc",
 let cflags = make ("cflags",
   "Flags passed to the C compiler")
 
+let cxx = make ("cxx",
+  "Command to use to invoke the C++ compiler")
+
+let ccomp_type = make ("ccomp_type",
+  "Type of C compiler (msvc, cc, etc.)")
+
 let caml_ld_library_path_name = "CAML_LD_LIBRARY_PATH"
 
 let export_caml_ld_library_path value =
@@ -251,6 +257,7 @@ let _ = List.iter register_variable
     cppflags;
     cc;
     cflags;
+    cxx;
     caml_ld_library_path;
     codegen_exit_status;
     compare_programs;
