@@ -6,7 +6,7 @@
  include unix;
  {
    setup-ocamlopt.byte-build-env;
-   script = "${cxx} -std=c++11 ${cppflags} ${cflags} \
+   script = "${cxx} ${cppflags} ${cflags} \
      -I ${ocamlsrcdir}/runtime \
      -I ${ocamlsrcdir}/otherlibs/unix \
      -o ${test_build_directory}/sockaddr_cxx_aux.o \
@@ -21,7 +21,7 @@
  }
  {
    setup-ocamlc.byte-build-env;
-   script = "${cxx} -std=c++11 ${cppflags} ${cflags} \
+   script = "${cxx} ${cppflags} ${cflags} \
      -I ${ocamlsrcdir}/runtime \
      -I ${ocamlsrcdir}/otherlibs/unix \
      -o ${test_build_directory}/sockaddr_cxx_aux.o \
