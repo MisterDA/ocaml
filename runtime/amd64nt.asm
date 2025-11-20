@@ -20,18 +20,18 @@
 ;     caller must reserve 32 bytes of stack space
 ;     callee must preserve RBX, RBP, RSI, RDI, R12-R15, XMM6-XMM15
 
-        EXTRN  caml_garbage_collection: NEAR
-        EXTRN  caml_apply2: NEAR
-        EXTRN  caml_apply3: NEAR
-        EXTRN  caml_program: NEAR
-        EXTRN  caml_array_bound_error_asm: NEAR
-        EXTRN  caml_stash_backtrace: NEAR
-        EXTRN  caml_try_realloc_stack: NEAR
-        EXTRN  caml_try_realloc_stack: NEAR
-        EXTRN  caml_exn_Stack_overflow: NEAR
-        EXTRN  caml_raise_unhandled_effect: NEAR
-        EXTRN  caml_raise_continuation_already_resumed: NEAR
-        EXTRN  caml_free_stack: NEAR
+        EXTERN  caml_garbage_collection: NEAR
+        EXTERN  caml_apply2: NEAR
+        EXTERN  caml_apply3: NEAR
+        EXTERN  caml_program: NEAR
+        EXTERN  caml_array_bound_error_asm: NEAR
+        EXTERN  caml_stash_backtrace: NEAR
+        EXTERN  caml_try_realloc_stack: NEAR
+        EXTERN  caml_try_realloc_stack: NEAR
+        EXTERN  caml_exn_Stack_overflow: NEAR
+        EXTERN  caml_raise_unhandled_effect: NEAR
+        EXTERN  caml_raise_continuation_already_resumed: NEAR
+        EXTERN  caml_free_stack: NEAR
 
 ; Load caml/domain_state.tbl (via domain_state.inc, to remove C-style comments)
         domain_curr_field = 0

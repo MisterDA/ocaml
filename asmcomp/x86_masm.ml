@@ -234,7 +234,7 @@ let print_line b = function
   | Word n -> bprintf b "\tWORD\t%a" cst n
 
   (* windows only *)
-  | External (s, ptr) -> bprintf b "\tEXTRN\t%s: %s" s (string_of_datatype ptr)
+  | External (s, ptr) -> bprintf b "\tEXTERN\t%s: %s" s (string_of_datatype ptr)
   | Mode386 -> bprintf b "\t.386"
   | Model name -> bprintf b "\t.MODEL %s" name (* name = FLAT *)
 
