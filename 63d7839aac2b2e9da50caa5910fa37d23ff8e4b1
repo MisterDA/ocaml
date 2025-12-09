@@ -1,0 +1,58 @@
+@n@
+identifier NSPEEDS,speedtable;
+@@
+
+- #define NSPEEDS (sizeof(speedtable) / sizeof(speedtable[0]))
+
+@@
+identifier n.NSPEEDS;
+@@
+
+- NSPEEDS
++ countof(speedtable)
+
+@m@
+identifier ARR_SIZE,E;
+@@
+
+- #define ARR_SIZE(a)    (sizeof(a) / sizeof(*(a)))
+
+@@
+expression E;
+identifier m.ARR_SIZE;
+@@
+
+- ARR_SIZE(E)
++ countof(E)
+
+@@
+type T;
+T[] E;
+@@
+
+- (sizeof(E)/sizeof(*E))
++ countof(E)
+
+@@
+type T;
+T[] E;
+@@
+
+- (sizeof(E)/sizeof(E[...]))
++ countof(E)
+
+@@
+type T;
+T[] E;
+@@
+
+- (sizeof(E)/sizeof(T))
++ countof(E)
+
+@@
+type T;
+const T[] E;
+@@
+
+- (sizeof(E)/sizeof(T))
++ countof(E)
