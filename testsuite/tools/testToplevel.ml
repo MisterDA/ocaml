@@ -42,16 +42,6 @@ let run config env mode =
                     if Sys.file_exists threads_plugin then
                       Harness.fail_because
                         "threads.cmxs is not expected to exist"
-                    else if Sys.win32 then
-                      (* cf. note in ocaml/ocaml#13520 - threads.cmxa is
-                         correctly compiled assuming winpthreads is statically
-                         in the same image (so without defining
-                         WINPTHREADS_USE_DLLIMPORT), but this is incorrect for
-                         threads.cmxs, as threads.cmxs may load more than 2GiB
-                         away from the main executable. For native Windows, it's
-                         not possible to rely on ocamlnat's automatic
-                         cmxa -> cmxs recompilation. *)
-                      "cmxs"
                     else
                       (* cf. ocaml/ocaml#12250 - no threads.cmxs *)
                       "cmxa"
