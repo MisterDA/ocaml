@@ -29,6 +29,7 @@
 #include "caml/mlvalues.h"
 #include "caml/signals.h"
 #include "caml/camlatomic.h"
+#include "jtckdint.h"
 
 /* Half-precision floating point numbers */
 
@@ -231,12 +232,10 @@ caml_ba_alloc(int flags, int num_dims, void * data, intnat * dim)
   for (int i = 0; i < num_dims; i++) dimcopy[i] = dim[i];
   num_elts = 1;
   for (int i = 0; i < num_dims; i++) {
-    if (caml_umul_overflow(num_elts, dimcopy[i], &num_elts))
+    if (ckd_mul(&num_elts, num_elts, dimcopy[i]))
       caml_raise_out_of_memory();
   }
-  if (caml_umul_overflow(num_elts,
-                         caml_ba_element_size[flags & CAML_BA_KIND_MASK],
-                         &size))
+  if (ckd_mul(&size, num_elts, caml_ba_element_size[flags & CAML_BA_KIND_MASK]))
     caml_raise_out_of_memory();
   if (data == NULL) {
     data = malloc(size);
@@ -596,15 +595,14 @@ CAMLexport uintnat caml_ba_deserialize(void * dst)
   /* Compute total number of elements.  Watch out for overflows (MPR#7765). */
   num_elts = 1;
   for (int i = 0; i < b->num_dims; i++) {
-    if (caml_umul_overflow(num_elts, b->dim[i], &num_elts))
+    if (ckd_mul(&num_elts, num_elts, b->dim[i]))
       caml_deserialize_error("input_value: size overflow for bigarray");
   }
   /* Determine array size in bytes.  Watch out for overflows (MPR#7765). */
   if ((b->flags & CAML_BA_KIND_MASK) >= CAML_BA_FIRST_UNIMPLEMENTED_KIND)
     caml_deserialize_error("input_value: bad bigarray kind");
-  if (caml_umul_overflow(num_elts,
-                         caml_ba_element_size[b->flags & CAML_BA_KIND_MASK],
-                         &size))
+  if (ckd_mul(&size, num_elts,
+              caml_ba_element_size[b->flags & CAML_BA_KIND_MASK]))
     caml_deserialize_error("input_value: size overflow for bigarray");
   /* Allocate room for data */
   b->data = malloc(size);
