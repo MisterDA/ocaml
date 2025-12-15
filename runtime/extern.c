@@ -35,6 +35,7 @@
 #include "caml/mlvalues.h"
 #include "caml/reverse.h"
 #include "caml/shared_heap.h"
+#include "jtckdint.h"
 
 /* Flags affecting marshaling */
 
@@ -288,8 +289,7 @@ static void extern_resize_position_table(struct caml_extern_state *s)
     new_shift = old.shift - 1;
   }
   if (new_size == 0
-      || caml_umul_overflow(new_size, sizeof(struct object_position),
-                            &new_byte_size))
+      || ckd_mul(&new_byte_size, new_size, sizeof(struct object_position)))
     extern_out_of_memory(s);
   new_entries = caml_stat_alloc_noexc(new_byte_size);
   if (new_entries == NULL) extern_out_of_memory(s);
