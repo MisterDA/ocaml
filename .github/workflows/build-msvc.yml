@@ -90,7 +90,7 @@ jobs:
 
     strategy:
       matrix: ${{ fromJSON(needs.config.outputs.matrix) }}
-      fail-fast: true
+      fail-fast: false
 
     steps:
 
