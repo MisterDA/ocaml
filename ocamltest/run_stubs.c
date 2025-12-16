@@ -19,15 +19,13 @@
 
 #define CAML_INTERNALS
 
-#if defined(__CYGWIN__) || defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
+#ifdef __CYGWIN__
 #include <windows.h>
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <stdbool.h>
 #include <sys/types.h>
 #include <string.h>
 
@@ -167,18 +165,4 @@ CAMLprim value caml_drop_privilege(value name)
   }
 #endif
   return Val_unit;
-}
-
-CAMLprim value caml_mark_for_deletion(value vname)
-{
-  CAMLparam1(vname);
-#ifdef _WIN32
-  wchar_t *name = caml_stat_strdup_to_os(String_val(vname));
-  BOOL rc = MoveFileEx(name, NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
-  caml_stat_free(name);
-#else
-  bool rc = true;
-  (void) vname;
-#endif
-  CAMLreturn(Val_bool(rc));
 }

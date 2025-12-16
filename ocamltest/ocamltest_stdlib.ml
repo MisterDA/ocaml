@@ -222,14 +222,8 @@ module Sys = struct
     in
     List.iter cp_dir subdirs
 
-  external mark_for_deletion : string -> bool = "caml_mark_for_deletion"
-
   let force_remove file =
-    let rec retry = function
-      | 0 -> (try remove file with _ -> ignore (mark_for_deletion file))
-      | n -> try remove file with _ -> retry (n-1)
-    in
-    if file_exists file then retry 3
+    if file_exists file then remove file
 
   let with_chdir path f =
     let oldcwd = Sys.getcwd () in
