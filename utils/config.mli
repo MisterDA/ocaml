@@ -326,6 +326,9 @@ val with_cmm_invariants : bool
 val with_codegen_invariants : bool
 (** Whether the invariant checks for native code generation are enabled. *)
 
+val with_tail_call_interp : bool
+(** Whether the ocaml interpreter was compiled using tail calls. *)
+
 val reserved_header_bits : int
 (** How many bits of a block's header are reserved *)
 

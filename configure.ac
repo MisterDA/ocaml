@@ -315,6 +315,7 @@ AC_SUBST([cxx_extra_warnings])
 AC_SUBST([header_cflags])
 AC_SUBST([header_ldflags])
 AC_SUBST([header_libs])
+AC_SUBST([tail_call_interp])
 
 ## Generated files
 
@@ -557,6 +558,12 @@ AC_ARG_ENABLE([tsan],
     [enable ThreadSanitizer support @<:@default=no@:>@])],
   [],
   [enable_tsan=no])
+
+AC_ARG_ENABLE([tail_call_interp],
+  [AS_HELP_STRING([--enable-tail-call-interp],
+    [enable the tail-call interpreter @<:@default=no@:>@])],
+  [],
+  [enable_tail_call_interp=no])
 
 # Preprocessor and linker flags for libunwind (currently only used when TSan is
 # enabled)
@@ -1656,6 +1663,31 @@ OCAML_CC_SUPPORTS_TREE_VECTORIZE
 
 # Check whether the C compiler supports the labels as values extension.
 OCAML_CC_SUPPORTS_LABELS_AS_VALUES
+
+tail_call_interp=false
+AS_IF([test "x$enable_tail_call_interp" != no], [
+  AC_CACHE_CHECK([if $CC supports musttail and preserve_none attributes],
+    [ocaml_cv_prog_cc_have_tail_calls],
+    [AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
+#if !defined(__has_attribute)
+#  define __has_attribute(x) 0
+#endif
+
+#if defined(__clang__) || defined(__GNUC__)
+#  if !__has_attribute(preserve_none) || !__has_attribute(musttail)
+#    error "This compiler does not have support for efficient tail calling."
+#  endif
+#elif defined(_MSC_VER) && (_MSC_VER < 1950)
+#  error "You need at least VS 2026 / PlatformToolset v145 for tail calling."
+#endif
+]])],
+      [ocaml_cv_prog_cc_have_tail_calls=yes],
+      [ocaml_cv_prog_cc_have_tail_calls=no])])
+  AS_IF([test "x$ocaml_cv_prog_cc_have_tail_calls" = xyes],
+    [tail_call_interp=true
+    AC_DEFINE([WANT_TAIL_CALL_INTERP], [1])],
+    [AC_MSG_ERROR([no support for tail calling])])
+])
 
 # Configure the native-code compiler
 

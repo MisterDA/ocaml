@@ -148,13 +148,27 @@ typedef uintptr_t uintnat;
 #define ARCH_FLOAT_ENDIANNESS 0x01234567
 #endif
 
-
-/* We use threaded code interpretation if the C compiler supports the labels as
-   values extension. */
-#if defined(HAVE_LABELS_AS_VALUES) && !defined(DEBUG)
-#define THREADED_CODE
+/* Tail-call interpreter: preserve_none + musttail. */
+#if defined(WANT_TAIL_CALL_INTERP) && !defined(DEBUG)
+#define HAVE_TAIL_CALL_INTERP
+#  if defined(__clang__) || defined(__GNUC__)
+#    define CAMLpreserve_none __attribute__((preserve_none))
+#    define CAMLmusttail __attribute__((musttail))
+#  elif defined(_MSC_VER)
+#    define CAMLpreserve_none __preserve_none
+#    define CAMLmusttail [[msvc::musttail]]
+#  endif
+#else
+#  define CAMLpreserve_none
+#  define CAMLmusttail
 #endif
 
+/* We use threaded code interpretation if the C compiler supports tail calls or
+   the labels as values extension. */
+#if (defined(HAVE_LABELS_AS_VALUES) || defined(HAVE_TAIL_CALL_INTERP)) && \
+  !defined(DEBUG)
+#define THREADED_CODE
+#endif
 
 /* Memory model parameters */
 
