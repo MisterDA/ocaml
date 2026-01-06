@@ -354,7 +354,7 @@ typedef char char_os;
    from the callsite, making debuggers able to see it. */
 #define CAMLassert(x) \
   (CAMLlikely(x) ? (void) 0 : caml_failed_assert ( #x , __OSFILE__, __LINE__))
-CAMLextern void caml_failed_assert (const char *, const char_os *, int)
+CAMLnoret CAMLextern void caml_failed_assert(const char *, const char_os *, int)
 #if defined(__has_feature)
   /* However, we do inform clang-analyzer that this function never returns,
      since that improves analysis without breaking debugging */

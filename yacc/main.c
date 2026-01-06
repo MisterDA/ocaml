@@ -160,7 +160,7 @@ static void set_signals(void)
 }
 
 
-void usage(void)
+CAMLnoret void usage(void)
 {
     fprintf(stderr, "usage: %s [-v] [--strict] [-q] [-b file_prefix] filename\n",
             myname);

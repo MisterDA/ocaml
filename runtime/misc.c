@@ -43,7 +43,7 @@ void caml_print_loc(const char_os *file_os, int line) {
   caml_stat_free(file);
 }
 
-void caml_failed_assert (const char * expr, const char_os * file_os, int line)
+void caml_failed_assert(const char * expr, const char_os * file_os, int line)
 {
   caml_print_loc(file_os, line);
   fprintf(stderr, "Assertion failed: %s\n", expr);
@@ -51,7 +51,7 @@ void caml_failed_assert (const char * expr, const char_os * file_os, int line)
   caml_abort();
 }
 
-CAMLnoret void caml_debug_abort(const char_os * file_os, int line) {
+void caml_debug_abort(const char_os * file_os, int line) {
   caml_print_loc(file_os, line);
   fprintf(stderr, "Abort\n");
   fflush(stderr);
@@ -127,14 +127,14 @@ CAMLexport void caml_fatal_error (const char *msg, ...)
   abort();
 }
 
-CAMLexport void caml_fatal_error_arg (const char *fmt, const char *arg)
+CAMLexport void caml_fatal_error_arg(const char *fmt, const char *arg)
 {
   fprintf (stderr, fmt, arg);
   exit(2);
 }
 
-CAMLexport void caml_fatal_error_arg2 (const char *fmt1, const char *arg1,
-                                       const char *fmt2, const char *arg2)
+CAMLexport void caml_fatal_error_arg2 (
+  const char *fmt1, const char *arg1, const char *fmt2, const char *arg2)
 {
   fprintf (stderr, fmt1, arg1);
   fprintf (stderr, fmt2, arg2);
