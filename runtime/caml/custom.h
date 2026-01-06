@@ -89,7 +89,8 @@ CAMLextern mlsize_t caml_custom_get_max_major (void);
 extern struct custom_operations *
           caml_find_custom_operations(const char * ident);
 extern struct custom_operations *
-          caml_final_custom_operations(void (*fn)(value));
+          caml_final_custom_operations(void (*fn)(value))
+  CAMLreturns_nonnull;
 
 extern void caml_init_custom_operations(void);
 

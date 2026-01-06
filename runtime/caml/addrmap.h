@@ -36,7 +36,8 @@ value caml_addrmap_lookup(struct addrmap* t, value k);
 #define ADDRMAP_NOT_PRESENT ((value)(0))
 #define ADDRMAP_INVALID_KEY ((value)(0))
 
-value* caml_addrmap_insert_pos(struct addrmap* t, value k);
+value* caml_addrmap_insert_pos(struct addrmap* t, value k)
+  CAMLreturns_nonnull;
 
 /* must not already be present */
 void caml_addrmap_insert(struct addrmap* t, value k, value v);
