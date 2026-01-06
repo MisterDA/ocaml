@@ -217,7 +217,7 @@ CAMLextern int caml_runtime_events_are_active(void);
    isn't enough to silence the note. */
 #if defined(__GNUC__) && __has_attribute(aligned)
 #undef CAMLalign
-#define CAMLalign(n) __attribute__ ((aligned(n)))
+#define CAMLalign(n) __attribute__((__aligned__(n)))
 #endif
 
 struct runtime_events_buffer_header {

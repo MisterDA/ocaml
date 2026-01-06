@@ -25,7 +25,7 @@
 typedef char_os **array;
 
 typedef void Logger(void *, const char *, va_list ap);
-#define Logger CAMLformat(printf, 2, 0) Logger
+#define Logger CAMLformat(__printf__, 2, 0) Logger
 
 typedef struct {
   char_os *program;

@@ -25,13 +25,13 @@ static int is_defined(const char_os *str)
   return (str != NULL) && (*str != 0);
 }
 
-CAMLformat(printf, 2, 0)
+CAMLformat(__printf__, 2, 0)
 static void defaultLogger(void *where, const char *format, va_list ap)
 {
   vfprintf(stderr, format, ap);
 }
 
-CAMLformat(printf, 3, 4)
+CAMLformat(__printf__, 3, 4)
 static void mylog(Logger *logger, void *loggerData, const char *fmt, ...)
 {
   va_list ap;
@@ -40,7 +40,7 @@ static void mylog(Logger *logger, void *loggerData, const char *fmt, ...)
   va_end(ap);
 }
 
-CAMLformat(printf, 4, 5)
+CAMLformat(__printf__, 4, 5)
 static void error_with_location(
   const char *file, int line,
   const command_settings *settings,
