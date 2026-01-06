@@ -240,7 +240,7 @@ CAMLdeprecated_typedef(addr, char *);
      defined(__llvm__))
 
 /* Indicates that a particular function always returns a non-null pointer. */
-#define CAMLreturns_nonnull() __attribute__ ((returns_nonnull))
+#define CAMLreturns_nonnull __attribute__ ((returns_nonnull))
 
 /* [CAMLrealloc(n)] indicates that the function is [realloc]-like, and implies
    that the [n]-th argument number equals the number of available bytes at the
@@ -285,7 +285,7 @@ CAMLdeprecated_typedef(addr, char *);
     __attribute__ ((alloc_align(alloc_align_)))
 
 #else
-#define CAMLreturns_nonnull()
+#define CAMLreturns_nonnull
 #define CAMLrealloc(asN)
 #define CAMLalloc(d,pi)
 #define CAMLmalloc(d,pi,asN)
