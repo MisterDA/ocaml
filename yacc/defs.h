@@ -315,7 +315,7 @@ extern short final_state;
 
 /* global functions */
 
-extern char *allocate(unsigned int n);
+extern char *allocate(unsigned int n) CAMLmalloc(free, 1, 1);
 extern bucket *lookup(const char *name);
 extern bucket *make_bucket(const char *name);
 extern action *parse_actions(int stateno);

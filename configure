@@ -15595,8 +15595,13 @@ fi
 done
 
 # Use -Wsuggest-attribute=attribute_name if supported
-for attribute_name in format; do
-  as_CACHEVAR=`printf "%s\n" "ax_cv_check_cflags_$warn_error_flag_-Wsuggest-attribute=$attribute_name" | $as_tr_sh`
+case $ocaml_cc_vendor in #(
+  *gcc-[0-9]-*|*gcc-1[0-3]-*) :
+     ;; #(
+  # Reject GCC < 14
+  *clang-*|*gcc*) :
+    for attribute_name in format malloc; do
+      as_CACHEVAR=`printf "%s\n" "ax_cv_check_cflags_$warn_error_flag_-Wsuggest-attribute=$attribute_name" | $as_tr_sh`
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C compiler accepts -Wsuggest-attribute=$attribute_name" >&5
 printf %s "checking whether the C compiler accepts -Wsuggest-attribute=$attribute_name... " >&6; }
 if eval test \${$as_CACHEVAR+y}
@@ -15636,7 +15641,10 @@ else $as_nop
   :
 fi
 
-done
+    done ;; #(
+  *) :
+     ;;
+esac
 
 case $enable_warn_error,true in #(
   yes,*|,true) :
