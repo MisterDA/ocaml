@@ -36,6 +36,9 @@ m4_include([build-aux/ax_pthread.m4])
 # OCaml version
 m4_include([build-aux/ocaml_version.m4])
 
+# pkgconf / pkg-config
+m4_include([build-aux/pkg.m4])
+
 # The following macro figures out which C compiler is used.
 # It does so by checking for compiler-specific predefined macros.
 # A list of such macros can be found at

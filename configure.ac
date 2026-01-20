@@ -188,7 +188,7 @@ AC_SUBST([oc_dll_ldflags])
 AC_SUBST([cclibs])
 AC_SUBST([native_ldflags])
 AC_SUBST([with_nonexecstack_note])
-AC_SUBST([zstd_libs])
+AC_SUBST([zstd_LIBS])
 AC_SUBST([bytecode_cflags])
 AC_SUBST([bytecode_cppflags])
 AC_SUBST([flexdll_source_dir])
@@ -754,10 +754,6 @@ AC_ARG_WITH([flexdll],
   [AS_HELP_STRING([--with-flexdll],
     [bootstrap FlexDLL from the given sources])],
   [AS_IF([test x"$withval" = 'xyes'],[with_flexdll=flexdll])])
-
-AC_ARG_WITH([zstd],
-  [AS_HELP_STRING([--without-zstd],
-    [disable compression of compilation artefacts])])
 
 AS_IF([test x"$enable_unix_lib" = "xno"],
   [AS_IF([test x"$enable_ocamldebug" = "xyes"],
@@ -2557,34 +2553,28 @@ AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
     [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN], [1])])])])
 
-AS_IF([$cross_compiler],
-  [AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])],
-  [AC_PATH_TOOL([PKG_CONFIG], [pkg-config], [false])])
-
 ## ZSTD compression library
 
-zstd_status=""
-zstd_libs=""
+PKG_PROG_PKG_CONFIG
 
-AS_IF([test x"$with_zstd" != "xno"],
-  # Try pkg-config first, as it gives the most reliable results
-  [AS_IF([${PKG_CONFIG} libzstd 2>/dev/null],
-    # Now check the version
-    [AS_IF([${PKG_CONFIG} --atleast-version 1.4 libzstd],
-      [zstd_libs=`${PKG_CONFIG} --libs libzstd`
-       zstd_flags=`${PKG_CONFIG} --cflags libzstd`
-       zstd_status="ok"],
-      [zstd_status="zstd library too old: version 1.4 or later is needed"])],
+zstd_status=""
+# pkg-config first, as it gives the most reliable results
+PKG_WITH_MODULES([zstd], [libzstd],
+  # Now check the version
+  [AS_IF([$PKG_CONFIG --atleast-version 1.4 libzstd],
+    [zstd_status="ok"],
+    [zstd_status="zstd library too old: version 1.4 or later is needed"])],
   # Otherwise, try to find zstd the old way,
   # assuming it is installed in default places
-    [AC_CHECK_LIB([zstd], [ZSTD_createCCtx],
-      [AC_CHECK_DECL([ZSTD_compressStream2],
-        [zstd_libs="-lzstd"
-         zstd_flags=""
-         zstd_status="ok"],
-        [zstd_status="zstd library too old: version 1.4 or later is needed"],
-        [[#include <zstd.h>]])],
-      [zstd_status="zstd library not found"])])])
+  [AC_CHECK_LIB([zstd], [ZSTD_createCCtx],
+    [AC_CHECK_DECL([ZSTD_compressStream2],
+      [zstd_LIBS="-lzstd"
+      zstd_CFLAGS=""
+      zstd_status="ok"],
+      [zstd_status="zstd library too old: version 1.4 or later is needed"],
+      [[#include <zstd.h>]])],
+    [zstd_status="zstd library not found"])],
+  [disable compression of compilation artefacts], [yes])
 
 # When building the mingw-w64 port in Cygwin, it is very easy to have the
 # library available, but not have the DLL in PATH. This then causes the build to
@@ -2598,8 +2588,8 @@ AS_CASE([$target],
 AS_IF([test x"$zstd_status" = "xok"],[
   AC_MSG_CHECKING([whether programs can be linked with zstd])
   OCAML_CC_SAVE_VARIABLES
-  LIBS="$LIBS $zstd_libs"
-  CFLAGS="$CFLAGS $zstd_flags"
+  LIBS="$LIBS $zstd_LIBS"
+  CFLAGS="$CFLAGS $zstd_CFLAGS"
   AC_LINK_IFELSE(
     [AC_LANG_SOURCE([[
 #include <zstd.h>
@@ -2613,20 +2603,20 @@ int main(void) {
       [AS_IF([ac_fn_c_try_run LINENO],
         [AC_MSG_RESULT([yes])],
         [AC_MSG_RESULT([no])
-        zstd_libs=''
-        zstd_flags=''
+        zstd_LIBS=''
+        zstd_CFLAGS=''
         zstd_status=\
 "programs linked with zstd do not appear to be executable."])],
       [AC_MSG_RESULT([skipped])])],
     [AC_MSG_RESULT([no])
-    zstd_libs=''
-    zstd_flags=''
+    zstd_LIBS=''
+    zstd_CFLAGS=''
     zstd_status="zstd found, but programs cannot be linked with it."])
   OCAML_CC_RESTORE_VARIABLES])
 
 AS_IF([test x"$zstd_status" = "xok"],
   [AC_MSG_NOTICE([compressed compilation artefacts supported])
-   internal_cppflags="$internal_cppflags $zstd_flags"
+   internal_cppflags="$internal_cppflags $zstd_CFLAGS"
    AC_DEFINE([HAS_ZSTD], [1])],
   [AS_CASE(["$with_zstd"],
      [no],

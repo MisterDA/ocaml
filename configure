@@ -725,6 +725,9 @@ PTHREAD_LIBS
 PTHREAD_CXX
 PTHREAD_CC
 ax_pthread_config
+zstd_CFLAGS
+PKG_CONFIG_LIBDIR
+PKG_CONFIG_PATH
 PKG_CONFIG
 rlwrap
 DIRECT_LD
@@ -898,7 +901,7 @@ shebangscripts
 flexdll_dir
 bootstrapping_flexdll
 flexdll_source_dir
-zstd_libs
+zstd_LIBS
 with_nonexecstack_note
 native_ldflags
 cclibs
@@ -1067,7 +1070,6 @@ enable_runtime_search
 enable_runtime_search_target
 with_afl
 with_flexdll
-with_zstd
 enable_shared
 enable_static
 enable_pic
@@ -1078,6 +1080,7 @@ with_aix_soname
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+with_zstd
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1105,7 +1108,12 @@ LDFLAGS
 LIBS
 CPPFLAGS
 LT_SYS_LIBRARY_PATH
-CPP'
+CPP
+PKG_CONFIG
+PKG_CONFIG_PATH
+PKG_CONFIG_LIBDIR
+zstd_CFLAGS
+zstd_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1806,10 +1814,11 @@ Optional Packages:
                           --with-relative-libdir, defaults to ../lib/ocaml)
   --with-afl              use the AFL fuzzer
   --with-flexdll          bootstrap FlexDLL from the given sources
-  --without-zstd          disable compression of compilation artefacts
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot[=DIR]    Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
+  --without-zstd          disable compression of compilation artefacts
+                          [default=yes]
   --with-odoc
 
 Some influential environment variables:
@@ -1855,6 +1864,13 @@ Some influential environment variables:
   LT_SYS_LIBRARY_PATH
               User-defined run-time library search path.
   CPP         C preprocessor
+  PKG_CONFIG  path to pkg-config utility
+  PKG_CONFIG_PATH
+              directories to add to pkg-config's search path
+  PKG_CONFIG_LIBDIR
+              path overriding pkg-config's built-in search path
+  zstd_CFLAGS C compiler flags for zstd, overriding pkg-config
+  zstd_LIBS   linker flags for zstd, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -4501,14 +4517,6 @@ then :
 then :
   with_flexdll=flexdll
 fi
-fi
-
-
-
-# Check whether --with-zstd was given.
-if test ${with_zstd+y}
-then :
-  withval=$with_zstd;
 fi
 
 
@@ -22014,111 +22022,17 @@ fi
 fi
 
 
-if $cross_compiler
-then :
-  # Extract the first word of "$target_alias-pkg-config", so it can be a program name with args.
-set dummy $target_alias-pkg-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_PKG_CONFIG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-if test -n "$PKG_CONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
-printf "%s\n" "$PKG_CONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
+## ZSTD compression library
 
 
-if test -z "$ac_cv_path_PKG_CONFIG"; then
-  if test "$build" = "$target"; then
-    ac_pt_PKG_CONFIG=$PKG_CONFIG
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_ac_pt_PKG_CONFIG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $ac_pt_PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_ac_pt_PKG_CONFIG" && ac_cv_path_ac_pt_PKG_CONFIG="false"
-  ;;
-esac
-fi
-ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
-if test -n "$ac_pt_PKG_CONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
-printf "%s\n" "$ac_pt_PKG_CONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
 
-    PKG_CONFIG=$ac_pt_PKG_CONFIG
-  else
-    PKG_CONFIG="false"
-  fi
-else
-  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
-fi
 
-else $as_nop
-  if test -n "$ac_tool_prefix"; then
+
+
+
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
 set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -22212,7 +22126,7 @@ printf "%s\n" "no" >&6; }
 fi
 
   if test "x$ac_pt_PKG_CONFIG" = x; then
-    PKG_CONFIG="false"
+    PKG_CONFIG=""
   else
     case $cross_compiling:$ac_tool_warned in
 yes:)
@@ -22227,12 +22141,22 @@ else
 fi
 
 fi
-
-## ZSTD compression library
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
+printf %s "checking pkg-config is at least version $_pkg_min_version... " >&6; }
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	else
+		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+		PKG_CONFIG=""
+	fi
+fi
 
 zstd_status=""
-zstd_libs=""
-
+# pkg-config first, as it gives the most reliable results
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CC options needed to detect all undeclared functions" >&5
 printf %s "checking for $CC options needed to detect all undeclared functions... " >&6; }
 if test ${ac_cv_c_undeclared_builtin_options+y}
@@ -22313,24 +22237,91 @@ See \`config.log' for more details" "$LINENO" 5; } ;; #(
     ac_c_undeclared_builtin_options=$ac_cv_c_undeclared_builtin_options ;;
 esac
 
-if test x"$with_zstd" != "xno"
+
+
+
+
+
+
+
+
+
+
+
+
+# Check whether --with-zstd was given.
+if test ${with_zstd+y}
 then :
-  # Try pkg-config first, as it gives the most reliable results
-  if ${PKG_CONFIG} libzstd 2>/dev/null
-then :
-  # Now check the version
-    if ${PKG_CONFIG} --atleast-version 1.4 libzstd
-then :
-  zstd_libs=`${PKG_CONFIG} --libs libzstd`
-       zstd_flags=`${PKG_CONFIG} --cflags libzstd`
-       zstd_status="ok"
+  withval=$with_zstd;
 else $as_nop
-  zstd_status="zstd library too old: version 1.4 or later is needed"
+  with_zstd=yes
 fi
-else $as_nop
-  # Otherwise, try to find zstd the old way,
+
+q
+case $with_zstd in #(
+  yes) :
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libzstd" >&5
+printf %s "checking for libzstd... " >&6; }
+
+if test -n "$zstd_CFLAGS"; then
+    pkg_cv_zstd_CFLAGS="$zstd_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libzstd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libzstd") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_zstd_CFLAGS=`$PKG_CONFIG --cflags "libzstd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$zstd_LIBS"; then
+    pkg_cv_zstd_LIBS="$zstd_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libzstd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libzstd") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_zstd_LIBS=`$PKG_CONFIG --libs "libzstd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                zstd_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libzstd" 2>&1`
+        else
+                zstd_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libzstd" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$zstd_PKG_ERRORS" >&5
+
+        # Otherwise, try to find zstd the old way,
   # assuming it is installed in default places
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ZSTD_createCCtx in -lzstd" >&5
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ZSTD_createCCtx in -lzstd" >&5
 printf %s "checking for ZSTD_createCCtx in -lzstd... " >&6; }
 if test ${ac_cv_lib_zstd_ZSTD_createCCtx+y}
 then :
@@ -22371,9 +22362,9 @@ then :
 " "$ac_c_undeclared_builtin_options" "CFLAGS"
 if test "x$ac_cv_have_decl_ZSTD_compressStream2" = xyes
 then :
-  zstd_libs="-lzstd"
-         zstd_flags=""
-         zstd_status="ok"
+  zstd_LIBS="-lzstd"
+      zstd_CFLAGS=""
+      zstd_status="ok"
 else $as_nop
   zstd_status="zstd library too old: version 1.4 or later is needed"
 fi
@@ -22381,8 +22372,269 @@ else $as_nop
   zstd_status="zstd library not found"
 fi
 
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        # Otherwise, try to find zstd the old way,
+  # assuming it is installed in default places
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ZSTD_createCCtx in -lzstd" >&5
+printf %s "checking for ZSTD_createCCtx in -lzstd... " >&6; }
+if test ${ac_cv_lib_zstd_ZSTD_createCCtx+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lzstd  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char ZSTD_createCCtx ();
+int
+main (void)
+{
+return ZSTD_createCCtx ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_zstd_ZSTD_createCCtx=yes
+else $as_nop
+  ac_cv_lib_zstd_ZSTD_createCCtx=no
 fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_zstd_ZSTD_createCCtx" >&5
+printf "%s\n" "$ac_cv_lib_zstd_ZSTD_createCCtx" >&6; }
+if test "x$ac_cv_lib_zstd_ZSTD_createCCtx" = xyes
+then :
+  ac_fn_check_decl "$LINENO" "ZSTD_compressStream2" "ac_cv_have_decl_ZSTD_compressStream2" "#include <zstd.h>
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_ZSTD_compressStream2" = xyes
+then :
+  zstd_LIBS="-lzstd"
+      zstd_CFLAGS=""
+      zstd_status="ok"
+else $as_nop
+  zstd_status="zstd library too old: version 1.4 or later is needed"
+fi
+else $as_nop
+  zstd_status="zstd library not found"
+fi
+
+else
+        zstd_CFLAGS=$pkg_cv_zstd_CFLAGS
+        zstd_LIBS=$pkg_cv_zstd_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        # Now check the version
+  if $PKG_CONFIG --atleast-version 1.4 libzstd
+then :
+  zstd_status="ok"
+else $as_nop
+  zstd_status="zstd library too old: version 1.4 or later is needed"
+fi
+fi ;; #(
+  auto) :
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libzstd" >&5
+printf %s "checking for libzstd... " >&6; }
+
+if test -n "$zstd_CFLAGS"; then
+    pkg_cv_zstd_CFLAGS="$zstd_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libzstd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libzstd") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_zstd_CFLAGS=`$PKG_CONFIG --cflags "libzstd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$zstd_LIBS"; then
+    pkg_cv_zstd_LIBS="$zstd_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libzstd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libzstd") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_zstd_LIBS=`$PKG_CONFIG --libs "libzstd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                zstd_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libzstd" 2>&1`
+        else
+                zstd_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libzstd" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$zstd_PKG_ERRORS" >&5
+
+        with_zstd=no
+ # Otherwise, try to find zstd the old way,
+  # assuming it is installed in default places
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ZSTD_createCCtx in -lzstd" >&5
+printf %s "checking for ZSTD_createCCtx in -lzstd... " >&6; }
+if test ${ac_cv_lib_zstd_ZSTD_createCCtx+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lzstd  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char ZSTD_createCCtx ();
+int
+main (void)
+{
+return ZSTD_createCCtx ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_zstd_ZSTD_createCCtx=yes
+else $as_nop
+  ac_cv_lib_zstd_ZSTD_createCCtx=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_zstd_ZSTD_createCCtx" >&5
+printf "%s\n" "$ac_cv_lib_zstd_ZSTD_createCCtx" >&6; }
+if test "x$ac_cv_lib_zstd_ZSTD_createCCtx" = xyes
+then :
+  ac_fn_check_decl "$LINENO" "ZSTD_compressStream2" "ac_cv_have_decl_ZSTD_compressStream2" "#include <zstd.h>
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_ZSTD_compressStream2" = xyes
+then :
+  zstd_LIBS="-lzstd"
+      zstd_CFLAGS=""
+      zstd_status="ok"
+else $as_nop
+  zstd_status="zstd library too old: version 1.4 or later is needed"
+fi
+else $as_nop
+  zstd_status="zstd library not found"
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        with_zstd=no
+ # Otherwise, try to find zstd the old way,
+  # assuming it is installed in default places
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ZSTD_createCCtx in -lzstd" >&5
+printf %s "checking for ZSTD_createCCtx in -lzstd... " >&6; }
+if test ${ac_cv_lib_zstd_ZSTD_createCCtx+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lzstd  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char ZSTD_createCCtx ();
+int
+main (void)
+{
+return ZSTD_createCCtx ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_zstd_ZSTD_createCCtx=yes
+else $as_nop
+  ac_cv_lib_zstd_ZSTD_createCCtx=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_zstd_ZSTD_createCCtx" >&5
+printf "%s\n" "$ac_cv_lib_zstd_ZSTD_createCCtx" >&6; }
+if test "x$ac_cv_lib_zstd_ZSTD_createCCtx" = xyes
+then :
+  ac_fn_check_decl "$LINENO" "ZSTD_compressStream2" "ac_cv_have_decl_ZSTD_compressStream2" "#include <zstd.h>
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_ZSTD_compressStream2" = xyes
+then :
+  zstd_LIBS="-lzstd"
+      zstd_CFLAGS=""
+      zstd_status="ok"
+else $as_nop
+  zstd_status="zstd library too old: version 1.4 or later is needed"
+fi
+else $as_nop
+  zstd_status="zstd library not found"
+fi
+
+else
+        zstd_CFLAGS=$pkg_cv_zstd_CFLAGS
+        zstd_LIBS=$pkg_cv_zstd_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        with_zstd=yes
+ # Now check the version
+  if $PKG_CONFIG --atleast-version 1.4 libzstd
+then :
+  zstd_status="ok"
+else $as_nop
+  zstd_status="zstd library too old: version 1.4 or later is needed"
+fi
+fi ;; #(
+  *) :
+     ;;
+esac
+
+
+
+
+
+
 
 # When building the mingw-w64 port in Cygwin, it is very easy to have the
 # library available, but not have the DLL in PATH. This then causes the build to
@@ -22412,8 +22664,8 @@ printf %s "checking whether programs can be linked with zstd... " >&6; }
   mv confdefs.h confdefs.h.bak
   touch confdefs.h
 
-  LIBS="$LIBS $zstd_libs"
-  CFLAGS="$CFLAGS $zstd_flags"
+  LIBS="$LIBS $zstd_LIBS"
+  CFLAGS="$CFLAGS $zstd_CFLAGS"
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -22438,8 +22690,8 @@ printf "%s\n" "yes" >&6; }
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-        zstd_libs=''
-        zstd_flags=''
+        zstd_LIBS=''
+        zstd_CFLAGS=''
         zstd_status=\
 "programs linked with zstd do not appear to be executable."
 fi
@@ -22450,8 +22702,8 @@ fi
 else $as_nop
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-    zstd_libs=''
-    zstd_flags=''
+    zstd_LIBS=''
+    zstd_CFLAGS=''
     zstd_status="zstd found, but programs cannot be linked with it."
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
@@ -22472,7 +22724,7 @@ if test x"$zstd_status" = "xok"
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: compressed compilation artefacts supported" >&5
 printf "%s\n" "$as_me: compressed compilation artefacts supported" >&6;}
-   internal_cppflags="$internal_cppflags $zstd_flags"
+   internal_cppflags="$internal_cppflags $zstd_CFLAGS"
    printf "%s\n" "#define HAS_ZSTD 1" >>confdefs.h
 
 else $as_nop
