@@ -93,7 +93,7 @@ let mkexe = {@QS@|@mkexe_exp@|@QS@}
 
 let outputobj = {@QS@|@outputobj@|@QS@}
 
-let bytecc_libs = {@QS@|@zstd_libs@ @cclibs@|@QS@}
+let bytecc_libs = {@QS@|@zstd_LIBS@ @cclibs@|@QS@}
 
 let nativecc_libs = {@QS@|@cclibs@|@QS@}
 
