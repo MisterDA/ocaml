@@ -208,7 +208,6 @@ AC_SUBST([oc_dll_ldflags])
 AC_SUBST([cclibs])
 AC_SUBST([native_ldflags])
 AC_SUBST([with_nonexecstack_note])
-AC_SUBST([zstd_libs])
 AC_SUBST([bytecode_cflags])
 AC_SUBST([bytecode_cppflags])
 AC_SUBST([flexdll_source_dir])
@@ -2678,34 +2677,25 @@ AC_CHECK_HEADER([spawn.h],
   [AC_CHECK_FUNC([posix_spawn],
     [AC_CHECK_FUNC([posix_spawnp], [AC_DEFINE([HAS_POSIX_SPAWN], [1])])])])
 
-AS_IF([$cross_compiler],
-  [AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config], [false])],
-  [AC_PATH_TOOL([PKG_CONFIG], [pkg-config], [false])])
-
 ## ZSTD compression library
 
-zstd_status=""
-zstd_libs=""
+# Unless the user sets PKG_CONFIG, a cross compiler only uses
+# <target>-pkg-config (for instance, a pkgconf personality): unlike
+# AC_PATH_TOOL in PKG_PROG_PKG_CONFIG, AC_PATH_TARGET_TOOL does not fall back
+# to the build machine's pkg-config, which would give flags for the build
+# machine's libraries.
+AS_IF([$cross_compiler && test -z "$PKG_CONFIG"],
+  [AC_PATH_TARGET_TOOL([PKG_CONFIG], [pkg-config])],
+  [PKG_PROG_PKG_CONFIG])
 
+zstd_status=""
 AS_IF([test x"$with_zstd" != "xno"],
-  # Try pkg-config first, as it gives the most reliable results
-  [AS_IF([${PKG_CONFIG} libzstd 2>/dev/null],
-    # Now check the version
-    [AS_IF([${PKG_CONFIG} --atleast-version 1.4 libzstd],
-      [zstd_libs=`${PKG_CONFIG} --libs libzstd`
-       zstd_flags=`${PKG_CONFIG} --cflags libzstd`
-       zstd_status="ok"],
-      [zstd_status="zstd library too old: version 1.4 or later is needed"])],
-  # Otherwise, try to find zstd the old way,
-  # assuming it is installed in default places
-    [AC_CHECK_LIB([zstd], [ZSTD_createCCtx],
-      [AC_CHECK_DECL([ZSTD_compressStream2],
-        [zstd_libs="-lzstd"
-         zstd_flags=""
-         zstd_status="ok"],
-        [zstd_status="zstd library too old: version 1.4 or later is needed"],
-        [[#include <zstd.h>]])],
-      [zstd_status="zstd library not found"])])])
+  [PKG_CHECK_MODULES([ZSTD], [libzstd >= 1.4],
+    [zstd_status="ok"],
+    # pkg-config is missing or did not find libzstd >= 1.4: keep the flags the
+    # user gave, if any, and otherwise look in the default places.
+    [AS_IF([test -z "$ZSTD_LIBS"], [ZSTD_LIBS="-lzstd"])
+     zstd_status="ok"])])
 
 # When building the mingw-w64 port in Cygwin, it is very easy to have the
 # library available, but not have the DLL in PATH. This then causes the build to
@@ -2717,10 +2707,35 @@ AS_CASE([$target],
   [check_zstd_runs=false])
 
 AS_IF([test x"$zstd_status" = "xok"],[
+  OCAML_CC_SAVE_VARIABLES
+  LIBS="$LIBS $ZSTD_LIBS"
+  CFLAGS="$CFLAGS $ZSTD_CFLAGS"
+  # The version check is done even if pkg-config already did it, since the
+  # user may have set ZSTD_CFLAGS and ZSTD_LIBS.
+  AC_MSG_CHECKING([for zstd.h])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <zstd.h>]])],
+    [AC_MSG_RESULT([yes])
+    AC_MSG_CHECKING([whether zstd is version 1.4 or later])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <zstd.h>
+#if ZSTD_VERSION_NUMBER < 10400
+#error "zstd too old"
+#endif
+]])],
+      [AC_MSG_RESULT([yes])],
+      [AC_MSG_RESULT([no])
+      zstd_status="zstd library too old: version 1.4 or later is needed"])],
+    [AC_MSG_RESULT([no])
+    zstd_status="zstd library not found"
+    AS_IF([test -n "$ZSTD_PKG_ERRORS"],
+      [zstd_status=\
+"$zstd_status (pkg-config: `echo $ZSTD_PKG_ERRORS`)"])])
+  OCAML_CC_RESTORE_VARIABLES])
+
+AS_IF([test x"$zstd_status" = "xok"],[
   AC_MSG_CHECKING([whether programs can be linked with zstd])
   OCAML_CC_SAVE_VARIABLES
-  LIBS="$LIBS $zstd_libs"
-  CFLAGS="$CFLAGS $zstd_flags"
+  LIBS="$LIBS $ZSTD_LIBS"
+  CFLAGS="$CFLAGS $ZSTD_CFLAGS"
   AC_LINK_IFELSE(
     [AC_LANG_SOURCE([[
 #include <zstd.h>
@@ -2734,22 +2749,21 @@ int main(void) {
       [AS_IF([ac_fn_c_try_run LINENO],
         [AC_MSG_RESULT([yes])],
         [AC_MSG_RESULT([no])
-        zstd_libs=''
-        zstd_flags=''
         zstd_status=\
 "programs linked with zstd do not appear to be executable."])],
       [AC_MSG_RESULT([skipped])])],
     [AC_MSG_RESULT([no])
-    zstd_libs=''
-    zstd_flags=''
     zstd_status="zstd found, but programs cannot be linked with it."])
   OCAML_CC_RESTORE_VARIABLES])
 
 AS_IF([test x"$zstd_status" = "xok"],
   [AC_MSG_NOTICE([compressed compilation artefacts supported])
-   internal_cppflags="$internal_cppflags $zstd_flags"
+   internal_cppflags="$internal_cppflags $ZSTD_CFLAGS"
    AC_DEFINE([HAS_ZSTD], [1])],
-  [AS_CASE(["$with_zstd"],
+  [# Do not substitute flags given by the user if zstd is not used
+   ZSTD_CFLAGS=''
+   ZSTD_LIBS=''
+   AS_CASE(["$with_zstd"],
      [no],
        [],
      [yes],
