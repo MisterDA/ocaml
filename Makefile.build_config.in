@@ -211,7 +211,7 @@ ZINC_RUNTIME_ID_HI = @zinc_runtime_id_hi@
 ZINC_RUNTIME_ID = @zinc_runtime_id_lo@$(ZINC_RUNTIME_ID_HI)
 
 # Platform-dependent command to create symbolic links
-LN = @ln@
+LN_S = @LN_S@
 
 # Tool to generate manifests for managed assemblies and unmanaged side-by-side
 # assemblies, for the Windows targets.
