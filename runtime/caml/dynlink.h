@@ -44,7 +44,8 @@ extern void caml_free_shared_libs(void);
 /* If found, parse $OCAMLLIB/ld.conf, $CAMLLIB/ld.conf and stdlib/ld.conf in
    that order and add the lines read to table. */
 extern char_os * caml_parse_ld_conf(const char_os * stdlib,
-                                    struct ext_table * table);
+                                    struct ext_table * table)
+  CAMLreturns_nonnull;
 
 #endif /* CAML_INTERNALS */
 

@@ -315,7 +315,7 @@ extern short final_state;
 
 /* global functions */
 
-extern char *allocate(unsigned int n);
+extern char *allocate(unsigned int n) CAMLmalloc(free, 1, 1);
 extern bucket *lookup(const char *name);
 extern bucket *make_bucket(const char *name);
 extern action *parse_actions(int stateno);
@@ -343,7 +343,7 @@ CAMLnoret extern void open_error (const char_os *filename);
 extern void output (void);
 extern void prec_redeclared (void);
 CAMLnoret extern void polymorphic_entry_point(char *s);
-extern void forbidden_conflicts (void);
+CAMLnoret extern void forbidden_conflicts (void);
 extern void reader (void);
 extern void reflexive_transitive_closure (unsigned int *R, int n);
 extern void reprec_warning (char *s);
@@ -355,8 +355,8 @@ CAMLnoret extern void terminal_lhs (int s_lineno);
 CAMLnoret extern void terminal_start (char *s);
 CAMLnoret extern void tokenized_start (char *s);
 CAMLnoret extern void too_many_entries (void);
-extern void undefined_goal (char *s);
-extern void undefined_symbol (char *s);
+CAMLnoret extern void undefined_goal (char *s);
+CAMLnoret extern void undefined_symbol (char *s);
 CAMLnoret extern void unexpected_EOF (void);
 CAMLnoret extern void unknown_rhs (int i);
 CAMLnoret extern void unterminated_action (int a_lineno, char *a_line, char *a_cptr);

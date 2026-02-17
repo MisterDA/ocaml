@@ -1078,6 +1078,16 @@ for flag in '-Wimplicit-fallthrough=5' '-Wimplicit-fallthrough'; do
     [cc_warnings="$cc_warnings $flag"; break], [], [$warn_error_flag])
 done
 
+# Use -Wsuggest-attribute=attribute_name if supported
+AS_CASE([$ocaml_cc_vendor],
+  [*gcc-[[0-9]]-*|*gcc-1[[0-3]]-*], [], # Reject GCC < 14
+  [*clang-*|*gcc*],
+    [for attribute_name in format malloc; do
+      AX_CHECK_COMPILE_FLAG([-Wsuggest-attribute=$attribute_name],
+        [cc_warnings="$cc_warnings -Wsuggest-attribute=$attribute_name"], [],
+        [$warn_error_flag])
+    done])
+
 AS_CASE([$enable_warn_error,OCAML__DEVELOPMENT_VERSION],
   [yes,*|,true],
     [cc_warnings="$cc_warnings $warn_error_flag"],

@@ -142,6 +142,7 @@ static int trace(void)
   return caml_params->parser_trace || Caml_state->parser_trace;
 }
 
+CAMLformat(__printf__, 1, 2)
 static void print_trace (const char *template, ...){
   va_list ap;
   if(trace()) {

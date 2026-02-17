@@ -45,8 +45,8 @@
 
 #if __has_attribute(deprecated) || defined(__GNUC__)
   /* Supported since at least GCC 3.1 */
-  #define CAMLdeprecated_typedef(name, type) \
-    typedef type name __attribute__ ((deprecated))
+  #define CAMLdeprecated_typedef(name, type)          \
+    typedef type name __attribute__((__deprecated__))
 #elif defined(_MSC_VER)
   #define CAMLdeprecated_typedef(name, type) \
     typedef __declspec(deprecated) type name
@@ -117,14 +117,14 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLnoreturn_start CAMLnoret
 #define CAMLnoreturn_end
 #ifdef __GNUC__
-  #define Noreturn __attribute__ ((noreturn))
+  #define Noreturn __attribute__((__noreturn__))
 #else
   #define Noreturn
 #endif
 
 /* Manually preventing inlining */
 #if defined(__GNUC__)
-  #define Caml_noinline __attribute__ ((noinline))
+  #define Caml_noinline __attribute__((__noinline__))
 #elif defined(_MSC_VER)
   #define Caml_noinline __declspec(noinline)
 #else
@@ -149,7 +149,7 @@ CAMLdeprecated_typedef(addr, char *);
 /* Weak function definitions that can be overridden by external libs */
 /* Conservatively restricted to ELF and MacOSX platforms */
 #if defined(__GNUC__) && (defined (__ELF__) || defined(__APPLE__))
-#define CAMLweakdef __attribute__((weak))
+#define CAMLweakdef __attribute__((__weak__))
 #else
 #define CAMLweakdef
 #endif
@@ -202,7 +202,7 @@ CAMLdeprecated_typedef(addr, char *);
   #define CAMLunused_start CAMLunused
   #define CAMLunused_end
 #elif __has_attribute(unused) || defined(__GNUC__)
-  #define CAMLunused __attribute__ ((unused))
+  #define CAMLunused __attribute__((__unused__))
   #define CAMLunused_start CAMLunused
   #define CAMLunused_end
 #elif defined(_MSC_VER)
@@ -221,7 +221,7 @@ CAMLdeprecated_typedef(addr, char *);
     defined(__cplusplus) && __cplusplus >= 201703L
   #define fallthrough [[fallthrough]]
 #elif __has_attribute(fallthrough)
-  #define fallthrough __attribute__ ((fallthrough))
+  #define fallthrough __attribute__((__fallthrough__))
 #else
   #define fallthrough ((void) 0)
 #endif
@@ -240,23 +240,24 @@ CAMLdeprecated_typedef(addr, char *);
      defined(__llvm__))
 
 /* Indicates that a particular function always returns a non-null pointer. */
-#define CAMLreturns_nonnull() __attribute__ ((returns_nonnull))
+#define CAMLreturns_nonnull __attribute__ ((__returns_nonnull__))
 
 /* [CAMLrealloc(n)] indicates that the function is [realloc]-like, and implies
    that the [n]-th argument number equals the number of available bytes at the
    returned pointer. */
 #define CAMLrealloc(alloc_size_N)                                       \
-  __attribute__ ((warn_unused_result,alloc_size(alloc_size_N)))
+  __attribute__((__warn_unused_result__,__alloc_size__(alloc_size_N)))
 
 /* [CAMLalloc(dealloc, p)] indicates that the function allocates a resource,
    which must be deallocated by passing it as the [p]-th argument of the
    function [dealloc]. */
 #if defined(__GNUC__) && !defined(__llvm__)
 #define CAMLalloc(deallocator,ptr_index)                                \
-  __attribute__ ((malloc,malloc(deallocator,ptr_index),warn_unused_result))
+  __attribute__((__malloc__,__malloc__(deallocator,ptr_index),          \
+                 __warn_unused_result__))
 #else
-#define CAMLalloc(deallocator,ptr_index)      \
-  __attribute__ ((malloc,warn_unused_result))
+#define CAMLalloc(deallocator,ptr_index)              \
+  __attribute__((__malloc__,__warn_unused_result__))
 #endif
 
 /* [CAMLmalloc(dealloc, p, n)] indicates that the function is [malloc]-like, and
@@ -265,7 +266,7 @@ CAMLdeprecated_typedef(addr, char *);
    argument of the function [dealloc]. */
 #define CAMLmalloc(deallocator,ptr_index,alloc_size_N)  \
   CAMLalloc(deallocator,ptr_index)                      \
-    __attribute__ ((alloc_size(alloc_size_N)))
+    __attribute__((__alloc_size__(alloc_size_N)))
 
 /* [CAMLcalloc(dealloc, p, n, m)] indicates that the function is [calloc]-like,
    and implies that it allocates a memory block whose size is set by the product
@@ -273,7 +274,7 @@ CAMLdeprecated_typedef(addr, char *);
    by passing it as the [p]-th argument of the function [dealloc]. */
 #define CAMLcalloc(deallocator,ptr_index,alloc_size_N,alloc_size_M)     \
   CAMLalloc(deallocator,ptr_index)                                      \
-    __attribute__ ((alloc_size(alloc_size_N,alloc_size_M)))
+    __attribute__((__alloc_size__(alloc_size_N,alloc_size_M)))
 
 /* [CAMLaligned_alloc(dealloc, p, n, a)] indicates that the function is
    [aligned_alloc]-like, and implies that it allocates a memory block whose size
@@ -282,10 +283,10 @@ CAMLdeprecated_typedef(addr, char *);
    the [p]-th argument of the function [dealloc]. */
 #define CAMLaligned_alloc(deallocator,ptr_index,alloc_size_N,alloc_align_) \
   CAMLmalloc(deallocator,ptr_index,alloc_size_N)                        \
-    __attribute__ ((alloc_align(alloc_align_)))
+    __attribute__((__alloc_align__(alloc_align_)))
 
 #else
-#define CAMLreturns_nonnull()
+#define CAMLreturns_nonnull
 #define CAMLrealloc(asN)
 #define CAMLalloc(d,pi)
 #define CAMLmalloc(d,pi,asN)
@@ -354,12 +355,12 @@ typedef char char_os;
    from the callsite, making debuggers able to see it. */
 #define CAMLassert(x) \
   (CAMLlikely(x) ? (void) 0 : caml_failed_assert ( #x , __OSFILE__, __LINE__))
-CAMLextern void caml_failed_assert (const char *, const char_os *, int)
+CAMLnoret CAMLextern void caml_failed_assert(const char *, const char_os *, int)
 #if defined(__has_feature)
   /* However, we do inform clang-analyzer that this function never returns,
      since that improves analysis without breaking debugging */
   #if __has_feature(attribute_analyzer_noreturn)
-    __attribute__((analyzer_noreturn))
+    __attribute__((__analyzer_noreturn__))
   #endif
 #endif
 ;
@@ -397,6 +398,13 @@ CAMLnoret CAMLextern void caml_debug_abort(const char_os *, int);
 #define CAMLunlikely(e) (e)
 #endif
 
+#if __has_attribute(format) || defined(__GNUC__)
+#define CAMLformat(archetype, string_index, first_to_check) \
+  __attribute__((__format__(archetype, string_index, first_to_check)))
+#else
+#define CAMLformat(a, si, ftc)
+#endif
+
 #ifdef CAML_INTERNALS
 
 /* GC status assertions.
@@ -408,9 +416,9 @@ CAMLnoret CAMLextern void caml_debug_abort(const char_os *, int);
 int caml_noalloc_begin(void);
 void caml_noalloc_end(int*);
 void caml_alloc_point_here(void);
-#define CAMLnoalloc                          \
-  int caml__noalloc                          \
-  __attribute__((cleanup(caml_noalloc_end),unused)) \
+#define CAMLnoalloc                                         \
+  int caml__noalloc                                         \
+  __attribute__((__cleanup__(caml_noalloc_end),__unused__)) \
     = caml_noalloc_begin()
 #define CAMLalloc_point_here (caml_alloc_point_here())
 #else
@@ -437,10 +445,7 @@ extern _Atomic fatal_error_hook caml_fatal_error_hook;
 #endif
 
 CAMLnoret CAMLextern void caml_fatal_error (const char *, ...)
-#if __has_attribute(format) || defined(__GNUC__)
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
+  CAMLformat(__printf__, 1, 2);
 
 /* Integer arithmetic with overflow detection.
    The functions return 0 if no overflow, 1 if overflow.
@@ -679,10 +684,7 @@ extern atomic_uintnat caml_verb_gc;
 /* output message if caml_verb_gc includes any bits in `category`. */
 
 void caml_gc_message (int category, const char *, ...)
-#if __has_attribute(format) || defined(__GNUC__)
-  __attribute__ ((format (printf, 2, 3)))
-#endif
-;
+  CAMLformat(__printf__, 2, 3);
 
 /* Short-hand for calls to `caml_gc_message` */
 
@@ -691,11 +693,7 @@ void caml_gc_message (int category, const char *, ...)
 
 /* Output message if CAML_GC_MSG_DEBUG is set */
 
-void caml_gc_log (const char *, ...)
-#if __has_attribute(format) || defined(__GNUC__)
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
+void caml_gc_log (const char *, ...) CAMLformat(__printf__, 1, 2);
 
 /* Runtime warnings */
 extern uintnat caml_runtime_warnings;
@@ -747,13 +745,14 @@ CAMLextern int caml_runtime_warnings_active(void);
 
 #ifdef _WIN32
 #ifndef _UCRT
-extern int caml_snprintf(char * buf, size_t size, const char * format, ...);
+extern int caml_snprintf(char * buf, size_t size, const char * format, ...)
+  CAMLformat(__printf__, 3, 4);
 #define snprintf caml_snprintf
 #endif
 
-CAMLextern int caml_snwprintf(wchar_t * buf,
-                          size_t size,
-                          const wchar_t * format, ...);
+CAMLextern int caml_snwprintf(wchar_t * buf, size_t size,
+                              const wchar_t * format, ...)
+  /* CAMLformat(wprintf, 3, 4) */;
 #define snprintf_os caml_snwprintf
 #else
 #define snprintf_os snprintf
@@ -768,7 +767,7 @@ CAMLextern int caml_snwprintf(wchar_t * buf,
 #if defined(__has_feature)
 #  if __has_feature(address_sanitizer)
 #    undef CAMLno_asan
-#    define CAMLno_asan __attribute__((no_sanitize("address")))
+#    define CAMLno_asan __attribute__((__no_sanitize__("address")))
 #  endif
 #else
 #  if defined(__SANITIZE_ADDRESS__)
@@ -776,7 +775,7 @@ CAMLextern int caml_snwprintf(wchar_t * buf,
 #    if (defined(_MSC_VER) && !defined(__clang__))
 #      define CAMLno_asan __declspec(no_sanitize_address)
 #    else
-#      define CAMLno_asan __attribute__((no_sanitize_address))
+#      define CAMLno_asan __attribute__((__no_sanitize_address__))
 #    endif
 #  endif
 #endif

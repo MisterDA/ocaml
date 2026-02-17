@@ -29,6 +29,7 @@
 #define CAML_RUNTIME_EVENTS_H
 
 #include "mlvalues.h"
+#include "memory.h"
 
 #ifdef CAML_INSTR
 #define CAML_EV_ALLOC(s) caml_ev_alloc(s)
@@ -216,7 +217,7 @@ CAMLextern int caml_runtime_events_are_active(void);
    isn't enough to silence the note. */
 #if defined(__GNUC__) && __has_attribute(aligned)
 #undef CAMLalign
-#define CAMLalign(n) __attribute__ ((aligned(n)))
+#define CAMLalign(n) __attribute__((__aligned__(n)))
 #endif
 
 struct runtime_events_buffer_header {
@@ -319,7 +320,8 @@ CAMLextern void caml_runtime_events_post_fork(void);
    if runtime events are not enabled. This is used in the consumer to
    read the ring buffers of the current process. Always returns a
    freshly-allocated string. */
-CAMLextern char_os* caml_runtime_events_current_location(void);
+CAMLextern char_os* caml_runtime_events_current_location(void)
+  CAMLalloc(caml_stat_free, 1);
 
 /* Functions for putting runtime data on to the runtime_events. These are all
    internal to the runtime, except for caml_ev_lifecycle which is needed in

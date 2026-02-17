@@ -166,7 +166,7 @@ value caml_exception_array_bound_error(void)
   return *exn;
 }
 
-void caml_array_bound_error_asm(void)
+CAMLnoret void caml_array_bound_error_asm(void)
 {
 #if defined(WITH_THREAD_SANITIZER)
   char* exception_pointer = (char*)Caml_state->c_stack;

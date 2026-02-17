@@ -46,7 +46,7 @@ error_with_location(__FILE__, __LINE__, settings, msg, ## __VA_ARGS__)
   For a more portable (but also more complex) solution, see
   http://stackoverflow.com/questions/20818800/variadic-macro-and-trailing-comma
 */
-
+CAMLformat(__printf__, 4, 5)
 static void myperror_with_location(
   const char *file, int line,
   const command_settings *settings,
