@@ -658,6 +658,7 @@ caml_runtime_events_read_poll(struct caml_runtime_events_cursor *cursor,
                                       }
             }
             break;
+          case EV_USER_MSG_TYPE_CUSTOM:
           default: // custom
             if (cursor->user_custom) {
               /* msg_length could be genuinely 2 here */
@@ -1230,24 +1231,24 @@ CAMLprim value caml_ml_runtime_events_create_cursor(value path_pid_option) {
     caml_stat_free(path);
   }
 
-  if (res != E_SUCCESS) {
-    switch(res) {
-      case E_PATH_FAILURE:
-        caml_failwith(
-          "Runtime_events: could not construct path for cursor.");
-      case E_OPEN_FAILURE:
-        caml_failwith(
-          "Runtime_events: could not create cursor for specified path.");
-      case E_MAP_FAILURE:
-        caml_failwith("Runtime_events: could not map underlying runtime_events."
-        );
-      case E_NO_CURRENT_RING:
-        caml_failwith(
-        "Runtime_events: no ring for current process. \
-         Was runtime_events started?");
-      default:
-        caml_failwith("Runtime_events: could not obtain cursor");
-    }
+  switch(res) {
+  case E_SUCCESS: break;
+  case E_PATH_FAILURE:
+    caml_failwith("Runtime_events: could not construct path for cursor.");
+  case E_OPEN_FAILURE:
+    caml_failwith("Runtime_events: could not create cursor for specified "
+                  "path.");
+  case E_MAP_FAILURE:
+    caml_failwith("Runtime_events: could not map underlying runtime_events.");
+  case E_NO_CURRENT_RING:
+    caml_failwith("Runtime_events: no ring for current process. "
+                  "Was runtime_events started?");
+  case E_CURSOR_POLL_BUSY:
+  case E_ALLOC_FAIL:
+  case E_CORRUPT_STREAM:
+  case E_CURSOR_NOT_OPEN:
+  default:
+    caml_failwith("Runtime_events: could not obtain cursor");
   }
 
   caml_runtime_events_set_runtime_begin(cursor, ml_runtime_begin);
@@ -1318,18 +1319,22 @@ CAMLprim value caml_ml_runtime_events_read_poll(value wrapper,
     caml_raise(exception);
   }
 
-  if (res != E_SUCCESS) {
-    switch (res) {
-    case E_CURSOR_POLL_BUSY:
-      caml_failwith("Runtime_events: poll called concurrently or reentrant");
-    case E_CORRUPT_STREAM:
-      caml_failwith("Runtime_events: corrupt stream");
-    case E_CURSOR_NOT_OPEN:
-      caml_failwith("Runtime_events: cursor is not open");
-    default:
-      /* this should never happen */
-      caml_failwith("Runtime_events: unspecified error");
-    }
+  switch (res) {
+  case E_SUCCESS: break;
+  case E_CURSOR_POLL_BUSY:
+    caml_failwith("Runtime_events: poll called concurrently or reentrant");
+  case E_CORRUPT_STREAM:
+    caml_failwith("Runtime_events: corrupt stream");
+  case E_CURSOR_NOT_OPEN:
+    caml_failwith("Runtime_events: cursor is not open");
+  case E_MAP_FAILURE:
+  case E_NO_CURRENT_RING:
+  case E_OPEN_FAILURE:
+  case E_PATH_FAILURE:
+  case E_ALLOC_FAIL:
+  default:
+    /* this should never happen */
+    caml_failwith("Runtime_events: unspecified error");
   }
 
   CAMLreturn(Val_int(events_consumed));
