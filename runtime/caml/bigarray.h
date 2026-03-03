@@ -62,23 +62,30 @@ typedef uint16_t caml_ba_uint16;
 
 #define CAML_BA_MAX_NUM_DIMS 16
 
+#define CAML_BA_KIND_ENTRY(name) name,
 enum caml_ba_kind {
-  CAML_BA_FLOAT32,             /* Single-precision floats */
-  CAML_BA_FLOAT64,             /* Double-precision floats */
-  CAML_BA_SINT8,               /* Signed 8-bit integers */
-  CAML_BA_UINT8,               /* Unsigned 8-bit integers */
-  CAML_BA_SINT16,              /* Signed 16-bit integers */
-  CAML_BA_UINT16,              /* Unsigned 16-bit integers */
-  CAML_BA_INT32,               /* Signed 32-bit integers */
-  CAML_BA_INT64,               /* Signed 64-bit integers */
-  CAML_BA_CAML_INT,            /* OCaml-style integers (signed 31 or 63 bits) */
-  CAML_BA_NATIVE_INT,        /* Platform-native long integers (32 or 64 bits) */
-  CAML_BA_COMPLEX32,           /* Single-precision complex */
-  CAML_BA_COMPLEX64,           /* Double-precision complex */
-  CAML_BA_CHAR,                /* Characters */
-  CAML_BA_FLOAT16,             /* Half-precision floats */
-  CAML_BA_FIRST_UNIMPLEMENTED_KIND,
+#define CAML_BA_KIND(KIND)                                              \
+  KIND(CAML_BA_FLOAT32)        /* Single-precision floats */            \
+  KIND(CAML_BA_FLOAT64)        /* Double-precision floats */            \
+  KIND(CAML_BA_SINT8)          /* Signed 8-bit integers */              \
+  KIND(CAML_BA_UINT8)          /* Unsigned 8-bit integers */            \
+  KIND(CAML_BA_SINT16)         /* Signed 16-bit integers */             \
+  KIND(CAML_BA_UINT16)         /* Unsigned 16-bit integers */           \
+  KIND(CAML_BA_INT32)          /* Signed 32-bit integers */             \
+  KIND(CAML_BA_INT64)          /* Signed 64-bit integers */             \
+  KIND(CAML_BA_CAML_INT)     /* OCaml-style integers (signed 31 or 63 bits) */ \
+  KIND(CAML_BA_NATIVE_INT) /* Platform-native long integers (32 or 64 bits) */ \
+  KIND(CAML_BA_COMPLEX32)      /* Single-precision complex */           \
+  KIND(CAML_BA_COMPLEX64)      /* Double-precision complex */           \
+  KIND(CAML_BA_CHAR)           /* Characters */                         \
+  KIND(CAML_BA_FLOAT16)        /* Half-precision floats */
+  CAML_BA_KIND(CAML_BA_KIND_ENTRY)
 };
+#undef CAML_BA_KIND_ENTRY
+#define CAML_BA_KIND_N(name) +1
+enum { CAML_BA_FIRST_UNIMPLEMENTED_KIND = CAML_BA_KIND(CAML_BA_KIND_N) };
+#undef CAML_BA_KIND_N
+
 #define CAML_BA_KIND_MASK 0xFF /* Mask for kind in flags field */
 
 #define Caml_ba_kind_val(v) Int_val(v)
