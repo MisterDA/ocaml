@@ -63,7 +63,7 @@ typedef uint16_t caml_ba_uint16;
 #define CAML_BA_MAX_NUM_DIMS 16
 
 #define CAML_BA_KIND_ENTRY(name) name,
-enum caml_ba_kind {
+enum CAMLenum_closed caml_ba_kind {
 #define CAML_BA_KIND(KIND)                                              \
   KIND(CAML_BA_FLOAT32)        /* Single-precision floats */            \
   KIND(CAML_BA_FLOAT64)        /* Double-precision floats */            \
@@ -83,7 +83,9 @@ enum caml_ba_kind {
 };
 #undef CAML_BA_KIND_ENTRY
 #define CAML_BA_KIND_N(name) +1
-enum { CAML_BA_FIRST_UNIMPLEMENTED_KIND = CAML_BA_KIND(CAML_BA_KIND_N) };
+enum CAMLenum_closed {
+  CAML_BA_FIRST_UNIMPLEMENTED_KIND = CAML_BA_KIND(CAML_BA_KIND_N)
+};
 #undef CAML_BA_KIND_N
 
 #define CAML_BA_KIND_MASK 0xFF /* Mask for kind in flags field */
@@ -92,7 +94,7 @@ enum { CAML_BA_FIRST_UNIMPLEMENTED_KIND = CAML_BA_KIND(CAML_BA_KIND_N) };
 
 #define Val_caml_ba_kind(k) Val_int(k)
 
-enum caml_ba_layout {
+enum CAMLenum_closed caml_ba_layout {
   CAML_BA_C_LAYOUT = 0,           /* Row major, indices start at 0 */
   CAML_BA_FORTRAN_LAYOUT = 0x100, /* Column major, indices start at 1 */
 };
@@ -103,14 +105,14 @@ enum caml_ba_layout {
 
 #define Val_caml_ba_layout(l) Val_int(l >> CAML_BA_LAYOUT_SHIFT)
 
-enum caml_ba_managed {
+enum CAMLenum_closed caml_ba_managed {
   CAML_BA_EXTERNAL = 0,        /* Data is not allocated by OCaml */
   CAML_BA_MANAGED = 0x200,     /* Data is allocated by OCaml */
   CAML_BA_MAPPED_FILE = 0x400, /* Data is a memory mapped file */
 };
 #define CAML_BA_MANAGED_MASK 0x600 /* Mask for "managed" bits in flags field */
 
-enum caml_ba_subarray {
+enum CAMLenum_closed caml_ba_subarray {
   CAML_BA_SUBARRAY = 0x800     /* Data is shared with another bigarray */
 };
 

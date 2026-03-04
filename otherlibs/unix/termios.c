@@ -24,9 +24,9 @@
 #include <termios.h>
 #include <errno.h>
 
-enum terminal_io_descr { Bool, Enum, Speed, Char, End };
+enum CAMLenum_closed terminal_io_descr { Bool, Enum, Speed, Char, End };
 
-enum control_mode_io { Input, Output };
+enum CAMLenum_closed control_mode_io { Input, Output };
 
 #define iflags (offsetof(struct termios, c_iflag))
 #define oflags (offsetof(struct termios, c_oflag))

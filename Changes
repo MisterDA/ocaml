@@ -123,6 +123,10 @@ Working version
   some Intel CPUs.
   (Nat Mote, review by Florian Angeletti and Miod Vallat)
 
+- #14???: Use the C compiler's `enum_extensibility` and `flag_enum` to
+  improve documentation and type-safety of enumerations.
+  (Antonin Décimo, review by ???)
+
 ### Type system:
 
 * #11648, #14766, #14768, #14776, #14801, #14842, #14845: Keep expansion and

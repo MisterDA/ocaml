@@ -310,6 +310,18 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLaligned_alloc(d,pi,asN,aa)
 #endif
 
+#if __has_attribute(enum_extensibility)
+#define CAMLenum_closed __attribute__((enum_extensibility(closed)))
+#else
+#define CAMLenum_closed
+#endif
+
+#if __has_attribute(flag_enum)
+#define CAMLflag_enum __attribute__((flag_enum))
+#else
+#define CAMLflag_enum
+#endif
+
 /* GC timing hooks. These can be assigned by the user. These hooks
    must not allocate, change any heap value, nor call OCaml code. They
    can obtain the domain id with Caml_state->id. These functions must

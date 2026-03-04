@@ -38,7 +38,7 @@
 
 /* Flags affecting marshaling */
 
-enum extern_flags {
+enum CAMLenum_closed CAMLflag_enum extern_flags {
   NO_SHARING = 1,               /* Flag to ignore sharing */
   CLOSURES = 2,                 /* Flag to allow marshaling code pointers */
   COMPAT_32 = 4,                /* Flag to ensure that output can safely

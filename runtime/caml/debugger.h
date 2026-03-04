@@ -27,7 +27,7 @@ CAMLextern int caml_debugger_in_use;
 CAMLextern int caml_debugger_fork_mode; /* non-zero for parent */
 extern uintnat caml_event_count;
 
-enum event_kind {
+enum CAMLenum_closed event_kind {
   EVENT_COUNT, BREAKPOINT, PROGRAM_START, PROGRAM_EXIT,
   TRAP_BARRIER, UNCAUGHT_EXC, DEBUG_INFO_ADDED,
   CODE_LOADED, CODE_UNLOADED
@@ -43,7 +43,7 @@ opcode_t caml_debugger_saved_instruction(code_t pc);
 
 /* Requests from the debugger to the runtime system */
 
-enum debugger_request {
+enum CAMLenum_closed debugger_request {
   REQ_SET_EVENT = 'e',          /* uint32_t pos */
   /* Set an event on the instruction at position pos */
   REQ_SET_BREAKPOINT = 'B',     /* uint32_t pos, (char k) */
@@ -106,7 +106,7 @@ enum debugger_request {
    The REP_CODE_{UN,}LOADED reply is also followed by:
    - the code fragment index. */
 
-enum debugger_reply {
+enum CAMLenum_closed debugger_reply {
   REP_EVENT = 'e',
   /* Event counter reached 0. */
   REP_BREAKPOINT = 'b',

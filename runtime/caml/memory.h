@@ -19,13 +19,13 @@
 #define CAML_MEMORY_H
 
 #include "config.h"
+#include "misc.h"
 #ifdef CAML_INTERNALS
 #include "gc.h"
 #include "major_gc.h"
 #include "minor_gc.h"
 #endif /* CAML_INTERNALS */
 #include "domain.h"
-#include "misc.h"
 #include "mlvalues.h"
 #include "signals.h"
 
@@ -194,7 +194,7 @@ Caml_inline void DEBUG_clear(value result, mlsize_t wosize) {
 #define DEBUG_clear(result, wosize)
 #endif
 
-enum caml_alloc_small_flags {
+enum CAMLenum_closed CAMLflag_enum caml_alloc_small_flags {
   CAML_DONT_TRACK = 0, CAML_DO_TRACK = 1, // call memprof
   CAML_FROM_C = 0,     CAML_FROM_CAML = 2 // call async callbacks
 };

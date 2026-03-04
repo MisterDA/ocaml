@@ -48,7 +48,7 @@ struct backtrack_stack {
 #define Arg(x) ((uintnat)(x) >> 8)
 #define SignedArg(x) ((intnat)(x) >> 8)
 
-enum opcode {
+enum CAMLenum_closed opcode {
   CHAR,       /* match a single character */
   CHARNORM,   /* match a single character, after normalization */
   STRING,     /* match a character string */

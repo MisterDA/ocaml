@@ -75,7 +75,7 @@ struct parser_env {       /* Mirrors parser_env in ../stdlib/parsing.ml */
 
 /* Input codes */
 /* Mirrors parser_input in ../stdlib/parsing.ml */
-enum input_codes {
+enum CAMLenum_closed input_codes {
   START, TOKEN_READ, STACKS_GROWN_1, STACKS_GROWN_2, SEMANTIC_ACTION_COMPUTED,
   ERROR_DETECTED,
 };

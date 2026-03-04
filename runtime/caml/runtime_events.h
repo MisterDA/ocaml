@@ -44,7 +44,7 @@
 #define CAML_EV_LIFECYCLE(l,d) caml_ev_lifecycle(l,d)
 #define CAML_RUNTIME_EVENTS_INIT() caml_runtime_events_init()
 #define CAML_RUNTIME_EVENTS_DESTROY() caml_runtime_events_destroy()
-typedef enum {
+typedef enum CAMLenum_closed {
     EV_INTERNAL,
     EV_LIFECYCLE,
     EV_BEGIN,
@@ -54,13 +54,13 @@ typedef enum {
     EV_FLUSH
 } ev_runtime_message_type;
 
-typedef enum {
+typedef enum CAMLenum_closed {
     EV_GC
 } ev_event_type;
 
 /* See runtime_events.mli for event documentation */
 
-typedef enum {
+typedef enum CAMLenum_closed {
     EV_RING_START,
     EV_RING_STOP,
     EV_RING_PAUSE,
@@ -71,7 +71,7 @@ typedef enum {
     EV_DOMAIN_TERMINATE
 } ev_lifecycle;
 
-typedef enum {
+typedef enum CAMLenum_closed {
     EV_EXPLICIT_GC_SET,
     EV_EXPLICIT_GC_STAT,
     EV_EXPLICIT_GC_MINOR,
@@ -124,7 +124,7 @@ typedef enum {
     EV_MINOR_EPHE_CLEAN,
 } ev_runtime_phase;
 
-typedef enum {
+typedef enum CAMLenum_closed {
     EV_C_FORCE_MINOR_ALLOC_SMALL,
     EV_C_FORCE_MINOR_MAKE_VECT,
     EV_C_FORCE_MINOR_SET_MINOR_HEAP_SIZE,
@@ -161,7 +161,7 @@ typedef enum {
 
 } ev_runtime_counter;
 
-typedef enum {
+typedef enum CAMLenum_closed {
     EV_USER_SPAN_BEGIN,
     EV_USER_SPAN_END
 } ev_user_span;
@@ -169,7 +169,7 @@ typedef enum {
 /* external C-API for reading from the runtime_events */
 struct caml_runtime_events_cursor;
 
-typedef enum {
+typedef enum CAMLenum_closed {
   E_SUCCESS = 0,
   E_CURSOR_NOT_OPEN = -1,
   E_CORRUPT_STREAM = -2,
@@ -235,7 +235,7 @@ struct runtime_events_custom_event {
 
 /* The type for event messages in the ring. Span is separated in two types as an
    optimization to avoid associating a value with the span event. */
-typedef enum {
+typedef enum CAMLenum_closed {
    EV_USER_MSG_TYPE_UNIT,
    EV_USER_MSG_TYPE_INT,
    EV_USER_MSG_TYPE_SPAN_BEGIN,
@@ -249,7 +249,7 @@ typedef union {
 } ev_message_type;
 
 /* The type for event messages in OCaml. */
-typedef enum {
+typedef enum CAMLenum_closed {
    EV_USER_ML_TYPE_UNIT,
    EV_USER_ML_TYPE_INT,
    EV_USER_ML_TYPE_SPAN,

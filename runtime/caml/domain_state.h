@@ -20,6 +20,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include "misc.h"
 #include "mlvalues.h"
 
 #ifdef __cplusplus
@@ -37,7 +38,7 @@ typedef struct {
 #undef DOMAIN_STATE
 } caml_domain_state;
 
-enum {
+enum CAMLenum_closed {
   Domain_state_num_fields =
 #define DOMAIN_STATE(type, name) + 1
 #include "domain_state.tbl"

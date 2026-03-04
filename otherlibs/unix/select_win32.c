@@ -95,7 +95,7 @@ static void handle_set_reset (LPSELECTHANDLESET hds)
 
 /* Data structure for handling select */
 
-typedef enum _SELECTHANDLETYPE {
+typedef enum CAMLenum_closed _SELECTHANDLETYPE {
   SELECT_HANDLE_NONE = 0,
   SELECT_HANDLE_DISK,
   SELECT_HANDLE_CONSOLE,
@@ -103,21 +103,21 @@ typedef enum _SELECTHANDLETYPE {
   SELECT_HANDLE_SOCKET,
 } SELECTHANDLETYPE;
 
-typedef enum _SELECTMODE {
+typedef enum CAMLenum_closed _SELECTMODE {
   SELECT_MODE_NONE = 0,
   SELECT_MODE_READ = 1,
   SELECT_MODE_WRITE = 2,
   SELECT_MODE_EXCEPT = 4,
 } SELECTMODE;
 
-typedef enum _SELECTSTATE {
+typedef enum CAMLenum_closed _SELECTSTATE {
   SELECT_STATE_NONE = 0,
   SELECT_STATE_INITFAILED,
   SELECT_STATE_ERROR,
   SELECT_STATE_SIGNALED
 } SELECTSTATE;
 
-typedef enum _SELECTTYPE {
+typedef enum CAMLenum_closed _SELECTTYPE {
   SELECT_TYPE_NONE = 0,
   SELECT_TYPE_STATIC,       /* Result is known without running anything */
   SELECT_TYPE_CONSOLE_READ, /* Reading data on console */

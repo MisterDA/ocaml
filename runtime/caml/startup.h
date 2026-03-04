@@ -37,7 +37,12 @@ CAMLextern value caml_startup_code_exn(
   char_os **argv);
 
 /* These enum members should all be negative */
-enum { FILE_NOT_FOUND = -1, BAD_BYTECODE = -2, WRONG_MAGIC = -3, NO_FDS = -4 };
+enum CAMLenum_closed {
+  FILE_NOT_FOUND = -1,
+  BAD_BYTECODE = -2,
+  WRONG_MAGIC = -3,
+  NO_FDS = -4
+};
 
 extern int caml_attempt_open(char_os **name, struct exec_trailer *trail,
                              int do_open_script);
@@ -48,7 +53,7 @@ extern int32_t caml_seek_optional_section(int fd, struct exec_trailer *trail,
 extern int32_t caml_seek_section(int fd, struct exec_trailer *trail,
                                  const char *name);
 
-enum caml_byte_program_mode {
+enum CAMLenum_closed caml_byte_program_mode {
   STANDARD, /* Default mode for ocamlrun */
   APPENDED, /* bytecode must be appended (i.e. -custom) */
   EMBEDDED  /* bytecode embedded in C (e.g. -output-complete-exe/-output-obj) */

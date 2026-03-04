@@ -35,7 +35,7 @@ static const int open_share_flags[15] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, FILE_SHARE_DELETE, 0, 0
 };
 
-enum { CLOEXEC = 1, KEEPEXEC = 2 };
+enum CAMLenum_closed { CLOEXEC = 1, KEEPEXEC = 2 };
 
 static const int open_cloexec_flags[15] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CLOEXEC, KEEPEXEC

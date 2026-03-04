@@ -1116,7 +1116,7 @@ void caml_init_domain_self(int domain_id) {
   caml_state = domain_self->state;
 }
 
-enum domain_status { Dom_starting, Dom_started, Dom_failed };
+enum CAMLenum_closed domain_status { Dom_starting, Dom_started, Dom_failed };
 
 struct domain_ml_values {
   value callback;

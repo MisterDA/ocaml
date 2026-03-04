@@ -20,10 +20,11 @@
 
 #ifdef CAML_INTERNALS
 
+#include "misc.h"
 #include "opcodes.h"
 
 #define OPCODE_ENTRY(name) name,
-enum instructions {
+enum CAMLenum_closed instructions {
   CAML_ZINC_OPCODES(OPCODE_ENTRY)
   FIRST_UNIMPLEMENTED_OP
 };
