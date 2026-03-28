@@ -1255,7 +1255,8 @@ CAMLexport void caml_deserialize_block_2(void * data, intnat len)
   struct caml_intern_state* s = get_intern_state ();
   intern_check_read(s, len * 2);
 #ifndef ARCH_BIG_ENDIAN
-  const unsigned char * p, * q;
+  const unsigned char * p;
+  unsigned char * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 2, q += 2)
     Reverse_16(q, p);
   s->intern_src = p;
@@ -1270,7 +1271,8 @@ CAMLexport void caml_deserialize_block_4(void * data, intnat len)
   struct caml_intern_state* s = get_intern_state ();
   intern_check_read(s, len * 4);
 #ifndef ARCH_BIG_ENDIAN
-  const unsigned char * p, * q;
+  const unsigned char * p;
+  unsigned char * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 4, q += 4)
     Reverse_32(q, p);
   s->intern_src = p;
@@ -1285,7 +1287,8 @@ CAMLexport void caml_deserialize_block_8(void * data, intnat len)
   struct caml_intern_state* s = get_intern_state ();
   intern_check_read(s, len * 8);
 #ifndef ARCH_BIG_ENDIAN
-  const unsigned char * p, * q;
+  const unsigned char * p;
+  unsigned char * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 8, q += 8)
     Reverse_64(q, p);
   s->intern_src = p;
@@ -1303,7 +1306,8 @@ CAMLexport void caml_deserialize_block_float_8(void * data, intnat len)
   memcpy(data, s->intern_src, len * 8);
   s->intern_src += len * 8;
 #elif ARCH_FLOAT_ENDIANNESS == 0x76543210
-  const unsigned char * p, * q;
+  const unsigned char * p;
+  unsigned char * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 8, q += 8)
     Reverse_64(q, p);
   s->intern_src = p;
