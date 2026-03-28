@@ -20,9 +20,38 @@
 
 #ifdef CAML_INTERNALS
 
+#ifndef __has_builtin
+#define __has_builtin(x) 0
+#endif
+
 #include <stdint.h>
 #include <string.h>
 
+#if __has_builtin(__builtin_bswap16) && __has_builtin(__builtin_bswap32) && \
+    __has_builtin(__builtin_bswap64)
+#define Reverse_N(N, dst, src) do {           \
+  uint ## N ## _t x;                          \
+  memcpy(&x, (src), sizeof(uint ## N ## _t)); \
+  x = __builtin_bswap ## N (x);               \
+  memcpy((dst), &x, sizeof(uint ## N ## _t)); \
+} while (0)
+#define Reverse_16(dst, src) Reverse_N(16, dst, src)
+#define Reverse_32(dst, src) Reverse_N(32, dst, src)
+#define Reverse_64(dst, src) Reverse_N(64, dst, src)
+
+#elif defined(_MSC_VER)
+#include <stdlib.h>
+#define Reverse_N(N, name, dst, src) do {     \
+  uint ## N ## _t x;                          \
+  memcpy(&x, (src), sizeof(uint ## N ## _t)); \
+  x = _byteswap_ ## name (x);                 \
+  memcpy((dst), &x, sizeof(uint ## N ## _t)); \
+} while(0)
+#define Reverse_16(dst, src) Reverse_N(16, ushort, dst, src)
+#define Reverse_32(dst, src) Reverse_N(32,  ulong, dst, src)
+#define Reverse_64(dst, src) Reverse_N(64, uint64, dst, src)
+
+#else
 #define Reverse_16(dst,src) do {              \
   uint16_t x;                                 \
   memcpy(&x, (src), sizeof(uint16_t));        \
@@ -46,6 +75,7 @@
     (x >> 40 & UINT64_C(0xff) << 8)  |  x >> 56;                          \
   memcpy((dst), &x, sizeof(uint64_t));                                    \
 } while (0)
+#endif
 
 #define Perm_index(perm,i) ((perm >> (i * 4)) & 0xF)
 
