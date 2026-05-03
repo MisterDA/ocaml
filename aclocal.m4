@@ -652,3 +652,26 @@ AC_DEFUN([OCAML_CHECK_WINDOWS_TRIPLET], [
     [*-pc-windows*],
       [AC_MSG_ERROR([unknown MSVC variant])])
 ])
+
+AC_DEFUN([OCAML_DESTRUCTIVE_SIZE], [
+  AC_CACHE_CHECK([hardware destructive interference size],
+    [ocaml_cv_destructive_size],
+    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#ifndef __GCC_DESTRUCTIVE_SIZE
+error
+#endif
+      ]])],
+      [ocaml_cv_destructive_size='__GCC_DESTRUCTIVE_SIZE'],
+      [AC_LANG_PUSH([C++])
+      AC_COMPUTE_INT([ocaml_cv_destructive_size],
+        [[std::hardware_destructive_interference_size]],
+        [[#include <new>
+        ]],
+        [AS_CASE([$1],
+          [s390x], [ocaml_cv_destructive_size=256],
+          [arm64|power], [ocaml_cv_destructive_size=128],
+          [amd64|riscv], [ocaml_cv_destructive_size=64],
+          [ocaml_cv_destructive_size=64])])
+      AC_LANG_POP([C++])])])
+  AC_DEFINE_UNQUOTED([CAML_DESTRUCTIVE_SIZE], [$ocaml_cv_destructive_size])
+])
