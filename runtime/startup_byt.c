@@ -700,6 +700,9 @@ CAMLexport value caml_startup_code_exn(
 #ifdef THREADED_CODE
   caml_thread_code(caml_start_code, code_size);
 #endif
+#ifdef HAVE_TAIL_CALL_INTERP
+  caml_tc_thread_code(caml_start_code, code_size);
+#endif
   /* Use the builtin table of primitives */
   caml_build_primitive_table_builtin();
   /* Load the globals */

@@ -90,6 +90,9 @@ CAMLprim value caml_reify_bytecode(value ls_prog,
 #ifdef THREADED_CODE
   caml_thread_code((code_t) prog, len);
 #endif
+#ifdef HAVE_TAIL_CALL_INTERP
+  caml_tc_thread_code((code_t) prog, len);
+#endif
 
   /* Notify debugger after fragment gets added and reified. */
   caml_debugger(CODE_LOADED, Val_long(fragnum));
