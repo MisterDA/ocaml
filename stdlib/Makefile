@@ -115,7 +115,8 @@ else ifeq "$(TOOLCHAIN)" "msvc"
 # symbol, rather than by being explicitly added to the linking command line.
 # /GS- disables compilation of runtime security checks and /NOCOFFGRPINFO is an
 # undocumented linker flag which removes the debug directory from the PE+ image.
-header.obj: OC_CFLAGS += /GS- /Os
+header.obj: OC_CFLAGS += /GS- /Os \
+  $(if $(filter clang%,$(notdir $(CC))),-fno-builtin-wcslen)
 tmpheader.exe: OC_LDFLAGS += /NOCOFFGRPINFO /subsystem:console
 HEADERLIBS = kernel32.lib
 else
