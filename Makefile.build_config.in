@@ -71,6 +71,8 @@ OPTIONAL_NATIVE_TOOLS = @optional_native_tools@
 # Whether to install the native toplevel (ocamlnat)
 INSTALL_OCAMLNAT = @install_ocamlnat@
 
+OCAML_CC_VENDOR=@ocaml_cc_vendor@
+
 # The command to generate C dependency information
 DEP_CC=@DEP_CC@
 DEP_CPPFLAGS=@DEP_CPPFLAGS@
