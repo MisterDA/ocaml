@@ -112,7 +112,8 @@ INSTALL_OVERRIDES=build_ocamldoc=false WITH_DEBUGGER= OCAMLRUN=ocamlrun
 .PHONY: installcross
 installcross:
 	# Create placeholder files to keep `install` happy
-	touch toplevel/topstart.$(O)
+	touch toplevel/topstart.$(O) tools/profiling.$(O) \
+          $(addprefix driver/, main.$(O) optmain.$(O))
 	cd lex && $(LN_S) `command -v ocamllex` ocamllex.opt$(EXE)
 	# Real installation
 	$(MAKE) install $(INSTALL_OVERRIDES)
