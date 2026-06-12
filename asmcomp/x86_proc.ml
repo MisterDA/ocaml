@@ -234,10 +234,12 @@ let register_internal_assembler f = internal_assembler := Some f
 let with_internal_assembler assemble k =
   Misc.protect_refs [ R (internal_assembler, Some assemble) ] k
 
-(* Which asm conventions to use *)
+(* Which asm conventions to use. MASM is tied to the MSVC toolchain: a
+   Unix-CLI compiler targeting win64 (e.g. clang --target=x86_64-pc-windows)
+   assembles GAS syntax with its integrated assembler. *)
 let masm =
   match system with
-  | S_win64 -> true
+  | S_win64 -> Config.ccomp_type = "msvc"
   | _ -> false
 
 let use_plt =

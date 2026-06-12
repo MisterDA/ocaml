@@ -166,7 +166,8 @@ let domain_field f =
 
 let emit_label lbl =
   match system with
-  | S_macosx | S_win64 -> "L" ^ Int.to_string lbl
+  | S_macosx -> "L" ^ Int.to_string lbl
+  | S_win64 when masm -> "L" ^ Int.to_string lbl
   | _ -> ".L" ^ Int.to_string lbl
 
 let label s = sym (emit_label s)
@@ -842,6 +843,8 @@ let emit_instr env fallthrough i =
       I.jmp (reg env tmp1);
 
       begin match system with
+      | S_win64 when not masm ->
+          D.section [".rdata"] (Some "dr") []
       | S_mingw64 | S_cygwin -> D.section [".rdata"] (Some "dr") []
       | S_macosx | S_win64 -> ()
         (* with LLVM/OS X and MASM, use the text segment *)
@@ -1007,7 +1010,8 @@ let begin_assembly() =
   reset_imp_table();
   float_constants := [];
   all_functions := [];
-  if system = S_win64 then begin
+  (* The EXTRN directives are only required (and only exist) for MASM *)
+  if masm then begin
     D.extrn "caml_call_gc" NEAR;
     D.extrn "caml_c_call" NEAR;
     D.extrn "caml_allocN" NEAR;
@@ -1027,8 +1031,8 @@ let begin_assembly() =
     (* from amd64.S; could emit these constants on demand *)
     begin match system with
     | S_macosx -> D.section ["__TEXT";"__literal16"] None ["16byte_literals"]
-    | S_mingw64 | S_cygwin -> D.section [".rdata"] (Some "dr") []
-    | S_win64 -> D.data ()
+    | S_win64 when masm -> D.data ()
+    | S_mingw64 | S_cygwin | S_win64 -> D.section [".rdata"] (Some "dr") []
     | _ -> D.section [".rodata.cst16"] (Some "aM") ["@progbits";"16"]
     end;
     D.align 16;
@@ -1054,8 +1058,8 @@ let end_assembly() =
   if !float_constants <> [] then begin
     begin match system with
     | S_macosx -> D.section ["__TEXT";"__literal8"] None ["8byte_literals"]
-    | S_mingw64 | S_cygwin -> D.section [".rdata"] (Some "dr") []
-    | S_win64 -> D.data ()
+    | S_win64 when masm -> D.data ()
+    | S_mingw64 | S_cygwin | S_win64 -> D.section [".rdata"] (Some "dr") []
     | _ -> D.section [".rodata.cst8"] (Some "aM") ["@progbits";"8"]
     end;
     D.align 8;
@@ -1116,7 +1120,8 @@ let end_assembly() =
     (* Mark stack as non-executable, PR#4564 *)
     D.section [".note.GNU-stack"] (Some "") [ "%progbits" ];
 
-  if system = S_win64 then begin
+  (* The EXTRN directives are only required (and only exist) for MASM *)
+  if masm then begin
     D.comment "External functions";
     String.Set.iter
       (fun s ->

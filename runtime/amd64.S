@@ -21,6 +21,14 @@
 #include "caml/m.h"
 #include "caml/asm.h"
 
+/* Native Windows systems: win64 ABI, GAS-syntax assembly for COFF.
+   SYS_win64 only reaches this file with a Unix-CLI toolchain (e.g.
+   clang --target=x86_64-pc-windows); the MSVC toolchain assembles
+   amd64nt.asm with MASM instead. */
+#if defined(SYS_mingw64) || defined(SYS_cygwin) || defined(SYS_win64)
+#define WINDOWS_ABI
+#endif
+
 #if defined(SYS_macosx)
 
 #define CAMLSEP(x,y) caml_##x##$##y
@@ -37,7 +45,7 @@
         .align FUNCTION_ALIGN; \
 G(name):
 
-#elif defined(SYS_mingw64) || defined(SYS_cygwin)
+#elif defined(WINDOWS_ABI)
 
 #define CAMLSEP(x,y) caml_##x##$##y
 #define LBL(x) .L##x
@@ -133,7 +141,7 @@ G(name):
 #define Handler_parent          24
 
 /* struct c_stack_link */
-#if defined(SYS_mingw64) || defined (SYS_cygwin)
+#if defined(WINDOWS_ABI)
 #define Cstack_stack            32
 #define Cstack_sp               40
 #define Cstack_prev             48
@@ -178,7 +186,7 @@ G(name):
 #define Caml_state(var) (8*domain_field_caml_##var)(%r14)
 
 /* Load address of global [label] in register [dst]. */
-#if defined(__PIC__) && !defined(SYS_mingw64) && !defined(SYS_cygwin)
+#if defined(__PIC__) && !defined(WINDOWS_ABI)
 #define LEA_VAR(label,dst) \
         movq    GREL(label)(%rip), dst
 #else
@@ -313,7 +321,7 @@ G(name):
    Keep the stack 16-aligned. */
 /******************************************************************************/
 
-#if defined(SYS_mingw64) || defined(SYS_cygwin)
+#if defined(WINDOWS_ABI)
 
 /* Win64 API: callee-save regs are rbx, rbp, rsi, rdi, r12-r15, xmm6-xmm15 */
 
@@ -392,7 +400,7 @@ G(name):
 /* Registers holding arguments of C functions. */
 /******************************************************************************/
 
-#if defined(SYS_mingw64) || defined(SYS_cygwin)
+#if defined(WINDOWS_ABI)
 #define C_ARG_1 %rcx
 #define C_ARG_2 %rdx
 #define C_ARG_3 %r8
@@ -806,7 +814,7 @@ LBL(105):
         push    (%r12)
         jmp     LBL(105)
 LBL(106):
-#if defined(SYS_mingw64) || defined (SYS_cygwin)
+#if defined(WINDOWS_ABI)
     /* Allocate the shadow store on Windows (the c_stack_link store was used
        in calling caml_c_call_copy_stack_args) */
         subq    $32, %rsp
@@ -1403,7 +1411,7 @@ END_OBJECT(CAMLSEP(system,frametable))
 
 #if defined(SYS_macosx)
         .literal16
-#elif defined(SYS_mingw64) || defined(SYS_cygwin)
+#elif defined(WINDOWS_ABI)
         .section .rdata,"dr"
 #else
         .section    .rodata.cst16,"aM",@progbits,16
