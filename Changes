@@ -613,6 +613,16 @@ Working version
 - #15067, #15071: Fix detection of functions available in the future on macOS.
   (Antonin Décimo, review by Nicolás Ojeda Bär and Damien Doligez)
 
+- #XXXXX: Derive `ccomp_type` from the C compiler's command line interface
+  instead of the target triplet. Unix-CLI compilers targeting the MSVC ABI
+  (e.g. `clang --target=x86_64-pc-windows-msvc` or
+  `zig cc -target x86_64-windows-msvc`) are now supported for the
+  x86_64-pc-windows target, with the new `clang64` toolchain and flexdll
+  chain. Such configurations emit GAS assembly, archive with the LLVM
+  binutils, link with lld through the C compiler driver, and pack native
+  modules with llvm-lib.
+  (Antonin Décimo)
+
 ### Bug fixes:
 
 - #15072, #15075: Fix `Runtime_events` cursors becoming permanently unusable
