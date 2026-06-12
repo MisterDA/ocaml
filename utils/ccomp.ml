@@ -183,9 +183,13 @@ let call_linker mode output_name files extra =
     let cmd =
       if mode = Partial then
         let (l_prefix, files) =
-          match Config.ccomp_type with
-          | "msvc" -> ("/libpath:", expand_libname files)
-          | _ -> ("-L", files)
+          (* On win64, packing is performed by a lib.exe-style archiver
+             (link -lib for the MSVC CLI, llvm-lib for Unix-CLI compilers
+             targeting the MSVC ABI), which uses MSVC conventions *)
+          if Config.ccomp_type = "msvc" || Config.system = "win64" then
+            ("/libpath:", expand_libname files)
+          else
+            ("-L", files)
         in
         Printf.sprintf "%s%s %s %s %s"
           Config.native_pack_linker

@@ -446,23 +446,15 @@ AS_CASE([$target],
 If your host is 64 bits, you can try with './configure CC="gcc -m64"' \
 (or "cc -m64" if you don't have GCC).])])
 
-# MSVC special case
+# MSVC special case: configure cannot guess that the Microsoft C compiler
+# should be used. The conventions of the C toolchain's command line interface
+# (ccomp_type and the variables derived from it) are determined later, once
+# the C compiler has been probed (see OCAML_CC_MSVC_CLI), since Unix-CLI
+# compilers can also target *-pc-windows.
 
 AS_CASE([$target],
   [*-pc-windows],
-    [AS_IF([test -z "$CC"], [CC=cl])
-    ccomp_type=msvc
-    S=asm
-    SO=dll
-    outputexe=-Fe
-    outputobj=-Fo
-    syslib='$(1).lib'],
-  [ccomp_type=cc
-  S=s
-  SO=so
-  outputexe='-o '
-  outputobj='-o '
-  syslib='-l$(1)'])
+    [AS_IF([test -z "$CC"], [CC=cl])])
 
 AC_CHECK_PROG([csc],[csc],[csc])
 AS_IF([test -n "$csc"],
@@ -872,11 +864,36 @@ OCAML_ASM_SIZE_TYPE_DIRECTIVES
 ## Find vendor of the C compiler
 OCAML_CC_VENDOR
 
-DEP_CC_PREFIX=''
+## Determine which command line interface the C toolchain follows
+# This is a property of the compiler, not of the target: Unix-CLI compilers
+# can target the MSVC ABI (e.g. clang --target=x86_64-pc-windows-msvc or
+# zig cc -target x86_64-windows-msvc), so it is probed rather than derived
+# from the target. MSVC-CLI compilers only ever target *-pc-windows, hence
+# the probe is not run (and ccomp_type is "cc") for any other target.
 AS_CASE([$target],
-  [sparc-sun-solaris*],
-    [DEP_CC="false"],
   [*-pc-windows],
+    [OCAML_CC_MSVC_CLI
+    AS_IF([test x"$ocaml_cv_cc_msvc_cli" = 'xyes'],
+      [ccomp_type=msvc],
+      [ccomp_type=cc])
+    SO=dll],
+  [ccomp_type=cc])
+
+AS_IF([test "$ccomp_type" = 'msvc'],
+  [S=asm
+  outputexe=-Fe
+  outputobj=-Fo
+  syslib='$(1).lib'],
+  [S=s
+  outputexe='-o '
+  outputobj='-o '
+  syslib='-l$(1)'])
+
+DEP_CC_PREFIX=''
+AS_CASE([$target,$ccomp_type],
+  [sparc-sun-solaris*,*],
+    [DEP_CC="false"],
+  [*-pc-windows,msvc],
     [AS_CASE([$ocaml_cc_vendor],
       [msvc-*-clang-*],
       [DEP_CC="$CC"
@@ -903,14 +920,14 @@ AS_CASE([$enable_dependency_generation],
       [compute_deps=true])],
     [compute_deps=false])])
 
-AS_CASE([$target],
+AS_CASE([$target,$ccomp_type],
   # In config/Makefile.mingw*, we had:
   # TARGET=i686-w64-mingw32 and x86_64-w64-mingw32
   # TOOLPREF=$(TARGET)-
   # AR=$(TOOLPREF)ar
   # However autoconf and libtool seem to use ar
   # So we let them do, at the moment
-  [*-pc-windows],
+  [*-pc-windows,msvc],
     [
       mkexe_via_cc_extra_cmd=' && $(call MERGEMANIFESTEXE,$(1))'
       libext=lib
@@ -920,6 +937,25 @@ AS_CASE([$target],
         [machine=""])
       mklib="link -lib -nologo $machine /out:\$(1) \$(2)"
     ],
+  [*-pc-windows,cc],
+    [# libtool detects "Native MSVC" from the predefined macros (the GCC
+    # shell variable is no) and selects .lib; Unix-CLI compilers use ar
+    # archives
+    libext=a
+    # Prefer the LLVM binutils unless overridden by the user: lld requires
+    # archives with a proper symbol index, which GNU ar does not guarantee
+    # for COFF members, and the GNU binutils of the build machine usually
+    # cannot process PE images
+    AS_IF([test x"$ac_env_AR_set" != xset],
+      [AC_CHECK_TOOLS([LLVM_AR],[llvm-ar])
+      AS_IF([test -n "$LLVM_AR"],
+        [AR="$LLVM_AR"
+        AC_CHECK_TOOLS([LLVM_RANLIB],[llvm-ranlib])
+        AS_IF([test -n "$LLVM_RANLIB"],[RANLIB="$LLVM_RANLIB"])])])
+    AS_IF([test x"$ac_env_STRIP_set" != xset],
+      [AC_CHECK_TOOLS([LLVM_STRIP],[llvm-strip])
+      AS_IF([test -n "$LLVM_STRIP"],[STRIP="$LLVM_STRIP"])])
+    mklib="rm -f \$(1) && ${AR} c${ARFLAGS:=r} \$(1) \$(2)"],
   [mklib="rm -f \$(1) && ${AR} c${ARFLAGS:=r} \$(1) \$(2)"])
 
 ## In cross-compilation mode, can we run executables produced?
@@ -937,14 +973,14 @@ OCAML_TARGET_IS_EXECUTABLE
 # We thus figure out how to invoke the C preprocessor directly but
 # let the CPP variable untouched, except for the MSVC port where we set it
 # manually to make sure the backward compatibility is preserved
-AS_CASE([$ocaml_cc_vendor],
-  [xlc-*],
+AS_CASE([$ccomp_type,$ocaml_cc_vendor],
+  [*,xlc-*],
     [CPP="$CC -E -qnoppline" # suppress incompatible XLC line directives
     ocamltest_CPP="$CPP"],
-  [sunc-*],
+  [*,sunc-*],
     [CPP="$CC -E -Qn" # suppress generation of Sun PRO ident string
     ocamltest_CPP="$CPP"],
-  [msvc-*],
+  [msvc,*],
     [CPP="$CC -nologo -EP -TC"
     ocamltest_CPP="$CPP 2> nul"],
   [CPP="$CC -E -P"
@@ -1059,17 +1095,17 @@ AS_IF([test "x$interpval" = "xyes"],
 
 ## Determine which flags to use for the C compiler
 
-AS_CASE([$ocaml_cc_vendor],
-  [xlc-*],
+AS_CASE([$ccomp_type,$ocaml_cc_vendor],
+  [*,xlc-*],
     [warn_error_flag=''
     cc_extra_warnings=''
     cxx_extra_warnings=''
     cc_warnings='-qflag=i:i'], # all warnings enabled
-  [sunc-*],
+  [*,sunc-*],
     [cc_extra_warnings=''
      cxx_extra_warnings=''
      cc_warnings=''],
-  [msvc-*],
+  [msvc,*],
     [AS_CASE([$ocaml_cc_vendor],
       [msvc-*-clang-*],
         [cc_warnings='-W4 -Wno-unused-parameter -Wno-sign-compare -Wundef'
@@ -1129,32 +1165,41 @@ AS_CASE([$target],
 # Concerning optimization level, -O3 is somewhat risky, so take -O2.
 # Concerning language version, recent enough versions of GCC and Clang
 # default to gnu11 (C11 + GNU extensions) or gnu17, which is fine.
-AS_CASE([$ocaml_cc_vendor],
-  [clang-*],
+AS_CASE([$ccomp_type,$ocaml_cc_vendor],
+  [cc,msvc-*-clang-*],
+    [# clang with a Unix CLI targeting the MSVC ABI and runtime (e.g.
+    # clang --target=x86_64-pc-windows-msvc or zig cc). -fms-runtime-lib=dll
+    # selects the dynamic CRT, as -MD does for the MSVC-CLI port.
+    common_cflags="-O2 -fno-strict-aliasing -fwrapv -fms-runtime-lib=dll"
+    common_cppflags="$common_cppflags -D_CRT_SECURE_NO_DEPRECATE"
+    internal_cflags="$cc_warnings -fno-common"
+    internal_cppflags='-DUNICODE -D_UNICODE -D_CRT_NONSTDC_NO_WARNINGS'
+    internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE=$windows_unicode"],
+  [*,clang-*],
     [common_cflags="-O2 -fno-strict-aliasing -fwrapv";
     internal_cflags="$cc_warnings -fno-common"],
-  [*gcc-[[0123]]-*|*gcc-4-[[0-8]]],
+  [*,*gcc-[[0123]]-*|*,*gcc-4-[[0-8]]],
     # No C11 support
     [AC_MSG_ERROR(m4_normalize([This version of GCC is too old.
       Please use GCC version 4.9 or above.]), 69)],
-  [gcc-*],
+  [*,gcc-*],
     [common_cflags="-O2 -fno-strict-aliasing -fwrapv";
     internal_cflags="$cc_warnings -fno-common -fexcess-precision=standard \
 -Wvla"],
-  [mingw-*-*-gcc-*],
+  [*,mingw-*-*-gcc-*],
     [internal_cflags="-Wno-unused $cc_warnings \
 -fexcess-precision=standard"
     # TODO: see whether the code can be fixed to avoid -Wno-unused
     common_cflags="-O2 -fno-strict-aliasing -fwrapv -mms-bitfields"
     internal_cppflags='-D__USE_MINGW_ANSI_STDIO=0 -DUNICODE -D_UNICODE'
     internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE=$windows_unicode"],
-  [mingw-*],
+  [*,mingw-*],
     [AC_MSG_ERROR([Unsupported C compiler for a MinGW-w64 build])],
-  [msvc-0*|msvc-1[[0-8]]*|msvc-19[[012]]*|msvc-193[[0-7]]],
+  [msvc,msvc-0*|msvc,msvc-1[[0-8]]*|msvc,msvc-19[[012]]*|msvc,msvc-193[[0-7]]],
     # No C11 atomics support
     [AC_MSG_ERROR(m4_normalize([This version of MSVC is too old.
     Please use Visual Studio version 17.8 or above.]), 69)],
-  [msvc-*],
+  [msvc,msvc-*],
     [common_cflags='-nologo -O2 -Gy- -MD'
     common_cppflags="-D_CRT_SECURE_NO_DEPRECATE"
     internal_cflags="$cc_warnings"
@@ -1163,11 +1208,11 @@ AS_CASE([$ocaml_cc_vendor],
       [internal_cflags="$internal_cflags -volatileMetadata-"], [],
       [$warn_error_flag])
     internal_cppflags="$internal_cppflags -DWINDOWS_UNICODE=$windows_unicode"],
-  [xlc-*],
+  [*,xlc-*],
     [common_cflags="-O5 -qtune=balanced -qnoipa -qinline";
     internal_cflags="$cc_warnings"],
-  [sunc-*], # Optimization should be >= O4 to inline functions
-            # and prevent unresolved externals
+  [*,sunc-*], # Optimization should be >= O4 to inline functions
+              # and prevent unresolved externals
     [common_cflags="-O4 -xc99=all"
     common_cppflags="-D_XPG6"
     internal_cflags="$cc_warnings"],
@@ -1237,13 +1282,21 @@ AS_CASE([$target],
     flexdll_cc_var='MIN64CC'
     flexlink_flags='-stack 33554432'],
   [i686-pc-windows],
-    [flexdll_chain='msvc'
-    flexdll_cc_var='MSVCC'
-    flexlink_flags='-merge-manifest -stack 16777216'],
+    [AS_IF([test "$ccomp_type" = 'msvc'],
+      [flexdll_chain='msvc'
+      flexdll_cc_var='MSVCC'
+      flexlink_flags='-merge-manifest -stack 16777216'],
+      [AC_MSG_ERROR(m4_normalize([Unix-CLI compilers are only supported for
+        the x86_64-pc-windows target]))])],
   [x86_64-pc-windows],
-    [flexdll_chain='msvc64'
-    flexdll_cc_var='MSVCC64'
-    flexlink_flags='-merge-manifest -stack 33554432'],
+    [AS_IF([test "$ccomp_type" = 'msvc'],
+      [flexdll_chain='msvc64'
+      flexdll_cc_var='MSVCC64'
+      flexlink_flags='-merge-manifest -stack 33554432'],
+      [# No -merge-manifest: mt is unlikely to be available (and the linker
+      # does not generate a manifest file to merge)
+      flexdll_chain='clang64'
+      flexlink_flags='-stack 33554432'])],
   [flexdll_chain=''])
 
 AS_IF([test -n "$MANIFEST_TOOL"],
@@ -1283,7 +1336,9 @@ AS_IF([test x"$supports_shared_libraries" != 'xfalse'], [
         [AC_MSG_RESULT([$flexdll_source_dir$flexmsg])
         bootstrapping_flexdll=true
         flexdll_dir=\"+flexdll\"
-        AS_CASE([$target], [*-pc-windows], [AC_CHECK_PROGS(RC, [rc])])
+        AS_CASE([$target,$ccomp_type],
+          [*-pc-windows,msvc], [AC_CHECK_PROGS(RC, [rc])],
+          [*-pc-windows,cc], [AC_CHECK_PROGS(RC, [llvm-windres windres])])
         AS_IF([$cross_compiler],
           [AC_CHECK_TARGET_TOOLS(RC, [windres])],
           [AC_CHECK_TOOLS(RC, [windres])])])],
@@ -1367,15 +1422,22 @@ AS_CASE([$ocaml_cc_vendor,$target],
     mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
     SO="dll"],
   [*,*-pc-windows],
-    [toolchain=msvc
-    ostype="Win32"
+    [ostype="Win32"
     mkexe_cmd_exp="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_cmd="flexlink -exe -chain ${flexdll_chain} ${flexlink_flags}"
     mkexe_ldflags_prefix='-link '
-    mkexe_via_cc_ldflags_prefix='/link '
-    oc_exe_ldflags='/ENTRY:wmainCRTStartup'
-    mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"
-    mkexedebugflag=''],
+    AS_IF([test "$ccomp_type" = 'msvc'],
+      [toolchain=msvc
+      mkexe_via_cc_ldflags_prefix='/link '
+      oc_exe_ldflags='/ENTRY:wmainCRTStartup'
+      mkexedebugflag=''],
+      [toolchain=clang64
+      # Not -municode, which is specific to the mingw-w64 CRT: the entry
+      # point of the MSVC CRT is selected with the /entry linker option.
+      # The -Wl, form is understood both by the C compiler driver and by
+      # flexlink (which forwards it to the linker).
+      oc_exe_ldflags='-Wl,/entry:wmainCRTStartup'])
+    mkexe_extra_flags="$mkexe_ldflags_prefix$oc_exe_ldflags"],
   [*,x86_64-*-linux*],
     AC_DEFINE([HAS_ARCH_CODE32], [1]),
   [xlc-*,powerpc-ibm-aix*],
@@ -1389,8 +1451,8 @@ AS_CASE([$ocaml_cc_vendor,$target],
 # How to build sak
 
 AS_IF([test x"$build" = x"$target" -o x"$target_runnable" = xtrue],
-  [AS_CASE([$target],
-    [*-pc-windows],
+  [AS_CASE([$ccomp_type],
+    [msvc],
       [SAK_BUILD=m4_normalize([
         "\$(CC) \$(OC_CFLAGS) \$(CFLAGS) \$(OC_CPPFLAGS) \$(CPPFLAGS) \$(2)
         /link /out:\$(1) $oc_exe_ldflags \$(OC_LDFLAGS) \$(LDFLAGS)"])],
@@ -1877,11 +1939,17 @@ AS_IF([test -z "$PARTIALLD"],
   # output filename. Don't assume that all C compilers understand GNU -ofoo
   # form, so ensure that the definition includes a space at the end (which is
   # achieved using the $(EMPTY) expansion trick in Makefile.config.in).
-  AS_CASE(["$ocaml_cc_vendor"],
-    [msvc-*],
+  AS_CASE(["$ccomp_type,$ocaml_cc_vendor"],
+    [msvc,*],
       # For the Microsoft C compiler there must be no space at the end of the
       # string.
       [PACKLD="link -lib -nologo $machine -out:"],
+    [cc,msvc-*],
+      [# lld-link has no relocatable-link mode for COFF objects, so pack the
+      # objects in an archive instead, as the MSVC-CLI port does (llvm-lib
+      # is the lib.exe of LLVM).
+      AC_CHECK_TOOLS([LLVM_LIB],[llvm-lib],[llvm-lib])
+      PACKLD="$LLVM_LIB -nologo -out:"],
     [PACKLD="$DIRECT_LD -r$PACKLD_FLAGS -o "])],
   [PACKLD="$PARTIALLD -o "])
 
@@ -1933,20 +2001,20 @@ AS_IF([test -n "$target_alias"],
 as_is_cc=true
 default_as=''
 
-AS_CASE([$as_target,$ocaml_cc_vendor],
-  [*-*-linux*,gcc-*],
+AS_CASE([$as_target,$ccomp_type,$ocaml_cc_vendor],
+  [*-*-linux*,*,gcc-*],
     [AS_CASE([$as_cpu],
       [x86_64|arm*|aarch64*|i[[3-6]]86],
         [default_as="${toolpref}as"
         as_is_cc=false])],
-  [*-*-cygwin,gcc-*],
+  [*-*-cygwin,*,gcc-*],
     [default_as="${toolpref}as"
     as_is_cc=false],
-  [i686-pc-windows,*],
+  [i686-pc-windows,msvc,*],
     [default_as="ml -nologo -coff -Cp -c -Fo"
     default_aspp="$default_as"
     as_is_cc=false],
-  [x86_64-pc-windows,*],
+  [x86_64-pc-windows,msvc,*],
     [default_as="ml64 -nologo -Cp -c -Fo"
     default_aspp="$default_as"
     as_is_cc=false])
@@ -2307,21 +2375,25 @@ AS_IF([$tsan],
 
 sockets=true
 
-AS_CASE([$target],
-  [*-w64-mingw32*],
+AS_CASE([$target,$ccomp_type],
+  [*-w64-mingw32*,*],
     [cclibs="$cclibs -lws2_32"
     AC_SEARCH_LIBS([socket], [ws2_32])
     AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
-  [*-pc-windows],
+  [*-pc-windows,msvc],
     [cclibs="$cclibs ws2_32.lib"
     dnl AC_SEARCH_LIBS doesn't work with MSVC; manually update LIBS
     AS_ECHO(["checking for library containing socket... (cached) ws2_32.lib"])
     LIBS="ws2_32.lib $LIBS"
     AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
-  [*-*-haiku],
+  [*-pc-windows,cc],
+    [cclibs="$cclibs -lws2_32"
+    AC_SEARCH_LIBS([socket], [ws2_32])
+    AC_CHECK_FUNC([socketpair], [AC_DEFINE([HAS_SOCKETPAIR], [1])])],
+  [*-*-haiku,*],
     [cclibs="$cclibs -lnetwork"
     AC_SEARCH_LIBS([socket], [network])],
-  [*-*-solaris*],
+  [*-*-solaris*,*],
     [cclibs="$cclibs -lsocket -lnsl"
     AC_SEARCH_LIBS([socket], [socket])
     AC_SEARCH_LIBS([inet_ntop], [nsl])],
@@ -2555,10 +2627,10 @@ AC_CHECK_HEADER([sys/mman.h],
 AC_CHECK_FUNC([pwrite], [AC_DEFINE([HAS_PWRITE], [1])])
 
 ## -fdebug-prefix-map support by the C compiler
-AS_CASE([$ocaml_cc_vendor,$target],
-  [*,*-pc-windows], [cc_has_debug_prefix_map=false],
-  [xlc*,powerpc-ibm-aix*], [cc_has_debug_prefix_map=false],
-  [sunc*,sparc-sun-*], [cc_has_debug_prefix_map=false],
+AS_CASE([$ocaml_cc_vendor,$target,$ccomp_type],
+  [*,*-pc-windows,msvc], [cc_has_debug_prefix_map=false],
+  [xlc*,powerpc-ibm-aix*,*], [cc_has_debug_prefix_map=false],
+  [sunc*,sparc-sun-*,*], [cc_has_debug_prefix_map=false],
   [AX_CHECK_COMPILE_FLAG([-fdebug-prefix-map=old=new],
     [cc_has_debug_prefix_map=true], [cc_has_debug_prefix_map=false],
     [$warn_error_flag])])
@@ -3085,6 +3157,14 @@ AS_CASE(["$toolchain"],
         [header_cflags="$header_cflags -fno-builtin-wcslen"])
     header_ldflags='/NOCOFFGRPINFO /subsystem:console'
     header_libs='kernel32.lib'],
+  [clang64],
+    [# clang with a Unix CLI targeting the MSVC CRT: combination of the two
+    # cases above. See the msvc case for -fno-builtin-wcslen; -nostdlib
+    # keeps the CRT startup objects and libraries out, and the entry point
+    # is the one defined in header.c.
+    header_cflags='-Os -fno-builtin-wcslen'
+    header_ldflags='-nostdlib -Wl,/entry:wmainCRTStartup -Wl,/subsystem:console'
+    header_libs='-lkernel32'],
   [header_cflags=''
   header_ldflags=''
   header_libs=''])
@@ -3106,14 +3186,20 @@ native_cflags="$common_cflags $sharedlib_cflags $native_cflags\
 bytecode_cppflags="$common_cppflags $COMPILER_BYTECODE_CPPFLAGS"
 native_cppflags="$common_cppflags $COMPILER_NATIVE_CPPFLAGS"
 
-AS_CASE([$target],
-  [*-w64-mingw32*],
+AS_CASE([$target,$ccomp_type],
+  [*-w64-mingw32*,*],
     [cclibs="$cclibs -lole32 -luuid -lversion -lshlwapi -lsynchronization"],
-  [*-pc-windows],
+  [*-pc-windows,msvc],
     [# For whatever reason, flexlink includes -ladvapi32 and -lshell32 for
     # mingw-w64, but doesn't include advapi32.lib and shell32.lib for MSVC
     cclibs="$cclibs ole32.lib uuid.lib advapi32.lib shell32.lib version.lib \
-shlwapi.lib synchronization.lib"])
+shlwapi.lib synchronization.lib"],
+  [*-pc-windows,cc],
+    [# Same libraries as the MSVC port (the clang64 flexlink chain only
+    # includes msvcrt by default, like the MSVC chains), with -l spellings
+    # that the Unix-CLI compiler driver understands
+    cclibs="$cclibs -lole32 -luuid -ladvapi32 -lshell32 -lversion \
+-lshlwapi -lsynchronization"])
 
 AC_CONFIG_COMMANDS_PRE([cclibs="$cclibs $mathlib $DLLIBS $PTHREAD_LIBS"])
 

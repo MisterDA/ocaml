@@ -85,6 +85,29 @@ unknown
   AC_MSG_RESULT([$ocaml_cc_vendor])
 ])
 
+# The following macro determines whether the C compiler follows the
+# command line interface of the Microsoft C compiler (cl-style options:
+# -nologo, -Fe, -Fo, ...) rather than the Unix one (-o, -c, -shared, ...).
+# cl and clang-cl accept -nologo, whereas compilers with a Unix CLI reject
+# unknown command-line options with a hard error.
+# Note that this cannot be derived from the predefined macros inspected by
+# OCAML_CC_VENDOR: both clang-cl and clang --target=x86_64-pc-windows-msvc
+# define _MSC_VER. The CLI is a property of the compiler driver, so it has
+# to be probed by exercising the driver.
+# The result is cached in ocaml_cv_cc_msvc_cli, which can be overridden by
+# the user.
+AC_DEFUN([OCAML_CC_MSVC_CLI], [
+  AC_REQUIRE([AC_PROG_CC])
+  AC_CACHE_CHECK([whether $CC uses the MSVC command line interface],
+    [ocaml_cv_cc_msvc_cli],
+    [OCAML_CC_SAVE_VARIABLES
+    CFLAGS="$CFLAGS -nologo"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],
+      [ocaml_cv_cc_msvc_cli=yes],
+      [ocaml_cv_cc_msvc_cli=no])
+    OCAML_CC_RESTORE_VARIABLES])
+])
+
 AC_DEFUN([OCAML_SIGNAL_HANDLERS_SEMANTICS], [
   AC_MSG_NOTICE([checking semantics of signal handlers])
   AC_CHECK_FUNC([sigaction], [has_sigaction=true], [has_sigaction=false])

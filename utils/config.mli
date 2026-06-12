@@ -62,9 +62,13 @@ val standard_library: string
     and OCAMLLIB into account. *)
 
 val ccomp_type: string
-(** The "kind" of the C compiler, assembler and linker used: one of
+(** The "kind" of the C compiler, assembler and linker used, that is, the
+    conventions of their command line interface: one of
     "cc" (for Unix-style C compilers)
-    "msvc" (for Microsoft Visual C++ and MASM) *)
+    "msvc" (for Microsoft Visual C++ and MASM)
+    This is a property of the C toolchain, not of the target system: a
+    Unix-style C compiler (e.g. [clang --target=x86_64-pc-windows-msvc])
+    can target the MSVC ABI with ccomp_type "cc". *)
 
 val c_compiler: string
 (** The compiler to use for compiling C files *)
