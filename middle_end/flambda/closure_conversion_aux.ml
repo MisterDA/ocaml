@@ -143,7 +143,7 @@ module Function_decls = struct
 
   (* All parameters of functions in [ts]. *)
   let all_params function_decls =
-    List.concat (List.map Function_decl.params function_decls)
+    List.concat_map Function_decl.params function_decls
 
   let set_diff (from : Ident.Set.t) (idents : Ident.t list) =
     List.fold_right Ident.Set.remove idents from

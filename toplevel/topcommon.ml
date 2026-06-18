@@ -36,10 +36,9 @@ let input_name = Location.input_name
 let parse_mod_use_file name lb =
   let modname = Unit_info.lax_modname_from_source name in
   let items =
-    List.concat
-      (List.map
-         (function Ptop_def s -> s | Ptop_dir _ -> [])
-         (!parse_use_file lb))
+    List.concat_map
+      (function Ptop_def s -> s | Ptop_dir _ -> [])
+      (!parse_use_file lb)
   in
   [ Ptop_def
       [ Str.module_

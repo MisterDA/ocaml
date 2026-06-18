@@ -1153,7 +1153,7 @@ class html =
     (** Build the html code for the link tags in the header, defining section and
        subsections for the titles found in the given comments.*)
     method html_sections_links b comments =
-      let titles = List.flatten (List.map Odoc_info.get_titles_in_text comments) in
+      let titles = List.concat_map Odoc_info.get_titles_in_text comments in
       let levels =
         let rec iter acc l =
           match l with

@@ -144,7 +144,7 @@ let run_cmd
       strace_cmd @ original_cmd
     end else original_cmd
   in
-  let lst = List.concat (List.map String.words cmd) in
+  let lst = List.concat_map String.words cmd in
   let quoted_lst =
     if Sys.win32
     then List.map Filename.maybe_quote lst

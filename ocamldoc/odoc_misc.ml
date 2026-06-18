@@ -302,7 +302,7 @@ let rec text_no_title_no_list t =
     | Odoc_types.Index_list -> []
     | Odoc_types.Custom (s,t) -> [Odoc_types.Custom (s, text_no_title_no_list t)]
   in
-  List.flatten (List.map iter t)
+  List.concat_map iter t
 
 let get_titles_in_text t =
   let l = ref [] in
