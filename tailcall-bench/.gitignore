@@ -1,0 +1,9 @@
+*.byte
+*.json
+*.perferr
+*.perfcsv
+*.tailcall
+*.threaded
+*.md
+*.html
+*.log
