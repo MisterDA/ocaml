@@ -79,12 +79,39 @@ jobs:
             console.log('Skip testsuite: ' + skip_testsuite);
             return skip_testsuite;
 
+  cygwin-setup:
+    runs-on: windows-latest
+    env:
+      CYGWIN: winsymlinks:native
+    steps:
+      - name: Restore Cygwin cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            D:\cygwin
+            D:\cygwin-packages
+          key: cygwin-setup
+
+      - name: Install Cygwin (all packages)
+        uses: cygwin/cygwin-install-action@v6
+        with:
+          # Union of all packages needed by any job variant
+          packages: make,mingw64-x86_64-gcc-core,gcc-g++,gcc-fortran,gcc-core,rsync,unzip
+
+      - name: Save Cygwin cache
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            D:\cygwin
+            D:\cygwin-packages
+          key: cygwin-setup
+
   build:
     permissions: {}
 
     runs-on: ${{ matrix.os }}
 
-    needs: config
+    needs: [config, cygwin-setup]
 
     timeout-minutes: ${{ matrix.cc == 'gcc' && 90 || 60 }}
 
@@ -101,25 +128,14 @@ jobs:
         with:
           submodules: true
 
-      - name: Restore Cygwin cache
+      - name: Restore Cygwin install
         uses: actions/cache/restore@v5
         with:
           path: |
+            D:\cygwin
             D:\cygwin-packages
-          key: cygwin-packages
-
-      - name: Install Cygwin
-        uses: cygwin/cygwin-install-action@v6
-        with:
-          packages: make,${{ matrix.cc != 'gcc' && 'mingw64-x86_64-' || 'gcc-g++,gcc-fortran,' }}gcc-core,rsync,unzip
-          install-dir: 'D:\cygwin'
-
-      - name: Save Cygwin cache
-        uses: actions/cache/save@v5
-        with:
-          path: |
-            D:\cygwin-packages
-          key: cygwin-packages
+          key: cygwin-setup
+          fail-on-cache-miss: true
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
