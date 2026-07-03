@@ -61,9 +61,6 @@ void caml_load_code(int fd, asize_t len)
 #ifdef THREADED_CODE
   caml_thread_code(caml_start_code, caml_code_size);
 #endif
-#ifdef HAVE_TAIL_CALL_INTERP
-  caml_tc_thread_code(caml_start_code, caml_code_size);
-#endif
 }
 
 /* This code is needed only if the processor is big endian */
@@ -162,48 +159,9 @@ void caml_thread_code (code_t code, asize_t len)
 
 #endif /* THREADED_CODE */
 
-#ifdef HAVE_TAIL_CALL_INTERP
-
-static const char * const * caml_tc_dispatch_table;
-static const char * caml_tc_base;
-
-void caml_init_tc_thread_code(void * const * dispatch_table, const void * base)
-{
-  caml_tc_dispatch_table = (const char * const *) dispatch_table;
-  caml_tc_base = (const char *) base;
-}
-
-void caml_tc_thread_code(code_t code, asize_t len)
-{
-  const int *l = caml_init_opcode_nargs();
-  len /= sizeof(opcode_t);
-  for (code_t p = code; p < code + len; ) {
-    opcode_t instr = *p;
-    if (instr < 0 || instr >= FIRST_UNIMPLEMENTED_OP)
-      instr = STOP;
-    *p++ = (opcode_t)(caml_tc_dispatch_table[instr] - caml_tc_base);
-    if (instr == SWITCH) {
-      uint32_t sizes = (uint32_t)*p++;
-      uint32_t const_size = sizes & 0xFFFF;
-      uint32_t block_size = sizes >> 16;
-      p += const_size + block_size;
-    } else if (instr == CLOSUREREC) {
-      uint32_t nfuncs = (uint32_t)*p++;
-      p++;                      /* skip nvars */
-      p += nfuncs;
-    } else {
-      p += l[instr];
-    }
-  }
-}
-
-#endif /* HAVE_TAIL_CALL_INTERP */
-
 void caml_set_instruction(code_t pos, opcode_t instr)
 {
-#ifdef HAVE_TAIL_CALL_INTERP
-  *pos = (opcode_t)(caml_tc_dispatch_table[instr] - caml_tc_base);
-#elif defined THREADED_CODE
+#ifdef THREADED_CODE
   *pos = (opcode_t)(caml_instr_table[instr] - caml_instr_base);
 #else
   *pos = instr;
@@ -212,9 +170,7 @@ void caml_set_instruction(code_t pos, opcode_t instr)
 
 int caml_is_instruction(opcode_t instr1, opcode_t instr2)
 {
-#ifdef HAVE_TAIL_CALL_INTERP
-  return instr1 == (opcode_t)(caml_tc_dispatch_table[instr2] - caml_tc_base);
-#elif defined THREADED_CODE
+#ifdef THREADED_CODE
   return instr1 == (opcode_t)(caml_instr_table[instr2] - caml_instr_base);
 #else
   return instr1 == instr2;

@@ -93,9 +93,6 @@ void caml_init_callbacks(void)
 #ifdef THREADED_CODE
   caml_thread_code(callback_code, sizeof(callback_code));
 #endif
-#ifdef HAVE_TAIL_CALL_INTERP
-  caml_tc_thread_code(callback_code, sizeof(callback_code));
-#endif
 }
 
 CAMLexport value caml_callbackN_exn(value closure, int narg, value args[])

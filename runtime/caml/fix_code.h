@@ -34,15 +34,9 @@ void caml_set_instruction (code_t pos, opcode_t instr);
 int caml_is_instruction (opcode_t instr1, opcode_t instr2);
 
 #ifdef THREADED_CODE
-void caml_init_thread_code(const void * const * instr_table,
-                           const void * instr_base);
+void caml_init_thread_code(const void *const *instr_table,
+                           const void *instr_base);
 void caml_thread_code (code_t code, asize_t len);
-#endif
-
-#ifdef HAVE_TAIL_CALL_INTERP
-void caml_init_tc_thread_code(void * const * dispatch_table,
-                              const void * base);
-void caml_tc_thread_code(code_t code, asize_t len);
 #endif
 
 int * caml_init_opcode_nargs(void);
