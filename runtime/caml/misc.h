@@ -41,6 +41,14 @@
 #define __has_builtin(x) 0
 #endif
 
+#if !defined(__has_extension)
+#define __has_extension(x) 0
+#endif
+
+#if !defined(__has_cpp_attribute)
+#define __has_cpp_attribute(x) 0
+#endif
+
 /* Deprecation warnings */
 
 #if __has_attribute(deprecated) || defined(__GNUC__)
@@ -165,12 +173,21 @@ CAMLdeprecated_typedef(addr, char *);
 #define CAMLalign(n) _Alignas(n)
 #endif
 
-#if !defined(__cplusplus)
+#if !defined(__cplusplus) || __has_extension(c_thread_local)
 #define CAMLthread_local(decl) _Thread_local decl
 #elif defined(_MSC_VER) && !defined(__clang__)
-#define CAMLthread_local(decl) __declspec(thread) decl [[msvc::no_tls_guard]]
-#else
+#define CAMLthread_local(decl) thread_local decl [[msvc::no_tls_guard]]
+#elif defined(__cpp_constinit)
+#define CAMLthread_local(decl) thread_local constinit decl
+#elif __has_cpp_attribute(clang::require_constant_initialization)
+#define CAMLthread_local(decl)                                  \
+  thread_local decl [[clang::require_constant_initialization]]
+#elif defined(__GNUC__) && __GNUC__ >= 10
+#define CAMLthread_local(decl) thread_local __constinit decl
+#elif defined(__GNUC__)
 #define CAMLthread_local(decl) __thread decl
+#else
+#error "No C-thread-local for interoperability with C++"
 #endif
 
 /* Prefetching */
