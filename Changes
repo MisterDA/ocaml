@@ -111,6 +111,10 @@ Working version
   GetFileInformationByName call underpinning the CRT's stat implementation.
   (David Allsopp, review by Nicolás Ojeda Bär and Antonin Décimo)
 
+- #14xxx: Fix declarations of thread-local symbols with external
+  linkage for C++ interoperability.
+  (Antonin Décimo, review by ??)
+
 ### Type system:
 
 * #11648, #14766, #14768, #14776, #14842, #14845: Keep expansion and
