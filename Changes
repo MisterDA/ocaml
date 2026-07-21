@@ -123,6 +123,11 @@ Working version
   some Intel CPUs.
   (Nat Mote, review by Florian Angeletti and Miod Vallat)
 
+* #14???: Default to and recommend large file and year 2038 support on 32-bit
+  systems. LFS and 64-bit `time_t` _checks_ can be disabled by passing
+  respectively `--disable-largefile` and `--disable-year2038` to configure.
+  (Antonin Décimo, review by ???)
+
 ### Type system:
 
 * #11648, #14766, #14768, #14776, #14801, #14842, #14845: Keep expansion and
