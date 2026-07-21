@@ -56,7 +56,9 @@ jobs:
         if: github.event_name == 'pull_request'
 
       - name: configure correctly generated
+        container: alpine:latest
         run: >-
+          apk add autoconf
           tools/ci/actions/check-configure.sh
           "$CAMLCI_GITHUB_REF_NAME"
           "$CAMLCI_EVENT_NAME"
