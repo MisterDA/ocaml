@@ -19337,7 +19337,7 @@ then :
   printf %s "(cached) " >&6
 else case e in #(
   e) ocaml_cv_prog_cc_c11_atomic_cflags=no
-    for ocaml_arg in         ''        '-experimental:c11atomics'        '-std:c11'        '-std:c11 -experimental:c11atomics'    ; do
+    for ocaml_arg in         ''        '-experimental:c11atomics'    ; do
 
   saved_CC="$CC"
   saved_CFLAGS="$CFLAGS"

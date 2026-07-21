@@ -503,8 +503,6 @@ AC_DEFUN([OCAML_CC_C11_ATOMIC_CFLAGS], [
     for ocaml_arg in dnl
         ''dnl
         '-experimental:c11atomics'dnl
-        '-std:c11'dnl remove with Autoconf 2.73 as cl will default to C11
-        '-std:c11 -experimental:c11atomics'dnl same
     ; do
       OCAML_CC_SAVE_VARIABLES
       CFLAGS="$CFLAGS $ocaml_arg"
