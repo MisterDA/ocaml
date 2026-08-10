@@ -861,6 +861,7 @@ static LPSELECTDATA select_data_dispatch (LPSELECTDATA lpSelectData,
       }
       break;
 
+    case SELECT_HANDLE_NONE:
     default:
       DEBUG_PRINT("Handle %x is unknown", hFileDescr);
       caml_win32_maperr(ERROR_INVALID_HANDLE);
