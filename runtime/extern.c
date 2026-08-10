@@ -38,7 +38,7 @@
 
 /* Flags affecting marshaling */
 
-enum {
+enum extern_flags {
   NO_SHARING = 1,               /* Flag to ignore sharing */
   CLOSURES = 2,                 /* Flag to allow marshaling code pointers */
   COMPAT_32 = 4,                /* Flag to ensure that output can safely
@@ -87,7 +87,7 @@ struct position_table {
 
 struct caml_extern_state {
 
-  int extern_flags;        /* logical or of some of the flags */
+  enum extern_flags extern_flags;   /* logical or of some of the flags */
 
   uintnat obj_counter;    /* Number of objects emitted so far */
   uintnat size_32;        /* Size in words of 32-bit block for struct. */

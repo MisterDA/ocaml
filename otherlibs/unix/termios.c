@@ -24,9 +24,9 @@
 #include <termios.h>
 #include <errno.h>
 
-enum { Bool, Enum, Speed, Char, End };
+enum terminal_io_descr { Bool, Enum, Speed, Char, End };
 
-enum { Input, Output };
+enum control_mode_io { Input, Output };
 
 #define iflags (offsetof(struct termios, c_iflag))
 #define oflags (offsetof(struct termios, c_oflag))
@@ -192,7 +192,7 @@ static const struct {
 static void encode_terminal_status(volatile value *dst, struct termios *src)
 {
   for(const long * pc = terminal_io_descr; *pc != End; dst++) {
-    switch(*pc++) {
+    switch((enum terminal_io_descr) (*pc++)) {
     case Bool:
       { tcflag_t * src_p = (tcflag_t *) ((char *)src + *pc++);
         tcflag_t msk = *pc++;
@@ -212,7 +212,7 @@ static void encode_terminal_status(volatile value *dst, struct termios *src)
         pc += num;
         break; }
     case Speed:
-      { int which = *pc++;
+      { enum control_mode_io which = *pc++;
         speed_t speed = 0;
         *dst = Val_int(9600);   /* in case no speed in speedtable matches */
         switch (which) {
@@ -232,6 +232,7 @@ static void encode_terminal_status(volatile value *dst, struct termios *src)
       { int which = *pc++;
         *dst = Val_int(src->c_cc[which]);
         break; }
+    case End: CAMLunreachable();
     }
   }
 }
@@ -239,7 +240,7 @@ static void encode_terminal_status(volatile value *dst, struct termios *src)
 static void decode_terminal_status(struct termios *dst, volatile value *src)
 {
   for (const long *pc = terminal_io_descr; *pc != End; src++) {
-    switch(*pc++) {
+    switch((enum terminal_io_descr) (*pc++)) {
     case Bool:
       { tcflag_t * dst_p = (tcflag_t *) ((char *)dst + *pc++);
         tcflag_t msk = *pc++;
@@ -262,7 +263,7 @@ static void decode_terminal_status(struct termios *dst, volatile value *src)
         pc += num;
         break; }
     case Speed:
-      { int which = *pc++;
+      { enum control_mode_io which = *pc++;
         int baud = Int_val(*src);
         int res = 0;
         for (int i = 0; i < countof(speedtable); i++) {
@@ -284,6 +285,7 @@ static void decode_terminal_status(struct termios *dst, volatile value *src)
       { int which = *pc++;
         dst->c_cc[which] = Int_val(*src);
         break; }
+    case End: CAMLunreachable();
     }
   }
 }

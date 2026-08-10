@@ -44,11 +44,11 @@ struct backtrack_stack {
   union backtrack_point point[BACKTRACK_STACK_BLOCK_SIZE];
 };
 
-#define Opcode(x) ((x) & 0xFF)
+#define Opcode(x) ((enum opcode)((x) & 0xFF))
 #define Arg(x) ((uintnat)(x) >> 8)
 #define SignedArg(x) ((intnat)(x) >> 8)
 
-enum {
+enum opcode {
   CHAR,       /* match a single character */
   CHARNORM,   /* match a single character, after normalization */
   STRING,     /* match a character string */
