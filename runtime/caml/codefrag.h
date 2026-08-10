@@ -22,7 +22,7 @@
 
 #include "platform.h"
 
-enum digest_status {
+enum CAMLenum_closed digest_status {
   DIGEST_LATER,    /* computed on demand */
   DIGEST_NOW,      /* computed by caml_register_code_fragment */
   DIGEST_PROVIDED, /* passed by caller of caml_register_code_fragment */

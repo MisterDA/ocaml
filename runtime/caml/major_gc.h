@@ -20,7 +20,7 @@
 
 #include <stdbool.h>
 
-typedef enum {
+typedef enum CAMLenum_closed {
   Phase_sweep_main,
   Phase_sweep_and_mark_main,
   /* Sweeping and marking takes place, including ephemeron marking. */

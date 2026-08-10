@@ -32,7 +32,7 @@
 #define IPV6_V6ONLY (-1)
 #endif
 
-enum option_type {
+enum CAMLenum_closed option_type {
   TYPE_BOOL = 0,
   TYPE_INT = 1,
   TYPE_LINGER = 2,

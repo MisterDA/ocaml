@@ -42,7 +42,7 @@
 struct intern_item {
   volatile value * dest;
   intnat arg;
-  enum {
+  enum CAMLenum_closed {
     OReadItems, /* read arg items and store them in dest[0], dest[1], ... */
     OFreshOID,  /* generate a fresh OID and store it in *dest */
     OShift      /* offset *dest by arg */

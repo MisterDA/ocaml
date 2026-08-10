@@ -15845,8 +15845,10 @@ done
 
 # Additional warnings
 for flag in \
+  '-Wassign-enum' \
   '-Wformat-signedness' \
   '-Wold-style-declaration' \
+  '-Wswitch-enum' \
   '-Wwrite-strings' \
 ; do
     as_CACHEVAR=`printf "%s\n" "ax_cv_check_cflags_$warn_error_flag_$flag" | sed "$as_sed_sh"`

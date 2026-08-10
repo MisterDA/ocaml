@@ -52,7 +52,7 @@ struct ext_table caml_debug_info;
 CAMLexport char_os * caml_cds_file = NULL;
 
 /* Location of fields in the Instruct.debug_event record */
-enum {
+enum CAMLenum_closed {
   EV_POS = 0,
   EV_MODULE = 1,
   EV_LOC = 2,
@@ -61,14 +61,14 @@ enum {
 };
 
 /* Location of fields in the Location.t record. */
-enum {
+enum CAMLenum_closed {
   LOC_START = 0,
   LOC_END = 1,
   LOC_GHOST = 2
 };
 
 /* Location of fields in the Lexing.position record. */
-enum {
+enum CAMLenum_closed {
   POS_FNAME = 0,
   POS_LNUM = 1,
   POS_BOL = 2,

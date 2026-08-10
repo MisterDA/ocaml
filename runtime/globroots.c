@@ -34,7 +34,7 @@ static caml_plat_mutex roots_mutex = CAML_PLAT_MUTEX_INITIALIZER;
 /* Greater than zero when the current thread is scanning the roots */
 static CAMLthread_local int iterating_roots = 0;
 
-enum { ROOT_PRESENT = 0, ROOT_DELETED = 1 };
+enum CAMLenum_closed { ROOT_PRESENT = 0, ROOT_DELETED = 1 };
 
 /* The three global root lists.
    Each is represented by a skip list with the key being the address

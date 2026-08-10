@@ -1098,8 +1098,10 @@ done
 
 # Additional warnings
 for flag in \
+  '-Wassign-enum' \
   '-Wformat-signedness' \
   '-Wold-style-declaration' \
+  '-Wswitch-enum' \
   '-Wwrite-strings' \
 ; do
     AX_CHECK_COMPILE_FLAG([$flag],

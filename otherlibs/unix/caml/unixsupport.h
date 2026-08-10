@@ -43,7 +43,7 @@ struct filedescr {
     HANDLE handle;
     SOCKET socket;
   } fd;                   /* Real windows handle */
-  enum { KIND_HANDLE, KIND_SOCKET } kind;
+  enum CAMLenum_closed { KIND_HANDLE, KIND_SOCKET } kind;
 #ifdef __cplusplus
   std::
 #endif

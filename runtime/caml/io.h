@@ -46,7 +46,7 @@ struct channel {
   char * name;                  /* Optional name (to report fd leaks) */
 };
 
-enum {
+enum CAMLenum_closed CAMLflag_enum {
   CHANNEL_FLAG_FROM_SOCKET = 1,  /* For Windows */
   CHANNEL_FLAG_MANAGED_BY_GC = 4,  /* Free and close using GC finalization. */
   /* Note: For backwards-compatibility, channels without the flag

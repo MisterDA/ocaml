@@ -21,7 +21,7 @@
 #include "winlist.h"
 #include "windbug.h"
 
-typedef enum {
+typedef enum CAMLenum_closed {
   WORKER_CMD_NONE = 0,
   WORKER_CMD_EXEC,
   WORKER_CMD_STOP

@@ -44,7 +44,7 @@ static const int open_flag_table[15] = {
   0  /* O_KEEPEXEC, treated specially */
 };
 
-enum { CLOEXEC = 1, KEEPEXEC = 2 };
+enum CAMLenum_closed { CLOEXEC = 1, KEEPEXEC = 2 };
 
 static const int open_cloexec_table[15] = {
   0, 0, 0, 0, 0, 0, 0, 0,

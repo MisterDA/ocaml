@@ -84,7 +84,7 @@ On disk structure:
 ----------------------------------------------------------------
 */
 
-typedef enum { EV_RUNTIME, EV_USER } ev_category;
+typedef enum CAMLenum_closed { EV_RUNTIME, EV_USER } ev_category;
 
 /* These store state for the current ring buffers open for writing */
 static struct runtime_events_metadata_header *current_metadata = NULL;

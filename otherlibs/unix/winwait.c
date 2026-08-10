@@ -34,7 +34,7 @@ static value alloc_process_status(HANDLE pid, int status)
   CAMLreturn(res);
 }
 
-enum { CAML_WNOHANG = 1, CAML_WUNTRACED = 2 };
+enum CAMLenum_closed { CAML_WNOHANG = 1, CAML_WUNTRACED = 2 };
 
 static const int wait_flag_table[] = { CAML_WNOHANG, CAML_WUNTRACED };
 

@@ -486,7 +486,7 @@ static void prepare_for_ephe_sweeping (caml_domain_state *domain_state)
   }
 }
 
-enum mark_flag { MARK_DEFAULT, MARK_NO_FINISH };
+enum CAMLenum_closed mark_flag { MARK_DEFAULT, MARK_NO_FINISH };
 static intnat mark(intnat budget, enum mark_flag flag);
 
 // call this once after calling mark with MARK_NO_FINISH
@@ -1189,7 +1189,7 @@ update_major_slice_work(intnat howmuch,
 
 #define Chunk_size 0x4000
 
-typedef enum {
+typedef enum CAMLenum_closed {
   Slice_uninterruptible,
   Slice_interruptible,
   Slice_opportunistic
@@ -1833,7 +1833,7 @@ void caml_mark_roots_stw (int participant_count,
 
   static atomic_uintnat global_roots_status;
   /* The above atomic has one of the following values */
-  enum {
+  enum CAMLenum_closed {
     WAITING, /* The global roots have not yet been marked */
     MARKING, /* One domain is marking the global roots */
     MARKED   /* All global roots have been marked */

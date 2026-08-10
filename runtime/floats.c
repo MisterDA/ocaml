@@ -1206,7 +1206,7 @@ CAMLprim value caml_float_compare(value vf, value vg)
   return Val_int(caml_float_compare_unboxed(Double_val(vf),Double_val(vg)));
 }
 
-enum { FP_normal, FP_subnormal, FP_zero, FP_infinite, FP_nan };
+enum CAMLenum_closed { FP_normal, FP_subnormal, FP_zero, FP_infinite, FP_nan };
 
 value caml_classify_float_unboxed(double vd)
 {

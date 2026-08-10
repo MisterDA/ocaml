@@ -62,30 +62,39 @@ typedef uint16_t caml_ba_uint16;
 
 #define CAML_BA_MAX_NUM_DIMS 16
 
-enum caml_ba_kind {
-  CAML_BA_FLOAT32,             /* Single-precision floats */
-  CAML_BA_FLOAT64,             /* Double-precision floats */
-  CAML_BA_SINT8,               /* Signed 8-bit integers */
-  CAML_BA_UINT8,               /* Unsigned 8-bit integers */
-  CAML_BA_SINT16,              /* Signed 16-bit integers */
-  CAML_BA_UINT16,              /* Unsigned 16-bit integers */
-  CAML_BA_INT32,               /* Signed 32-bit integers */
-  CAML_BA_INT64,               /* Signed 64-bit integers */
-  CAML_BA_CAML_INT,            /* OCaml-style integers (signed 31 or 63 bits) */
-  CAML_BA_NATIVE_INT,        /* Platform-native long integers (32 or 64 bits) */
-  CAML_BA_COMPLEX32,           /* Single-precision complex */
-  CAML_BA_COMPLEX64,           /* Double-precision complex */
-  CAML_BA_CHAR,                /* Characters */
-  CAML_BA_FLOAT16,             /* Half-precision floats */
-  CAML_BA_FIRST_UNIMPLEMENTED_KIND,
+#define CAML_BA_KIND_ENTRY(name) name,
+enum CAMLenum_closed caml_ba_kind {
+#define CAML_BA_KIND(KIND)                                              \
+  KIND(CAML_BA_FLOAT32)        /* Single-precision floats */            \
+  KIND(CAML_BA_FLOAT64)        /* Double-precision floats */            \
+  KIND(CAML_BA_SINT8)          /* Signed 8-bit integers */              \
+  KIND(CAML_BA_UINT8)          /* Unsigned 8-bit integers */            \
+  KIND(CAML_BA_SINT16)         /* Signed 16-bit integers */             \
+  KIND(CAML_BA_UINT16)         /* Unsigned 16-bit integers */           \
+  KIND(CAML_BA_INT32)          /* Signed 32-bit integers */             \
+  KIND(CAML_BA_INT64)          /* Signed 64-bit integers */             \
+  KIND(CAML_BA_CAML_INT)     /* OCaml-style integers (signed 31 or 63 bits) */ \
+  KIND(CAML_BA_NATIVE_INT) /* Platform-native long integers (32 or 64 bits) */ \
+  KIND(CAML_BA_COMPLEX32)      /* Single-precision complex */           \
+  KIND(CAML_BA_COMPLEX64)      /* Double-precision complex */           \
+  KIND(CAML_BA_CHAR)           /* Characters */                         \
+  KIND(CAML_BA_FLOAT16)        /* Half-precision floats */
+  CAML_BA_KIND(CAML_BA_KIND_ENTRY)
 };
+#undef CAML_BA_KIND_ENTRY
+#define CAML_BA_KIND_N(name) +1
+enum CAMLenum_closed {
+  CAML_BA_FIRST_UNIMPLEMENTED_KIND = CAML_BA_KIND(CAML_BA_KIND_N)
+};
+#undef CAML_BA_KIND_N
+
 #define CAML_BA_KIND_MASK 0xFF /* Mask for kind in flags field */
 
 #define Caml_ba_kind_val(v) Int_val(v)
 
 #define Val_caml_ba_kind(k) Val_int(k)
 
-enum caml_ba_layout {
+enum CAMLenum_closed caml_ba_layout {
   CAML_BA_C_LAYOUT = 0,           /* Row major, indices start at 0 */
   CAML_BA_FORTRAN_LAYOUT = 0x100, /* Column major, indices start at 1 */
 };
@@ -96,14 +105,14 @@ enum caml_ba_layout {
 
 #define Val_caml_ba_layout(l) Val_int(l >> CAML_BA_LAYOUT_SHIFT)
 
-enum caml_ba_managed {
+enum CAMLenum_closed caml_ba_managed {
   CAML_BA_EXTERNAL = 0,        /* Data is not allocated by OCaml */
   CAML_BA_MANAGED = 0x200,     /* Data is allocated by OCaml */
   CAML_BA_MAPPED_FILE = 0x400, /* Data is a memory mapped file */
 };
 #define CAML_BA_MANAGED_MASK 0x600 /* Mask for "managed" bits in flags field */
 
-enum caml_ba_subarray {
+enum CAMLenum_closed caml_ba_subarray {
   CAML_BA_SUBARRAY = 0x800     /* Data is shared with another bigarray */
 };
 
