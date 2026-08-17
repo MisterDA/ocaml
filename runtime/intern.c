@@ -37,6 +37,7 @@
 #include "caml/reverse.h"
 #include "caml/shared_heap.h"
 #include "caml/signals.h"
+#include "caml/camlbit.h"
 
 /* Item on the stack with defined operation */
 struct intern_item {
@@ -347,10 +348,10 @@ static void readfloat(struct caml_intern_state* s,
   /* Fix up endianness, if needed */
 #if ARCH_FLOAT_ENDIANNESS == 0x76543210
   /* Host is big-endian; fix up if data read is little-endian */
-  if (code != CODE_DOUBLE_BIG) Reverse_64(dest, dest);
+  if (code != CODE_DOUBLE_BIG) stdc_memreverse8(8, (uint8_t *)dest);
 #elif ARCH_FLOAT_ENDIANNESS == 0x01234567
   /* Host is little-endian; fix up if data read is big-endian */
-  if (code != CODE_DOUBLE_LITTLE) Reverse_64(dest, dest);
+  if (code != CODE_DOUBLE_LITTLE) stdc_memreverse8(8, (uint8_t *)dest);
 #else
   /* Host is neither big nor little; permute as appropriate */
   if (code == CODE_DOUBLE_LITTLE)
@@ -374,13 +375,15 @@ static void readfloats(struct caml_intern_state* s,
   /* Host is big-endian; fix up if data read is little-endian */
   if (code != CODE_DOUBLE_ARRAY8_BIG &&
       code != CODE_DOUBLE_ARRAY32_BIG) {
-    for (mlsize_t i = 0; i < len; i++) Reverse_64(dest + i, dest + i);
+    for (mlsize_t i = 0; i < len; i++)
+      stdc_memreverse8(8, (uint8_t *)(dest + i));
   }
 #elif ARCH_FLOAT_ENDIANNESS == 0x01234567
   /* Host is little-endian; fix up if data read is big-endian */
   if (code != CODE_DOUBLE_ARRAY8_LITTLE &&
       code != CODE_DOUBLE_ARRAY32_LITTLE) {
-    for (mlsize_t i = 0; i < len; i++) Reverse_64(dest + i, dest + i);
+    for (mlsize_t i = 0; i < len; i++)
+      stdc_memreverse8(8, (uint8_t *)(dest + i));
   }
 #else
   /* Host is neither big nor little; permute as appropriate */

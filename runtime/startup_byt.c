@@ -60,6 +60,7 @@
 #include "caml/startup.h"
 #include "caml/startup_aux.h"
 #include "caml/version.h"
+#include "caml/camlbit.h"
 
 #include "build_config.h"
 
@@ -91,7 +92,7 @@ static void error(const char *msg, ...)
 static void fixup_endianness_trailer(uint32_t * p)
 {
 #ifndef ARCH_BIG_ENDIAN
-  Reverse_32(p, p);
+  stdc_memreverse8(4, (uint8_t *)p);
 #endif
 }
 

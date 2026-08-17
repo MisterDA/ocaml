@@ -85,6 +85,7 @@
 #undef HAS_LINUX_FUTEX_H
 
 #undef HAVE_STDBIT_H
+#undef HAVE_STDC_MEMREVERSE8
 
 /* 2. For the Unix library. */
 

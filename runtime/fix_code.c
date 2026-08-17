@@ -34,6 +34,7 @@
 #include "caml/misc.h"
 #include "caml/mlvalues.h"
 #include "caml/reverse.h"
+#include "caml/camlbit.h"
 
 code_t caml_start_code;
 asize_t caml_code_size;
@@ -71,7 +72,7 @@ void caml_fixup_endianness(code_t code, asize_t len)
 {
   len /= sizeof(opcode_t);
   for (code_t p = code; p < code + len; p++) {
-    Reverse_32(p, p);
+    stdc_memreverse8(4, p);
   }
 }
 
