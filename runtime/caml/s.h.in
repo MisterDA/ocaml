@@ -84,6 +84,8 @@
 
 #undef HAS_LINUX_FUTEX_H
 
+#undef HAVE_STDBIT_H
+
 /* 2. For the Unix library. */
 
 #undef HAS_SOCKETS

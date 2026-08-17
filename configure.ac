@@ -1419,6 +1419,8 @@ AC_SEARCH_LIBS([cos], [m],
 
 # Checks for header files
 
+AC_CHECK_HEADERS([stdbit.h])
+
 AC_CHECK_HEADER([libgen.h],[AC_DEFINE([HAS_LIBGEN_H], [1])])
 AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H], [1])])
 AC_CHECK_HEADER([dirent.h], [AC_DEFINE([HAS_DIRENT], [1])], [],

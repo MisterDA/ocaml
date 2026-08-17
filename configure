@@ -18265,6 +18265,14 @@ fi
 
 # Checks for header files
 
+ac_fn_c_check_header_compile "$LINENO" "stdbit.h" "ac_cv_header_stdbit_h" "$ac_includes_default"
+if test "x$ac_cv_header_stdbit_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_STDBIT_H 1" >>confdefs.h
+
+fi
+
+
 ac_fn_c_check_header_compile "$LINENO" "libgen.h" "ac_cv_header_libgen_h" "$ac_includes_default"
 if test "x$ac_cv_header_libgen_h" = xyes
 then :
