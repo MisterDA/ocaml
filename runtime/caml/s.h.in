@@ -86,6 +86,9 @@
 
 #undef HAVE_STDBIT_H
 #undef HAVE_STDC_MEMREVERSE8
+#undef HAVE_STDC_LOAD8_LEU16
+#undef HAVE_STDC_LOAD8_LEU32
+#undef HAVE_STDC_LOAD8_LEU64
 
 /* 2. For the Unix library. */
 

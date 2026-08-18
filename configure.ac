@@ -1419,7 +1419,9 @@ AC_SEARCH_LIBS([cos], [m],
 
 # Checks for header files
 
-AC_CHECK_HEADERS([stdbit.h], [AC_CHECK_FUNCS_ONCE(stdc_memreverse8)])
+AC_CHECK_HEADERS([stdbit.h],
+  [AC_CHECK_FUNCS_ONCE(stdc_memreverse8
+                       stdc_load8_leu16 stdc_load8_leu32 stdc_load8_leu64)])
 
 AC_CHECK_HEADER([libgen.h],[AC_DEFINE([HAS_LIBGEN_H], [1])])
 AC_CHECK_HEADER([pthread_np.h],[AC_DEFINE([HAS_PTHREAD_NP_H], [1])])

@@ -3213,6 +3213,9 @@ as_fn_append ac_header_c_list " sys/stat.h sys_stat_h HAVE_SYS_STAT_H"
 as_fn_append ac_header_c_list " sys/types.h sys_types_h HAVE_SYS_TYPES_H"
 as_fn_append ac_header_c_list " unistd.h unistd_h HAVE_UNISTD_H"
 as_fn_append ac_func_c_list " stdc_memreverse8 HAVE_STDC_MEMREVERSE8"
+as_fn_append ac_func_c_list " stdc_load8_leu16 HAVE_STDC_LOAD8_LEU16"
+as_fn_append ac_func_c_list " stdc_load8_leu32 HAVE_STDC_LOAD8_LEU32"
+as_fn_append ac_func_c_list " stdc_load8_leu64 HAVE_STDC_LOAD8_LEU64"
 as_fn_append ac_func_c_list " getlogin_r HAVE_GETLOGIN_R"
 as_fn_append ac_func_c_list " getgrnam_r HAVE_GETGRNAM_R"
 as_fn_append ac_func_c_list " getgrgid_r HAVE_GETGRGID_R"
@@ -18279,6 +18282,9 @@ do
     ac_func=$ac_item
   fi
 done
+
+
+
        for ac_header in stdbit.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "stdbit.h" "ac_cv_header_stdbit_h" "$ac_includes_default"
