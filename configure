@@ -3216,6 +3216,9 @@ as_fn_append ac_func_c_list " stdc_memreverse8 HAVE_STDC_MEMREVERSE8"
 as_fn_append ac_func_c_list " stdc_load8_leu16 HAVE_STDC_LOAD8_LEU16"
 as_fn_append ac_func_c_list " stdc_load8_leu32 HAVE_STDC_LOAD8_LEU32"
 as_fn_append ac_func_c_list " stdc_load8_leu64 HAVE_STDC_LOAD8_LEU64"
+as_fn_append ac_func_c_list " stdc_store8_leu16 HAVE_STDC_STORE8_LEU16"
+as_fn_append ac_func_c_list " stdc_store8_leu32 HAVE_STDC_STORE8_LEU32"
+as_fn_append ac_func_c_list " stdc_store8_leu64 HAVE_STDC_STORE8_LEU64"
 as_fn_append ac_func_c_list " getlogin_r HAVE_GETLOGIN_R"
 as_fn_append ac_func_c_list " getgrnam_r HAVE_GETGRNAM_R"
 as_fn_append ac_func_c_list " getgrgid_r HAVE_GETGRGID_R"
@@ -18282,6 +18285,9 @@ do
     ac_func=$ac_item
   fi
 done
+
+
+
 
 
 

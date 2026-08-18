@@ -76,5 +76,40 @@ stdc_load8_leu64(const unsigned char ptr[8])
 }
 #endif
 
+#ifndef HAVE_STDC_STORE8_LEU16
+static inline void
+stdc_store8_leu16(uint_least16_t value, unsigned char ptr[2])
+{
+  ptr[0] = value & 0xFFU;
+  ptr[1] = (value >> 8) & 0xFFU;
+}
+#endif
+
+#ifndef HAVE_STDC_STORE8_LEU32
+static inline void
+stdc_store8_leu32(uint_least32_t value, unsigned char ptr[4])
+{
+  ptr[0] = value & 0xFFU;
+  ptr[1] = (value >> 8) & 0xFFU;
+  ptr[2] = (value >> 16) & 0xFFU;
+  ptr[3] = (value >> 24) & 0xFFU;
+}
+#endif
+
+#ifndef HAVE_STDC_STORE8_LEU64
+static inline void
+stdc_store8_leu64(uint_least64_t value, unsigned char ptr[8])
+{
+  ptr[0] = value & 0xFFU;
+  ptr[1] = (value >> 8) & 0xFFU;
+  ptr[2] = (value >> 16) & 0xFFU;
+  ptr[3] = (value >> 24) & 0xFFU;
+  ptr[4] = (value >> 32) & 0xFFU;
+  ptr[5] = (value >> 40) & 0xFFU;
+  ptr[6] = (value >> 48) & 0xFFU;
+  ptr[7] = (value >> 56) & 0xFFU;
+}
+#endif
+
 #endif /* CAML_INTERNALS */
 #endif /* CAML_STDBIT_H */

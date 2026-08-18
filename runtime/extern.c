@@ -35,6 +35,7 @@
 #include "caml/mlvalues.h"
 #include "caml/reverse.h"
 #include "caml/shared_heap.h"
+#include "caml/camlbit.h"
 
 /* Flags affecting marshaling */
 
@@ -1195,10 +1196,13 @@ CAMLexport void caml_serialize_block_2(void * data, intnat len)
     grow_extern_output(s, 2 * len);
 #ifndef ARCH_BIG_ENDIAN
   {
-    unsigned char * p;
+    const unsigned char * p;
     char * q;
-    for (p = data, q = s->extern_ptr; len > 0; len--, p += 2, q += 2)
-      Reverse_16(q, p);
+    for (p = data, q = s->extern_ptr; len > 0; len--, p += 2, q += 2) {
+      uint16_t x;
+      memcpy(&x, p, 2);
+      stdc_store8_leu16(x, (uint8_t *)q);
+    }
     s->extern_ptr = q;
   }
 #else
@@ -1214,10 +1218,13 @@ CAMLexport void caml_serialize_block_4(void * data, intnat len)
     grow_extern_output(s, 4 * len);
 #ifndef ARCH_BIG_ENDIAN
   {
-    unsigned char * p;
+    const unsigned char * p;
     char * q;
-    for (p = data, q = s->extern_ptr; len > 0; len--, p += 4, q += 4)
-      Reverse_32(q, p);
+    for (p = data, q = s->extern_ptr; len > 0; len--, p += 4, q += 4) {
+      uint32_t x;
+      memcpy(&x, p, 4);
+      stdc_store8_leu32(x, (uint8_t *)q);
+    }
     s->extern_ptr = q;
   }
 #else
@@ -1233,10 +1240,13 @@ CAMLexport void caml_serialize_block_8(void * data, intnat len)
     grow_extern_output(s, 8 * len);
 #ifndef ARCH_BIG_ENDIAN
   {
-    unsigned char * p;
+    const unsigned char * p;
     char * q;
-    for (p = data, q = s->extern_ptr; len > 0; len--, p += 8, q += 8)
-      Reverse_64(q, p);
+    for (p = data, q = s->extern_ptr; len > 0; len--, p += 8, q += 8) {
+      uint64_t x;
+      memcpy(&x, p, 8);
+      stdc_store8_leu64(x, (uint8_t *)q);
+    }
     s->extern_ptr = q;
   }
 #else
@@ -1254,10 +1264,13 @@ CAMLexport void caml_serialize_block_float_8(void * data, intnat len)
   s->extern_ptr += len * 8;
 #elif ARCH_FLOAT_ENDIANNESS == 0x76543210
   {
-    unsigned char * p;
+    const unsigned char * p;
     char * q;
-    for (p = data, q = s->extern_ptr; len > 0; len--, p += 8, q += 8)
-      Reverse_64(q, p);
+    for (p = data, q = s->extern_ptr; len > 0; len--, p += 8, q += 8) {
+      uint64_t x;
+      memcpy(&x, p, 8);
+      stdc_store8_leu64(x, (uint8_t *)q);
+    }
     s->extern_ptr = q;
   }
 #else
