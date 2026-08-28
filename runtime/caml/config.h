@@ -253,14 +253,6 @@ typedef uintptr_t uintnat;
 /* Assumed size of cache line. This value can be bigger than the actual L1
    cache line size. Atomics allocated with aligned constructor are
    memory-aligned this value to avoid false sharing of cache line. */
-#if defined(TARGET_s390x)
-   #define Cache_line_bsize 256
-#elif defined(TARGET_arm64) || defined(TARGET_power)
-   #define Cache_line_bsize 128
-#elif defined(TARGET_amd64) || defined(TARGET_riscv)
-   #define Cache_line_bsize 64
-#elif (!defined(NATIVE_CODE))
-   #define Cache_line_bsize 64
-#endif
+#define Cache_line_bsize CAML_DESTRUCTIVE_SIZE
 
 #endif /* CAML_CONFIG_H */
