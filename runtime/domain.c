@@ -202,7 +202,7 @@ struct dom_internal {
 };
 typedef struct dom_internal dom_internal;
 
-static CAMLthread_local dom_internal* domain_self;
+static _Thread_local dom_internal* domain_self;
 
 static struct {
   /* enter barrier for STW sections, participating domains arrive into
