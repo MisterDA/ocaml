@@ -1781,6 +1781,10 @@ OCaml 5.4.0 (9 October 2025)
   tests that fail on mono-core systems.
   (Stéphane Glondu, review by Nicolás Ojeda Bär)
 
+- #12239: Add -source-tree and -build-tree options to ocamldep to
+  specify where to find dependencies and where to output a target.
+  (Antonin Décimo, review by Sébastien Hinderer, Nicolás Ojeda Bär)
+
 ### Manual and documentation:
 
 - #13751: Document support for profiling with Linux perf and frame pointers.
