@@ -95,6 +95,14 @@ Build () {
   fi
 }
 
+BuildCompilationDatabase () {
+  local failed
+  bear -- $MAKE_WARN || failed=$?
+  if ((failed)); then
+    exit $failed
+  fi
+}
+
 Test () {
   if [ "$1" = "sequential" ]; then
     echo Running the testsuite sequentially
@@ -340,6 +348,7 @@ CreateSwitch () {
 case $1 in
 configure) Configure;;
 build) Build;;
+build-compilation-database) BuildCompilationDatabase;;
 test) Test parallel;;
 test_sequential) Test sequential;;
 test_prefix) TestPrefix $2;;
