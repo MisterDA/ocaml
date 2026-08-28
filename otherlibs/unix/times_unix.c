@@ -60,7 +60,8 @@ CAMLprim value caml_unix_times(value unit)
   value res;
   struct tms buffer;
 
-  times(&buffer);
+  clock_t ret = times(&buffer);
+  if (ret == (clock_t) (-1)) caml_uerror("times", Nothing);
   res = caml_alloc_small(4 * Double_wosize, Double_array_tag);
   Store_double_flat_field(res, 0, (double) buffer.tms_utime / CLK_TCK);
   Store_double_flat_field(res, 1, (double) buffer.tms_stime / CLK_TCK);

@@ -1710,6 +1710,10 @@ OCaml 5.4.0 (9 October 2025)
   `.size` and `.type` directives and the `.note.GNU-stack` section
   (Samuel Hym, review by Miod Vallat, Antonin Décimo and Gabriel Scherer)
 
+- #?????: Fix caml_win32_clock overflowing if wall-clock time exceeds
+  24.8 days.
+  (Antonin Décimo, review by ???)
+
 ### Other libraries:
 
 * #13435: On Windows, use system calls for `Filename.get_temp_dir_name` instead
