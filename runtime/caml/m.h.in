@@ -91,3 +91,5 @@
 
 /* Define WITH_NONEXECSTACK_NOTE when an explicit ".note.GNU-stack" section
    is to be added to indicate the stack should not be executable */
+
+#undef CAML_DESTRUCTIVE_SIZE
