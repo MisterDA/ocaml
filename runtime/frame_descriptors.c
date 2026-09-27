@@ -304,8 +304,9 @@ void caml_register_frametables(void **table, int ntables) {
   for (int i = 0; i < ntables; i++)
     new_frametables = cons(table[i], new_frametables);
 
-  do {} while (!caml_try_run_on_all_domains(
-                 &stw_register_frametables, new_frametables, 0));
+  while (!caml_try_run_on_all_domains(
+           &stw_register_frametables, new_frametables, 0))
+    caml_wait_for_stw_end();
 }
 
 void caml_copy_and_register_frametables(
@@ -316,8 +317,9 @@ void caml_copy_and_register_frametables(
     new_frametables = copy_cons((intnat **)(table + i),
                                 sizes[i], new_frametables);
 
-  do {} while (!caml_try_run_on_all_domains(
-                 &stw_register_frametables, new_frametables, 0));
+  while (!caml_try_run_on_all_domains(
+           &stw_register_frametables, new_frametables, 0))
+    caml_wait_for_stw_end();
 }
 
 static void remove_frame_descriptors(

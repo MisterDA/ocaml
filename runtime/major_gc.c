@@ -2420,6 +2420,7 @@ mark_again:
     if (is_complete_phase_sweep_and_mark_main() ||
         is_complete_phase_mark_final ()) {
       CAMLassert (caml_gc_phase != Phase_sweep_ephe);
+      int tried = 1;
       if (barrier_participants) {
         stw_try_complete_gc_phase(
           domain_state,
@@ -2427,9 +2428,12 @@ mark_again:
           participant_count,
           barrier_participants);
       } else {
-        caml_try_run_on_all_domains (&stw_try_complete_gc_phase, 0, 0);
+        tried = caml_try_run_on_all_domains (&stw_try_complete_gc_phase, 0, 0);
       }
-      if (get_major_slice_work(mode) > 0) goto mark_again;
+      /* If another STW section was in progress, going back to marking
+         would only retry it straight away, as a failed attempt does not
+         use up the budget: leave that to the next slice. */
+      if (tried && get_major_slice_work(mode) > 0) goto mark_again;
     }
   }
 
@@ -2464,9 +2468,9 @@ mark_again:
         stw_try_cycle_all_domains
               (domain_state, (void*)&params,
                 participant_count, barrier_participants);
-      } else {
-        caml_try_run_on_all_domains
-              (&stw_try_cycle_all_domains, (void*)&params, 0);
+      } else if (!caml_try_run_on_all_domains
+                   (&stw_try_cycle_all_domains, (void*)&params, 0)) {
+        caml_wait_for_stw_end();
       }
     }
   }
@@ -2553,7 +2557,9 @@ void caml_finish_major_cycle (int force_compaction)
     params.force_compaction = force_compaction;
     params.saved_major_cycles = caml_major_cycles_completed;
 
-    caml_try_run_on_all_domains(&stw_finish_major_cycle, (void*)&params, 0);
+    if (!caml_try_run_on_all_domains(&stw_finish_major_cycle,
+                                     (void*)&params, 0))
+      caml_wait_for_stw_end();
   }
 }
 

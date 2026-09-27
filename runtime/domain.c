@@ -758,8 +758,9 @@ void caml_update_minor_heap_max(uintnat requested_wsz) {
               " to %" CAML_PRIuNAT ".",
               caml_minor_heap_max_wsz, requested_wsz);
   while (requested_wsz > caml_minor_heap_max_wsz) {
-    caml_try_run_on_all_domains(
-      &stw_resize_minor_heaps_reservation, (void*)requested_wsz, 0);
+    if (!caml_try_run_on_all_domains(
+          &stw_resize_minor_heaps_reservation, (void*)requested_wsz, 0))
+      caml_wait_for_stw_end();
   }
   check_minor_heap();
 }
@@ -1968,6 +1969,32 @@ int caml_try_run_on_all_domains_async(
                                                  handler,
                                                  data,
                                                  leader_setup, 0, 0);
+}
+
+/* Several callers retry [caml_try_run_on_all_domains*] in a loop until
+   they get to run their own STW section. Retrying while another section
+   is in progress cannot succeed, and it keeps a processor busy that the
+   domains still inside that section may need to finish their part of
+   it. When there are more runnable threads than processors, the OS may
+   not give it back to them for a long time: Windows always runs the
+   ready threads of highest dynamic priority, and the domains spinning
+   here were observed to keep a priority boost that the domain they
+   were waiting for did not have, holding every domain up for seconds
+   (#15042).
+
+   So wait for the section to end instead. The leader sends the
+   interrupts for a section while holding [all_domains_lock]. If,
+   holding the lock, we find a section in progress and no interrupt
+   pending, we have already done our part in it, and it can end without
+   us. A new section cannot start before this one ends, and we are woken
+   then, so we cannot hold up a later section either. */
+void caml_wait_for_stw_end(void)
+{
+  if (!atomic_load_acquire(&stw_leader)) return;
+  caml_plat_lock_blocking(&all_domains_lock);
+  if (atomic_load_acquire(&stw_leader) && !caml_incoming_interrupts_queued())
+    caml_plat_wait(&all_domains_cond, &all_domains_lock);
+  caml_plat_unlock(&all_domains_lock);
 }
 
 void caml_interrupt_self(void)

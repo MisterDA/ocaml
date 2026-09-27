@@ -153,6 +153,12 @@ int caml_try_run_on_all_domains(
   void*,
   void (*leader_setup)(caml_domain_state*, void *));
 
+/* To be called when one of the [caml_try_run_on_all_domains*] runners
+   has failed and is about to be retried: blocks until the STW section
+   in progress, if any, has ended. Returns early if this domain has an
+   interrupt to handle. */
+void caml_wait_for_stw_end(void);
+
 /* Function naming conventions for STW callbacks and STW critical sections.
 
    A "STW callback" is a callback passed to one of the

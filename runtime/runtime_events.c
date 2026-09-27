@@ -225,8 +225,9 @@ void caml_runtime_events_destroy(void) {
       preserve the file. */
     int remove_file = preserve_ring ? 0 : 1;
     do {
-      caml_try_run_on_all_domains(&stw_teardown_runtime_events,
-                                  &remove_file, NULL);
+      if (!caml_try_run_on_all_domains(&stw_teardown_runtime_events,
+                                       &remove_file, NULL))
+        caml_wait_for_stw_end();
     }
     while( atomic_load_acquire(&runtime_events_enabled) );
   }
@@ -447,7 +448,8 @@ static void stw_teardown_runtime_events(
 
 CAMLexport void caml_runtime_events_start(void) {
   while (!atomic_load_acquire(&runtime_events_enabled)) {
-    caml_try_run_on_all_domains(&stw_create_runtime_events, NULL, NULL);
+    if (!caml_try_run_on_all_domains(&stw_create_runtime_events, NULL, NULL))
+      caml_wait_for_stw_end();
   }
 }
 
