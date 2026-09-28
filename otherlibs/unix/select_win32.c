@@ -21,6 +21,7 @@
 #include <caml/signals.h>
 #include "winworker.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "windbug.h"
 #include "winlist.h"
 
@@ -310,19 +311,133 @@ static LPSELECTDATA select_data_job_search (LPSELECTDATA *lppSelectData,
 /*      Console        */
 /***********************/
 
+/* State of a console input buffer */
+typedef enum _CONSOLESTATUS {
+  CONSOLE_STATUS_ERROR = 0,
+  CONSOLE_STATUS_EMPTY,     /* No input event */
+  CONSOLE_STATUS_PENDING,   /* Input events, but reading would still block */
+  CONSOLE_STATUS_READY      /* Reading would not block */
+} CONSOLESTATUS;
+
+/* A key event that a read may take part in: a key press, or the release of
+ * Alt carrying a character that was pasted or composed with Alt+Numpad */
+static BOOL console_record_is_key(const INPUT_RECORD *lpRecord)
+{
+  return lpRecord->EventType == KEY_EVENT
+    && (lpRecord->Event.KeyEvent.bKeyDown
+        || (lpRecord->Event.KeyEvent.wVirtualKeyCode == VK_MENU
+            && lpRecord->Event.KeyEvent.uChar.UnicodeChar != 0));
+}
+
+static BOOL console_record_is_char(const INPUT_RECORD *lpRecord)
+{
+  return console_record_is_key(lpRecord)
+    && lpRecord->Event.KeyEvent.uChar.UnicodeChar != 0;
+}
+
+/* Inspect the input buffer of a console to find out whether a read would
+ * block.
+ * - In line input mode, a read only returns once a whole line has been
+ *   entered. Every key press may take part in line editing (arrows, history,
+ *   etc.), so only the events that are not key presses can be discarded.
+ * - Otherwise, a read returns as soon as a character is available and ignores
+ *   every other event, which can all be discarded.
+ * Ignored events are discarded so that they do not keep the console handle
+ * signaled.
+ */
+static CONSOLESTATUS read_console_status(HANDLE hConsole)
+{
+  DWORD         mode;
+  DWORD         nAvail;
+  DWORD         n;
+  DWORD         nDiscard;
+  DWORD         err;
+  BOOL          bLineInput;
+  BOOL          bOk;
+  PINPUT_RECORD lpRecords;
+  CONSOLESTATUS res;
+
+  if (!GetConsoleMode(hConsole, &mode))
+  {
+    return CONSOLE_STATUS_ERROR;
+  }
+  bLineInput = (mode & ENABLE_LINE_INPUT) != 0;
+
+  while (TRUE)
+  {
+    if (!GetNumberOfConsoleInputEvents(hConsole, &nAvail))
+    {
+      return CONSOLE_STATUS_ERROR;
+    }
+    if (nAvail == 0)
+    {
+      return CONSOLE_STATUS_EMPTY;
+    }
+
+    /* This runs outside of the OCaml runtime: do not use caml_stat_alloc */
+    lpRecords = (PINPUT_RECORD)malloc(sizeof(INPUT_RECORD) * nAvail);
+    if (lpRecords == NULL)
+    {
+      SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+      return CONSOLE_STATUS_ERROR;
+    }
+
+    n = 0;
+    nDiscard = 0;
+    bOk = PeekConsoleInputW(hConsole, lpRecords, nAvail, &n);
+    res = (n == 0 ? CONSOLE_STATUS_EMPTY : CONSOLE_STATUS_PENDING);
+    for (DWORD i = 0; bOk && i < n && res != CONSOLE_STATUS_READY; i++)
+    {
+      if (console_record_is_char(&lpRecords[i])
+          && (!bLineInput
+              || lpRecords[i].Event.KeyEvent.uChar.UnicodeChar == L'\r'))
+      {
+        res = CONSOLE_STATUS_READY;
+      }
+    }
+
+    if (bOk && res == CONSOLE_STATUS_PENDING)
+    {
+      /* Count the leading events that a read would ignore */
+      while (nDiscard < n
+             && (bLineInput
+                 ? !console_record_is_key(&lpRecords[nDiscard])
+                 : !console_record_is_char(&lpRecords[nDiscard])))
+      {
+        nDiscard++;
+      }
+      if (nDiscard > 0)
+      {
+        bOk = ReadConsoleInputW(hConsole, lpRecords, nDiscard, &n);
+      }
+    }
+
+    err = GetLastError();
+    free(lpRecords);
+    SetLastError(err);
+
+    if (!bOk)
+    {
+      return CONSOLE_STATUS_ERROR;
+    }
+    if (nDiscard == 0)
+    {
+      return res;
+    }
+    /* Some events were discarded, look at what remains */
+  }
+}
+
 static void read_console_poll(HANDLE hStop, void *_data)
 {
   HANDLE events[2];
-  INPUT_RECORD record;
   DWORD waitRes;
-  DWORD n;
+  BOOL bStopped;
   LPSELECTDATA  lpSelectData;
   LPSELECTQUERY lpQuery;
 
   DEBUG_PRINT("Waiting for data on console");
 
-  waitRes = 0;
-  n = 0;
   lpSelectData = (LPSELECTDATA)_data;
   lpQuery = &(lpSelectData->aQueries[0]);
 
@@ -333,48 +448,38 @@ static void read_console_poll(HANDLE hStop, void *_data)
   events[1] = hStop;
   while (lpSelectData->EState == SELECT_STATE_NONE)
   {
-    waitRes = WaitForMultipleObjects(2, events, FALSE, INFINITE);
-    if (waitRes == WAIT_OBJECT_0 + 1
-        || check_error(lpSelectData, waitRes == WAIT_FAILED))
+    switch (read_console_status(lpQuery->hFileDescr))
+    {
+      case CONSOLE_STATUS_ERROR:
+        check_error(lpSelectData, TRUE);
+        return;
+
+      case CONSOLE_STATUS_READY:
+        select_data_result_add(lpSelectData, lpQuery->EMode,
+                               lpQuery->hFileDescr);
+        lpSelectData->EState = SELECT_STATE_SIGNALED;
+        return;
+
+      case CONSOLE_STATUS_PENDING:
+        /* The console handle stays signaled as long as there are events in
+           the input buffer, so waiting for it would not block. Poll. */
+        waitRes = WaitForSingleObject(hStop, 10);
+        bStopped = (waitRes == WAIT_OBJECT_0);
+        break;
+
+      case CONSOLE_STATUS_EMPTY:
+      default:
+        waitRes = WaitForMultipleObjects(2, events, FALSE, INFINITE);
+        bStopped = (waitRes == WAIT_OBJECT_0 + 1);
+        break;
+    }
+
+    if (bStopped || check_error(lpSelectData, waitRes == WAIT_FAILED))
     {
       /* stop worker event or error */
       break;
     }
-    /* console event */
-    if (check_error(lpSelectData, PeekConsoleInputW(lpQuery->hFileDescr,
-                                                    &record, 1, &n)
-                    == 0))
-    {
-      break;
-    }
-    /* The input may have been read by someone else since the wait. Don't
-       look at an uninitialized record, and don't block in ReadConsoleInput
-       without watching the stop event. */
-    if (n == 0)
-    {
-      continue;
-    }
-    /* check for character keypress only */
-    if (record.EventType == KEY_EVENT &&
-      record.Event.KeyEvent.bKeyDown &&
-      record.Event.KeyEvent.uChar.UnicodeChar != 0)
-    {
-      select_data_result_add(lpSelectData, lpQuery->EMode,
-                             lpQuery->hFileDescr);
-      lpSelectData->EState = SELECT_STATE_SIGNALED;
-      break;
-    }
-    else
-    {
-      /* discard everything else and try again */
-      if (check_error(lpSelectData, ReadConsoleInputW(lpQuery->hFileDescr,
-                                                      &record, 1, &n)
-                      == 0))
-      {
-        break;
-      }
-    }
-  };
+  }
 }
 
 /* Add a function to monitor console input */
