@@ -158,13 +158,19 @@ typedef struct _SELECTDATA {
 
 typedef SELECTDATA *LPSELECTDATA;
 
-/* Get error status if associated condition is false */
+/* Get error status if associated condition is true. Only the first error is
+   recorded. */
 static BOOL check_error(LPSELECTDATA lpSelectData, BOOL bFailed)
 {
-  if (bFailed && lpSelectData->nError == 0)
+  if (bFailed && lpSelectData->EState != SELECT_STATE_ERROR)
   {
     lpSelectData->EState = SELECT_STATE_ERROR;
     lpSelectData->nError = GetLastError();
+    /* A failure must never be mistaken for a success */
+    if (lpSelectData->nError == 0)
+    {
+      lpSelectData->nError = ERROR_GEN_FAILURE;
+    }
   }
   return bFailed;
 }
