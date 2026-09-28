@@ -326,12 +326,15 @@ static void read_console_poll(HANDLE hStop, void *_data)
   lpSelectData = (LPSELECTDATA)_data;
   lpQuery = &(lpSelectData->aQueries[0]);
 
-  events[0] = hStop;
-  events[1] = lpQuery->hFileDescr;
+  /* WaitForMultipleObjects reports the signaled handle with the lowest index:
+     put the console first, so that a stop request sent right away (when there
+     are static results) does not hide input that is already available. */
+  events[0] = lpQuery->hFileDescr;
+  events[1] = hStop;
   while (lpSelectData->EState == SELECT_STATE_NONE)
   {
     waitRes = WaitForMultipleObjects(2, events, FALSE, INFINITE);
-    if (waitRes == WAIT_OBJECT_0
+    if (waitRes == WAIT_OBJECT_0 + 1
         || check_error(lpSelectData, waitRes == WAIT_FAILED))
     {
       /* stop worker event or error */
