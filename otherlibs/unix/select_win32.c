@@ -983,7 +983,8 @@ static BOOL select_data_dispatch (LPSELECTDATA *lppSelectData,
 
     case SELECT_HANDLE_PIPE:
       DEBUG_PRINT("Handle %x is a pipe handle", hFileDescr);
-      /* Console is always ready in write operation, need to check for read. */
+      /* Pipe is considered always ready in write operation, need to check for
+         read. */
       if (EMode == SELECT_MODE_READ)
       {
         DEBUG_PRINT("Need to check availability of data on pipe");
@@ -1004,7 +1005,7 @@ static BOOL select_data_dispatch (LPSELECTDATA *lppSelectData,
         if (WSAGetLastError() == WSAEINVAL)
         {
           /* Socket is not bound */
-          DEBUG_PRINT("Socket is not connected");
+          DEBUG_PRINT("Socket is not bound");
           if (EMode == SELECT_MODE_WRITE || EMode == SELECT_MODE_READ)
           {
             res = static_poll_add(res, EMode, hFileDescr, uFlagsFd);
