@@ -347,6 +347,13 @@ static void read_console_poll(HANDLE hStop, void *_data)
     {
       break;
     }
+    /* The input may have been read by someone else since the wait. Don't
+       look at an uninitialized record, and don't block in ReadConsoleInput
+       without watching the stop event. */
+    if (n == 0)
+    {
+      continue;
+    }
     /* check for ASCII keypress only */
     if (record.EventType == KEY_EVENT &&
       record.Event.KeyEvent.bKeyDown &&
