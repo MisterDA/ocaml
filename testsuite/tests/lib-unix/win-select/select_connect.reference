@@ -1,4 +1,4 @@
-failed connect, except only: read=no write=no except=no
-failed connect, write and except: read=no write=yes except=no
+failed connect, except only: read=no write=no except=yes
+failed connect, write and except: read=no write=yes except=yes
 full send buffer: read=no write=no except=no
 connected, except only: read=no write=no except=no

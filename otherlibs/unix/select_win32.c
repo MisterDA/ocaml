@@ -641,7 +641,7 @@ static DWORD socket_poll_results (LPSELECTDATA lpSelectData, HANDLE *aEvents)
                              iterQuery->hFileDescr);
       nResults++;
     }
-    /* Report a failed connection as writable like POSIX does */
+    /* Report a failed connection as writable like POSIX does... */
     if ((iterQuery->EMode & SELECT_MODE_WRITE) != 0
         && ((events.lNetworkEvents & (FD_WRITE | FD_CLOSE)) != 0
             || bConnectFailed))
@@ -650,8 +650,9 @@ static DWORD socket_poll_results (LPSELECTDATA lpSelectData, HANDLE *aEvents)
                              iterQuery->hFileDescr);
       nResults++;
     }
+    /* ... and as exceptional like Winsock's select does. */
     if ((iterQuery->EMode & SELECT_MODE_EXCEPT) != 0
-        && (events.lNetworkEvents & FD_OOB) != 0)
+        && ((events.lNetworkEvents & FD_OOB) != 0 || bConnectFailed))
     {
       select_data_result_add(lpSelectData, SELECT_MODE_EXCEPT,
                              iterQuery->hFileDescr);
@@ -698,7 +699,7 @@ static void socket_poll (HANDLE hStop, void *_data)
     if ((mode & SELECT_MODE_EXCEPT) != 0)
     {
       DEBUG_PRINT("Polling exceptions for %d", iterQuery->hFileDescr);
-      maskEvents |= FD_OOB;
+      maskEvents |= FD_OOB | FD_CONNECT;
     }
 
     check_error(lpSelectData,
