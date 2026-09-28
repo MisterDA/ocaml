@@ -1175,6 +1175,20 @@ static value fdset_to_fdlist(value fdlist, fd_set *fdset)
 }
 
 
+/* Convert a timeout in seconds to milliseconds, a negative timeout being
+   infinite */
+static DWORD select_timeout_msec(double tm_sec)
+{
+  double msec;
+
+  if (tm_sec < 0.0)
+  {
+    return INFINITE;
+  }
+  msec = tm_sec * MSEC_PER_SEC;
+  return msec < INFINITE ? (DWORD) msec : INFINITE - 1;
+}
+
 CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
                                 value timeout_sec)
 {
@@ -1222,9 +1236,10 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
       && writefds == Val_emptylist
       && exceptfds == Val_emptylist) {
     DEBUG_PRINT("nothing to do");
-    if ( tm_sec > 0.0 ) {
+    tm_msec = select_timeout_msec(tm_sec);
+    if (tm_msec > 0) {
       caml_enter_blocking_section();
-      Sleep((DWORD) (tm_sec * MSEC_PER_SEC));
+      Sleep(tm_msec);
       caml_leave_blocking_section();
     }
     read_list = write_list = except_list = Val_emptylist;
@@ -1267,16 +1282,8 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
 
       hdsData = (HANDLE *)caml_stat_alloc(sizeof(HANDLE) * hdsMax);
 
-      if (tm_sec >= 0.0)
-        {
-          double msec = tm_sec * MSEC_PER_SEC;
-          tm_msec = msec < INFINITE ? (DWORD) msec : INFINITE - 1;
-          DEBUG_PRINT("Will wait %d ms", tm_msec);
-        }
-      else
-        {
-          tm_msec = INFINITE;
-        }
+      tm_msec = select_timeout_msec(tm_sec);
+      DEBUG_PRINT("Will wait %d ms", tm_msec);
 
       /* Create list of select data, based on the different list of fd
          to watch. Nothing may raise until the list is freed. */
