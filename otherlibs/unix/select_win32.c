@@ -1253,11 +1253,26 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
           err = ERROR_INVALID_HANDLE;
         }
 
+      /* Count the workers to run: the main thread waits for all of them at
+         once, which is limited to MAXIMUM_WAIT_OBJECTS handles. */
+      for (iterSelectData = lpSelectData; iterSelectData != NULL;
+           iterSelectData = LIST_NEXT(LPSELECTDATA, iterSelectData))
+        {
+          if (iterSelectData->funcWorker != NULL)
+            {
+              nEventsMax++;
+            }
+        }
+      if (err == 0 && nEventsMax > MAXIMUM_WAIT_OBJECTS)
+        {
+          DEBUG_PRINT("Too many workers required: %d", nEventsMax);
+          err = ERROR_INVALID_PARAMETER;
+        }
+
       if (err == 0)
         {
           /* Building the list of handle to wait for */
           DEBUG_PRINT("Building events done array");
-          nEventsMax = caml_win32_list_length((LPLIST)lpSelectData);
           lpEventsDone =
             (HANDLE *)caml_stat_alloc_noexc(sizeof(HANDLE) * nEventsMax);
           if (lpEventsDone == NULL && nEventsMax > 0)
