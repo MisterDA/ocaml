@@ -888,12 +888,14 @@ static SELECTHANDLETYPE get_handle_type(value fd)
   CAMLreturnT(SELECTHANDLETYPE, res);
 }
 
-/* Choose what to do with given data */
-static LPSELECTDATA select_data_dispatch (LPSELECTDATA lpSelectData,
-                                          SELECTMODE EMode,
-                                          value fd)
+/* Choose what to do with given data. Return FALSE if the handle cannot be
+   selected on. */
+static BOOL select_data_dispatch (LPSELECTDATA *lppSelectData,
+                                  SELECTMODE EMode,
+                                  value fd)
 {
   LPSELECTDATA    res;
+  BOOL            bSupported;
   HANDLE          hFileDescr;
   struct sockaddr sa;
   int             sa_len;
@@ -902,7 +904,8 @@ static LPSELECTDATA select_data_dispatch (LPSELECTDATA lpSelectData,
 
   CAMLparam1(fd);
 
-  res          = lpSelectData;
+  res          = *lppSelectData;
+  bSupported   = TRUE;
   hFileDescr   = Handle_val(fd);
   sa_len       = sizeof(sa);
   alreadyAdded = FALSE;
@@ -979,14 +982,47 @@ static LPSELECTDATA select_data_dispatch (LPSELECTDATA lpSelectData,
 
     default:
       DEBUG_PRINT("Handle %x is unknown", hFileDescr);
-      caml_win32_maperr(ERROR_INVALID_HANDLE);
-      caml_uerror("select", Nothing);
+      bSupported = FALSE;
       break;
   };
 
   DEBUG_PRINT("Finish dispatching handle %x", hFileDescr);
 
-  CAMLreturnT(LPSELECTDATA, res);
+  *lppSelectData = res;
+  CAMLreturnT(BOOL, bSupported);
+}
+
+/* Dispatch every descriptor of a list, ignoring duplicates. hds is used as
+   scratch space. Return FALSE if a handle cannot be selected on. */
+static BOOL select_data_dispatch_list (LPSELECTDATA *lppSelectData,
+                                       LPSELECTHANDLESET hds,
+                                       LPHANDLE hdsData, DWORD hdsMax,
+                                       value fdlist, SELECTMODE EMode)
+{
+  BOOL res;
+
+  CAMLparam1(fdlist);
+  CAMLlocal1(fd);
+
+  res = TRUE;
+  handle_set_init(hds, hdsData, hdsMax);
+  for (; res && fdlist != Val_emptylist; fdlist = Field(fdlist, 1))
+  {
+    fd = Field(fdlist, 0);
+    if (!handle_set_mem(hds, Handle_val(fd)))
+    {
+      handle_set_add(hds, Handle_val(fd));
+      res = select_data_dispatch(lppSelectData, EMode, fd);
+    }
+    else
+    {
+      DEBUG_PRINT("Discarding handle %x which is already monitored "
+                  "for mode %d", Handle_val(fd), EMode);
+    }
+  }
+  handle_set_reset(hds);
+
+  CAMLreturnT(BOOL, res);
 }
 
 static DWORD caml_list_length (value lst)
@@ -1133,8 +1169,7 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
   DWORD exceptfds_len;
 
   CAMLparam4 (readfds, writefds, exceptfds, timeout_sec);
-  CAMLlocal5 (read_list, write_list, except_list, res, l);
-  CAMLlocal1 (fd);
+  CAMLlocal4 (read_list, write_list, except_list, res);
 
   fd_set read, write, except;
   double tm_sec;
@@ -1205,159 +1240,123 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
           tm_msec = INFINITE;
         }
 
-
       /* Create list of select data, based on the different list of fd
-         to watch */
-      DEBUG_PRINT("Dispatch read fd");
-      handle_set_init(&hds, hdsData, hdsMax);
-      for (l = readfds; l != Val_emptylist; l = Field(l, 1))
+         to watch. Nothing may raise until the list is freed. */
+      DEBUG_PRINT("Dispatch fds");
+      if (!select_data_dispatch_list(&lpSelectData, &hds, hdsData, hdsMax,
+                                     readfds, SELECT_MODE_READ)
+          || !select_data_dispatch_list(&lpSelectData, &hds, hdsData, hdsMax,
+                                        writefds, SELECT_MODE_WRITE)
+          || !select_data_dispatch_list(&lpSelectData, &hds, hdsData, hdsMax,
+                                        exceptfds, SELECT_MODE_EXCEPT))
         {
-          fd = Field(l, 0);
-          if (!handle_set_mem(&hds, Handle_val(fd)))
+          err = ERROR_INVALID_HANDLE;
+        }
+
+      if (err == 0)
+        {
+          /* Building the list of handle to wait for */
+          DEBUG_PRINT("Building events done array");
+          nEventsMax = caml_win32_list_length((LPLIST)lpSelectData);
+          lpEventsDone =
+            (HANDLE *)caml_stat_alloc_noexc(sizeof(HANDLE) * nEventsMax);
+          if (lpEventsDone == NULL && nEventsMax > 0)
             {
-              handle_set_add(&hds, Handle_val(fd));
-              lpSelectData = select_data_dispatch(lpSelectData,
-                                                  SELECT_MODE_READ, fd);
-            }
-          else
-            {
-              DEBUG_PRINT("Discarding handle %x which is already monitor "
-                          "for read", Handle_val(fd));
+              err = ERROR_NOT_ENOUGH_MEMORY;
             }
         }
-      handle_set_reset(&hds);
 
-      DEBUG_PRINT("Dispatch write fd");
-      handle_set_init(&hds, hdsData, hdsMax);
-      for (l = writefds; l != Val_emptylist; l = Field(l, 1))
+      if (err == 0)
         {
-          fd = Field(l, 0);
-          if (!handle_set_mem(&hds, Handle_val(fd)))
+          iterSelectData = lpSelectData;
+          while (iterSelectData != NULL)
             {
-              handle_set_add(&hds, Handle_val(fd));
-              lpSelectData = select_data_dispatch(lpSelectData,
-                                                  SELECT_MODE_WRITE, fd);
-            }
-          else
-            {
-              DEBUG_PRINT("Discarding handle %x which is already monitor "
-                          "for write", Handle_val(fd));
-            }
-        }
-      handle_set_reset(&hds);
+              /* Check if it is static data. If this is the case, launch
+               * everything but don't wait for events. It helps to test if
+               * there are events on any other fd (which are not static),
+               * knowing that there is at least one result (the static data).
+               */
+              if (iterSelectData->EType == SELECT_TYPE_STATIC)
+                {
+                  hasStaticData = TRUE;
+                };
 
-      DEBUG_PRINT("Dispatch exceptional fd");
-      handle_set_init(&hds, hdsData, hdsMax);
-      for (l = exceptfds; l != Val_emptylist; l = Field(l, 1))
-        {
-          fd = Field(l, 0);
-          if (!handle_set_mem(&hds, Handle_val(fd)))
-            {
-              handle_set_add(&hds, Handle_val(fd));
-              lpSelectData = select_data_dispatch(lpSelectData,
-                                                  SELECT_MODE_EXCEPT, fd);
-            }
-          else
-            {
-              DEBUG_PRINT("Discarding handle %x which is already monitor "
-                          "for exceptional", Handle_val(fd));
-            }
-        }
-      handle_set_reset(&hds);
-
-      /* Building the list of handle to wait for */
-      DEBUG_PRINT("Building events done array");
-      nEventsMax   = caml_win32_list_length((LPLIST)lpSelectData);
-      nEventsCount = 0;
-      lpEventsDone = (HANDLE *)caml_stat_alloc(sizeof(HANDLE) * nEventsMax);
-
-      iterSelectData = lpSelectData;
-      while (iterSelectData != NULL)
-        {
-          /* Check if it is static data. If this is the case, launch everything
-           * but don't wait for events. It helps to test if there are events on
-           * any other fd (which are not static), knowing that there is at least
-           * one result (the static data).
-           */
-          if (iterSelectData->EType == SELECT_TYPE_STATIC)
-            {
-              hasStaticData = TRUE;
+              /* Execute APC */
+              if (iterSelectData->funcWorker != NULL)
+                {
+                  iterSelectData->lpWorker =
+                    caml_win32_worker_job_submit(iterSelectData->funcWorker,
+                                                 (void *)iterSelectData);
+                  DEBUG_PRINT("Job submitted to worker %x",
+                              iterSelectData->lpWorker);
+                  lpEventsDone[nEventsCount]
+                    = caml_win32_worker_job_event_done(
+                        iterSelectData->lpWorker);
+                  nEventsCount++;
+                };
+              iterSelectData = LIST_NEXT(LPSELECTDATA, iterSelectData);
             };
 
-          /* Execute APC */
-          if (iterSelectData->funcWorker != NULL)
-            {
-              iterSelectData->lpWorker =
-                caml_win32_worker_job_submit(iterSelectData->funcWorker,
-                                             (void *)iterSelectData);
-              DEBUG_PRINT("Job submitted to worker %x",
-                          iterSelectData->lpWorker);
-              lpEventsDone[nEventsCount]
-                = caml_win32_worker_job_event_done(iterSelectData->lpWorker);
-              nEventsCount++;
-            };
-          iterSelectData = LIST_NEXT(LPSELECTDATA, iterSelectData);
-        };
+          DEBUG_PRINT("Need to watch %d workers", nEventsCount);
 
-      DEBUG_PRINT("Need to watch %d workers", nEventsCount);
-
-      /* Processing select itself */
-      caml_enter_blocking_section();
-      /* There are worker started, waiting to be monitored */
-      if (nEventsCount > 0)
-        {
-          /* Waiting for event */
-          if (err == 0 && !hasStaticData)
+          /* Processing select itself */
+          caml_enter_blocking_section();
+          /* There are worker started, waiting to be monitored */
+          if (nEventsCount > 0)
             {
-              DEBUG_PRINT("Waiting for one select worker to be done");
-              switch (WaitForMultipleObjects(nEventsCount, lpEventsDone, FALSE,
-                                             tm_msec))
+              /* Waiting for event */
+              if (!hasStaticData)
+                {
+                  DEBUG_PRINT("Waiting for one select worker to be done");
+                  switch (WaitForMultipleObjects(nEventsCount, lpEventsDone,
+                                                 FALSE, tm_msec))
+                    {
+                    case WAIT_FAILED:
+                      err = GetLastError();
+                      break;
+
+                    case WAIT_TIMEOUT:
+                      DEBUG_PRINT("Select timeout");
+                      break;
+
+                    default:
+                      DEBUG_PRINT("One worker is done");
+                      break;
+                    };
+                }
+
+              /* Ordering stop to every worker */
+              DEBUG_PRINT("Sending stop signal to every select workers");
+              iterSelectData = lpSelectData;
+              while (iterSelectData != NULL)
+                {
+                  if (iterSelectData->lpWorker != NULL)
+                    {
+                      caml_win32_worker_job_stop(iterSelectData->lpWorker);
+                    };
+                  iterSelectData = LIST_NEXT(LPSELECTDATA, iterSelectData);
+                };
+
+              DEBUG_PRINT("Waiting for every select worker to be done");
+              switch (WaitForMultipleObjects(nEventsCount, lpEventsDone, TRUE,
+                                             INFINITE))
                 {
                 case WAIT_FAILED:
                   err = GetLastError();
                   break;
 
-                case WAIT_TIMEOUT:
-                  DEBUG_PRINT("Select timeout");
-                  break;
-
                 default:
-                  DEBUG_PRINT("One worker is done");
+                  DEBUG_PRINT("Every worker is done");
                   break;
-                };
+                }
             }
-
-          /* Ordering stop to every worker */
-          DEBUG_PRINT("Sending stop signal to every select workers");
-          iterSelectData = lpSelectData;
-          while (iterSelectData != NULL)
+          /* Nothing to monitor but some time to wait. */
+          else if (!hasStaticData)
             {
-              if (iterSelectData->lpWorker != NULL)
-                {
-                  caml_win32_worker_job_stop(iterSelectData->lpWorker);
-                };
-              iterSelectData = LIST_NEXT(LPSELECTDATA, iterSelectData);
-            };
-
-          DEBUG_PRINT("Waiting for every select worker to be done");
-          switch (WaitForMultipleObjects(nEventsCount, lpEventsDone, TRUE,
-                                         INFINITE))
-            {
-            case WAIT_FAILED:
-              err = GetLastError();
-              break;
-
-            default:
-              DEBUG_PRINT("Every worker is done");
-              break;
+              Sleep(tm_msec);
             }
+          caml_leave_blocking_section();
         }
-      /* Nothing to monitor but some time to wait. */
-      else if (!hasStaticData)
-        {
-          Sleep(tm_msec);
-        }
-      caml_leave_blocking_section();
 
       DEBUG_PRINT("Error status: %d (0 is ok)", err);
       /* Build results */
