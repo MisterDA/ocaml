@@ -341,8 +341,8 @@ static void read_console_poll(HANDLE hStop, void *_data)
       break;
     }
     /* console event */
-    if (check_error(lpSelectData, PeekConsoleInput(lpQuery->hFileDescr,
-                                                   &record, 1, &n)
+    if (check_error(lpSelectData, PeekConsoleInputW(lpQuery->hFileDescr,
+                                                    &record, 1, &n)
                     == 0))
     {
       break;
@@ -354,10 +354,10 @@ static void read_console_poll(HANDLE hStop, void *_data)
     {
       continue;
     }
-    /* check for ASCII keypress only */
+    /* check for character keypress only */
     if (record.EventType == KEY_EVENT &&
       record.Event.KeyEvent.bKeyDown &&
-      record.Event.KeyEvent.uChar.AsciiChar != 0)
+      record.Event.KeyEvent.uChar.UnicodeChar != 0)
     {
       select_data_result_add(lpSelectData, lpQuery->EMode,
                              lpQuery->hFileDescr);
@@ -367,8 +367,8 @@ static void read_console_poll(HANDLE hStop, void *_data)
     else
     {
       /* discard everything else and try again */
-      if (check_error(lpSelectData, ReadConsoleInput(lpQuery->hFileDescr,
-                                                     &record, 1, &n)
+      if (check_error(lpSelectData, ReadConsoleInputW(lpQuery->hFileDescr,
+                                                      &record, 1, &n)
                       == 0))
       {
         break;
