@@ -599,6 +599,69 @@ static LPSELECTDATA read_pipe_poll_add (LPSELECTDATA lpSelectData,
 /*       Socket        */
 /***********************/
 
+/* Collect the results of the queries whose event is signaled. Return the
+   number of results that were added. */
+static DWORD socket_poll_results (LPSELECTDATA lpSelectData, HANDLE *aEvents)
+{
+  LPSELECTQUERY    iterQuery;
+  WSANETWORKEVENTS events;
+  BOOL             bConnectFailed;
+  DWORD            nResults;
+
+  nResults = 0;
+  for (DWORD i = 0; i < lpSelectData->nQueriesCount; i++)
+  {
+    iterQuery = &(lpSelectData->aQueries[i]);
+    if (WaitForSingleObject(aEvents[i], 0) != WAIT_OBJECT_0)
+    {
+      continue;
+    }
+
+    DEBUG_PRINT("Socket %d has pending events", i);
+    /* Find out what kind of events were raised. This also resets the event
+       object, and each network event is recorded again only once it has been
+       re-enabled (e.g. by a call to recv for FD_READ). */
+    if (check_error(lpSelectData,
+          WSAEnumNetworkEvents((SOCKET)(iterQuery->hFileDescr),
+                               aEvents[i], &events) != 0))
+    {
+      break;
+    }
+
+    /* FD_CONNECT is also raised when the socket is already connected at the
+       time of WSAEventSelect: only a failed connection attempt is a result. A
+       successful one raises FD_WRITE. */
+    bConnectFailed = (events.lNetworkEvents & FD_CONNECT) != 0
+                     && events.iErrorCode[FD_CONNECT_BIT] != 0;
+
+    if ((iterQuery->EMode & SELECT_MODE_READ) != 0
+        && (events.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE)) != 0)
+    {
+      select_data_result_add(lpSelectData, SELECT_MODE_READ,
+                             iterQuery->hFileDescr);
+      nResults++;
+    }
+    /* Report a failed connection as writable like POSIX does */
+    if ((iterQuery->EMode & SELECT_MODE_WRITE) != 0
+        && ((events.lNetworkEvents & (FD_WRITE | FD_CLOSE)) != 0
+            || bConnectFailed))
+    {
+      select_data_result_add(lpSelectData, SELECT_MODE_WRITE,
+                             iterQuery->hFileDescr);
+      nResults++;
+    }
+    if ((iterQuery->EMode & SELECT_MODE_EXCEPT) != 0
+        && (events.lNetworkEvents & FD_OOB) != 0)
+    {
+      select_data_result_add(lpSelectData, SELECT_MODE_EXCEPT,
+                             iterQuery->hFileDescr);
+      nResults++;
+    }
+  }
+
+  return nResults;
+}
+
 /* Monitor socket */
 static void socket_poll (HANDLE hStop, void *_data)
 {
@@ -607,11 +670,10 @@ static void socket_poll (HANDLE hStop, void *_data)
   /* One event per query, plus hStop */
   HANDLE           aEvents[MAXIMUM_SELECT_OBJECTS + 1];
   DWORD            nEvents;
+  DWORD            waitRes;
   long             maskEvents;
   u_long           iMode;
   SELECTMODE       mode;
-  WSANETWORKEVENTS events;
-  BOOL             bCollectResults;
 
   lpSelectData = (LPSELECTDATA)_data;
 
@@ -650,52 +712,27 @@ static void socket_poll (HANDLE hStop, void *_data)
   aEvents[nEvents]  = hStop;
   nEvents++;
 
-  if (lpSelectData->nError == 0)
+  /* Some network events do not yield any result (see socket_poll_results):
+     keep waiting until there is a result, an error, or a stop request. */
+  while (lpSelectData->nError == 0)
   {
-    check_error(lpSelectData,
-        WaitForMultipleObjects(
-          nEvents,
-          aEvents,
-          FALSE,
-          INFINITE) == WAIT_FAILED);
-  };
+    waitRes = WaitForMultipleObjects(nEvents, aEvents, FALSE, INFINITE);
+    if (check_error(lpSelectData, waitRes == WAIT_FAILED))
+    {
+      break;
+    }
+    if (socket_poll_results(lpSelectData, aEvents) > 0
+        || waitRes == WAIT_OBJECT_0 + nEvents - 1)
+    {
+      break;
+    }
+  }
 
-  /* Results are only meaningful if nothing failed so far, but the events and
-     the WSAEventSelect associations must be released in every case. */
-  bCollectResults = (lpSelectData->nError == 0);
-
+  /* The events and the WSAEventSelect associations must be released in every
+     case. */
   for (DWORD i = 0; i < lpSelectData->nQueriesCount; i++)
   {
     iterQuery = &(lpSelectData->aQueries[i]);
-    if (bCollectResults && WaitForSingleObject(aEvents[i], 0) == WAIT_OBJECT_0)
-    {
-      DEBUG_PRINT("Socket %d has pending events", (i - 1));
-      /* Find out what kind of events were raised
-       */
-      if (WSAEnumNetworkEvents((SOCKET)(iterQuery->hFileDescr),
-                               aEvents[i], &events) == 0)
-      {
-        if ((iterQuery->EMode & SELECT_MODE_READ) != 0
-            && (events.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE)) != 0)
-        {
-          select_data_result_add(lpSelectData, SELECT_MODE_READ,
-                                 iterQuery->hFileDescr);
-        }
-        if ((iterQuery->EMode & SELECT_MODE_WRITE) != 0
-            && (events.lNetworkEvents & (FD_WRITE | FD_CONNECT | FD_CLOSE))
-               != 0)
-        {
-          select_data_result_add(lpSelectData, SELECT_MODE_WRITE,
-                                 iterQuery->hFileDescr);
-        }
-        if ((iterQuery->EMode & SELECT_MODE_EXCEPT) != 0
-            && (events.lNetworkEvents & FD_OOB) != 0)
-        {
-          select_data_result_add(lpSelectData, SELECT_MODE_EXCEPT,
-                                 iterQuery->hFileDescr);
-        }
-      }
-    }
 
     if (aEvents[i] == NULL)
     {
