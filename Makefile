@@ -437,9 +437,11 @@ beforedepend:: utils/config_main.mli utils/config_boot.mli
 $(addprefix compilerlibs/ocamlcommon., cma cmxa): \
   OC_COMMON_LINKFLAGS += -linkall
 
+# Pass all of ZSTD_LIBS with -cclib, so that the linker gets them in order and
+# after the objects: this lets static archives and flags such as
+# -Wl,-Bstatic work.
 COMPRESSED_MARSHALING_FLAGS=-cclib -lcomprmarsh \
-           $(patsubst %, -ccopt %, $(filter-out -l%,$(ZSTD_LIBS))) \
-           $(patsubst %, -cclib %, $(filter -l%,$(ZSTD_LIBS))) \
+           $(addprefix -cclib ,$(ZSTD_LIBS))
 
 compilerlibs/ocamlcommon.cmxa: \
   OC_NATIVE_LINKFLAGS += $(COMPRESSED_MARSHALING_FLAGS)
